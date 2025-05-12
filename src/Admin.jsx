@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import {  useNavigate } from 'react-router-dom'
+import {  Outlet, useNavigate } from 'react-router-dom'
 import Sidebar from './Component/AdminDashboardComponent/Sidebar'
 import { jwtDecode } from 'jwt-decode'
 import AdminDashboard from './Component/AdminDashboardComponent/AdminDashboard'
@@ -28,7 +28,7 @@ function Admin() {
         <>
             <div className='w-full h-auto flex'>
                 <Sidebar />
-                <AdminDashboard/>
+                <Outlet/>
             </div>
         </>
     )
