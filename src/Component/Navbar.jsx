@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaUser,
   FaSearch,
@@ -15,14 +15,31 @@ import shipping from "../assets/shipping.png";
 import icon1 from "../assets/Icon1.png";
 import icon2 from "../assets/icon2.png";
 import { useCart } from "../context/CartContext";
-import { useNavigate,Link} from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
 const Navbar = () => {
   const [openDropdown, setOpenDropdown] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [location, setLocation] = useState("Delhi, India");
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const { uniqueItems, cartItems } = useCart();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded);
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        localStorage.removeItem('token');
+        setUser(null);
+      }
+    }
+  }, []);
 
   const navItems = [
     {
@@ -158,13 +175,30 @@ const Navbar = () => {
               {/* Divider */}
               <div className="w-px h-6 bg-gray-300"></div>
 
-              {/* User Icon */}
-              <div 
-                className="bg-gray-100 p-3 rounded-full cursor-pointer"
-                onClick={() => navigate('/profile')}
-              >
-                <img src={icon2} className="w-5 h-5" alt="User" />
-              </div>
+              {/* User Icon or Auth Buttons */}
+              {user ? (
+                <div 
+                  className="bg-gray-100 p-3 rounded-full cursor-pointer"
+                  onClick={() => navigate('/profile')}
+                >
+                  <img src={icon2} className="w-5 h-5" alt="User" />
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => navigate('/login')}
+                    className="px-4 py-2 text-sm font-medium bg-[#1E3473] text-white rounded-full hover:bg-[#F7941D] cursor-pointer"
+                  >
+                    Login
+                  </button>
+                  <button 
+                    onClick={() => navigate('/signup')}
+                    className="px-4 py-2 text-sm font-medium bg-[#1E3473] text-white rounded-full hover:bg-[#F7941D] cursor-pointer"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              )}
             </div>
             <div className="lg:hidden">
               <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
