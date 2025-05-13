@@ -1,7 +1,7 @@
 import React from 'react';
 import upperline from '../assets/Line81.png';
 import footerbg from '../assets/footerbg.png';
-import logobottom from '../assets/footerlogo.png';
+import logobottom from '../assets/footerlogo.svg';
  
 const Footer = () => {
   return (

@@ -124,11 +124,11 @@ const ProductSlider = ({ products = [] }) => {
           ))}
         </div>
 
-        <Link to="/product"
+        {/* <Link to="/product"
           className="lg:text-[16px] md:text-[13px] text-[10px]  text-[#333333] hover:text-black flex items-center"
         >
           View All Products <span className="ml-1">›</span>
-        </Link>
+        </Link> */}
       </div>
 
       {/* Products Grid */}
