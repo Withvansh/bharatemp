@@ -43,7 +43,7 @@ const App = () => {
           <Route path="/product/:id" element={<SingleProduct />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/thankyou" element={<Thanku />} />
+          <Route path="/thankyou/:id" element={<Thanku />} />
           <Route path="/profile" element={<Profile />} />
           
           {/* Authentication Routes */}
