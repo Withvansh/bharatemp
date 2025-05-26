@@ -27,7 +27,6 @@ import WholesaleBulkProductsOrders from './Component/AdminDashboardComponent/Who
 import AreaOfServices from './Component/AdminDashboardComponent/AreaOfServices/AreaOfServices.jsx'
 import InventoryManagement from './Component/AdminDashboardComponent/InventoryManagement/Inventory.jsx'
 import Invoice from './Component/AdminDashboardComponent/InvoiceComponents/Invoice.jsx'
-// import MyInvoices from './Components/UsersComponents/MyInvoices.jsx'
 import AllComplaintRaised from './Component/AdminDashboardComponent/ComplaintRaisedComponents/AllComplaintRaised.jsx'
 import ReturnRequest from './Component/AdminDashboardComponent/ReturnRequestComponents/ReturnRequest.jsx'
 import NewsUpdates from './Component/AdminDashboardComponent/NewsAndUpdatesComponents/NewsUpdates.jsx'
@@ -55,8 +54,6 @@ const App = () => {
           
           {/* dashboard */}
           <Route path='/admin-login' element={<AdminLogin />} />
-
-
           <Route path='/admin-dashboard' element={<Admin />}>
             <Route path='/admin-dashboard' element={<AdminDashboard />} />
             <Route path='/admin-dashboard/addproduct' element={<AddProduct />} />

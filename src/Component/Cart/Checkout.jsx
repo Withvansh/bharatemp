@@ -167,7 +167,8 @@ const Checkout = () => {
   };
 
   const validatePostalCode = (postalCode) => {
-    return /^[0-9]{6}$/.test(postalCode)
+    // Allow either 6 digits or empty (will be filled with default)
+    return !postalCode || /^[0-9]{6}$/.test(postalCode)
       ? null
       : "Please enter a valid 6-digit postal code";
   };
@@ -214,12 +215,26 @@ const Checkout = () => {
 
     try {
       const fullAddress = `${address.address}, ${address.city}, ${address.postalCode}`;
+      
+      // Get existing addresses
+      const currentAddresses = userData?.address || [];
+      let updatedAddresses;
+
+      if (editingAddressId !== null) {
+        // If editing, replace the address at that index
+        updatedAddresses = currentAddresses.map((addr, index) => 
+          index === editingAddressId ? fullAddress : addr
+        );
+      } else {
+        // If adding new, append to existing addresses
+        updatedAddresses = [...currentAddresses, fullAddress];
+      }
 
       const response = await axios.post(
         `${backend}/user/${userId}/update`,
         {
           user: {
-            address: fullAddress,
+            address: updatedAddresses,
           },
         },
         {
@@ -252,21 +267,60 @@ const Checkout = () => {
         const user = response.data.data.user;
         setUserData(user);
 
-        // If user has an address, add it to addresses
-        if (user.address) {
-          // Parse address components - assuming format "address, city, postalCode"
-          const addressParts = user.address
-            .split(",")
-            .map((part) => part.trim());
-          let addressObj = {
-            id: 1,
-            address: addressParts[0] || "",
-            city: addressParts.length > 1 ? addressParts[1] : "",
-            postalCode: addressParts.length > 2 ? addressParts[2] : "",
-            fullAddress: user.address,
-          };
+        // Handle addresses array
+        if (Array.isArray(user.address) && user.address.length > 0) {
+          const formattedAddresses = user.address.map((addr, index) => {
+            // First, try to extract postal code using regex (6 digits)
+            const postalCodeMatch = addr.match(/\b\d{6}\b/);
+            const postalCode = postalCodeMatch ? postalCodeMatch[0] : "";
 
-          setAddresses([addressObj]);
+            // Remove postal code from the string for further processing
+            let remainingAddress = addr.replace(postalCodeMatch ? postalCodeMatch[0] : "", "");
+            
+            // Split remaining address by commas
+            const parts = remainingAddress.split(",").map(part => part.trim()).filter(Boolean);
+
+            // Initialize address components
+            let streetAddress = "";
+            let city = "";
+
+            if (parts.length >= 2) {
+              // Last non-empty part before postal code is typically the city
+              city = parts[parts.length - 1];
+              // Everything else is the street address
+              streetAddress = parts.slice(0, -1).join(", ");
+            } else {
+              // If we don't have enough parts, use the whole string as street address
+              streetAddress = parts.join(", ");
+            }
+
+            // Clean up any trailing/leading commas and extra spaces
+            streetAddress = streetAddress.replace(/,\s*$/, "").trim();
+            city = city.replace(/,\s*$/, "").trim();
+
+            // If we still don't have a city but have a street address
+            if (!city && streetAddress) {
+              const addressParts = streetAddress.split(" ");
+              if (addressParts.length > 2) {
+                // Use the last part as city if it's not the postal code
+                const lastPart = addressParts[addressParts.length - 1];
+                if (lastPart !== postalCode) {
+                  city = lastPart;
+                  streetAddress = addressParts.slice(0, -1).join(" ");
+                }
+              }
+            }
+
+            return {
+              id: index + 1,
+              address: streetAddress || addr, // Fallback to full address if parsing fails
+              city: city || "City", // Provide default value
+              postalCode: postalCode || "000000", // Provide default value
+              fullAddress: addr, // Keep original full address
+            };
+          });
+
+          setAddresses(formattedAddresses);
           setSelectedAddressId(1);
           setShowAddForm(false);
         }
@@ -386,14 +440,37 @@ const Checkout = () => {
   };
 
   // Handle removing an address
-  const handleRemoveAddress = (id) => {
-    const updatedAddresses = addresses.filter((addr) => addr.id !== id);
+  const handleRemoveAddress = async (id) => {
+    try {
+      const updatedAddresses = addresses.filter((addr) => addr.id !== id);
+      setAddresses(updatedAddresses);
+      
+      if (id === selectedAddressId) {
+        setSelectedAddressId(
+          updatedAddresses.length > 0 ? updatedAddresses[0].id : null
+        );
+      }
 
-    setAddresses(updatedAddresses);
-    if (id === selectedAddressId) {
-      setSelectedAddressId(
-        updatedAddresses.length > 0 ? updatedAddresses[0].id : null
+      // Update the address array in the backend
+      const addressStrings = updatedAddresses.map(addr => addr.fullAddress);
+      await axios.post(
+        `${backend}/user/${userId}/update`,
+        {
+          user: {
+            address: addressStrings,
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
+
+      toast.success("Address removed successfully");
+    } catch (error) {
+      console.error("Error removing address:", error);
+      toast.error("Failed to remove address");
     }
   };
 
@@ -421,13 +498,8 @@ const Checkout = () => {
         (addr) => addr.id === selectedAddressId
       );
       
-      // Extract pincode from the address
-      const postalCode = selectedAddr.postalCode;
-      if (!postalCode || postalCode.length !== 6) {
-        toast.error("Invalid postal code");
-        setProcessingPayment(false);
-        return;
-      }
+      // Use default postal code if not available
+      const postalCode = selectedAddr.postalCode || "000000";
 
       // Calculate expected delivery date (3-4 days from now)
       const expectedDelivery = new Date();
@@ -452,12 +524,12 @@ const Checkout = () => {
         user_id: userId,
         products: orderItems,
         totalPrice: finalTotal,
-        shippingAddress: selectedAddr.address,
+        shippingAddress: selectedAddr.fullAddress,
         shippingCost: shippingFee,
         email: userData?.email,
         pincode: postalCode,
         name: userData ? `${userData.name}` : "",
-        city: selectedAddr.city,
+        city: selectedAddr.city || "City", // Provide default if missing
         expectedDelivery: expectedDelivery,
       };
 

@@ -13,7 +13,7 @@ const ProfilePage = () => {
     lastName: "",
     email: "",
     phone: "",
-    address: "",
+    address: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -79,14 +79,18 @@ const ProfilePage = () => {
             lastName: userData.lastName || (userData.name?.split(" ").length > 1 ? userData.name.split(" ")[1] : "") || "",
             email: userData.email || "",
             phone: userData.phone || userData.mobile || "",
-            address: userData.address || "",
+            address: Array.isArray(userData.address) ? userData.address : [],
           };
           
           setUser(formattedUserData);
           
           // Set form values
           Object.keys(formattedUserData).forEach(key => {
-            setValue(key, formattedUserData[key]);
+            if (key === 'address') {
+              setValue(key, formattedUserData[key].join('\n'));
+            } else {
+              setValue(key, formattedUserData[key]);
+            }
           });
         } else {
           setError("Failed to fetch user data");
@@ -122,15 +126,17 @@ const ProfilePage = () => {
         return;
       }
       
+      // Convert address string to array by splitting on newlines and filtering empty lines
+      const addressArray = data.address.split('\n').filter(addr => addr.trim());
+      
       // Prepare request body
       const requestBody = { 
         user: {
           firstName: data.firstName,
           lastName: data.lastName,
-          // Preserve existing email and phone since they're disabled in the form
           email: user.email,
           phone: user.phone,
-          address: data.address
+          address: addressArray
         }
       };
       
@@ -144,8 +150,11 @@ const ProfilePage = () => {
         const isSuccess = response.data.status === "Success";
         
         if (isSuccess) {
-          // Update user data locally
-          setUser(data);
+          // Update user data locally with the address array
+          setUser({
+            ...data,
+            address: addressArray
+          });
           setIsEditing(false);
           toast.success("Profile updated successfully!");
         } else {
@@ -157,7 +166,6 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error updating profile:", error);
       
-      // Simple error message handling
       let errorMessage = "Failed to update profile";
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
@@ -292,16 +300,18 @@ const ProfilePage = () => {
               <p className="text-xs text-gray-500 mt-1">Phone number cannot be edited</p>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-[16px] font-medium text-[#656565]">Address</label>
+              <label className="block text-[16px] font-medium text-[#656565]">Addresses (One per line)</label>
               <textarea
-                {...register("address", { required: "Address is required" })}
+                {...register("address", { required: "At least one address is required" })}
                 className="mt-1 w-full border border-[#E2E2E2] rounded-xl px-4 py-2 text-sm outline-none resize-none"
-                rows={3}
+                rows={5}
+                placeholder="Enter each address on a new line"
               />
               {errors.address && (
-                      <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>
-                    )}
-                  </div>
+                <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>
+              )}
+              <p className="text-xs text-gray-500 mt-1">Enter multiple addresses by putting each address on a new line</p>
+            </div>
                   
                   <div className="md:col-span-2 flex justify-end">
                     <button 
@@ -314,7 +324,7 @@ const ProfilePage = () => {
                   </div>
                 </form>
               ) : (
-                // Profile Data Display - Should show by default
+                // Profile Data Display
                 <div className="bg-[#FFFFFF] py-6 px-6 rounded-xl">
                   <div className="flex flex-col space-y-6">
                     {/* Name Section */}
@@ -343,8 +353,18 @@ const ProfilePage = () => {
                     
                     {/* Address Section */}
                     <div>
-                      <h4 className="text-[#1e3473] text-lg font-semibold mb-1">Address</h4>
-                      <p className="text-gray-800 bg-gray-50 p-3 rounded-lg min-h-[80px]">{user.address || "No address provided"}</p>
+                      <h4 className="text-[#1e3473] text-lg font-semibold mb-1">Addresses</h4>
+                      <div className="space-y-2">
+                        {user.address && user.address.length > 0 ? (
+                          user.address.map((addr, index) => (
+                            <p key={index} className="text-gray-800 bg-gray-50 p-3 rounded-lg">
+                              {addr}
+                            </p>
+                          ))
+                        ) : (
+                          <p className="text-gray-800 bg-gray-50 p-3 rounded-lg">No addresses provided</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
