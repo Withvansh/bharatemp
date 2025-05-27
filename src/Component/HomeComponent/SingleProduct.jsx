@@ -12,7 +12,8 @@ import shop from "../../assets/shop.png";
 import { useCart } from "../../context/CartContext";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
+import Section1 from "../HomeComponent/Section1";
+import { fetchProducts } from "../../utils/api";
 const backend = import.meta.env.VITE_BACKEND;
 
 // Bulk order pricing data
@@ -26,6 +27,7 @@ const bulkPriceData = [
 
 export default function ProductCard() {
   const [product, setProduct] = useState(null);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -81,6 +83,28 @@ export default function ProductCard() {
       window.scrollTo(0, 0);
     }
   }, [id]);
+
+
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    // Fetch products from the backend
+    const getProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchProducts();
+        setProducts(data);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch products. Please try again later.");
+        setLoading(false);
+        console.error("Error fetching products:", err);
+      }
+    };
+    
+    getProducts();
+  }, []);
 
   // Navigate back to products page
   const handleBack = () => {
@@ -557,6 +581,13 @@ export default function ProductCard() {
             </div>
           </div>
         </>
+      )}
+      {loading ? (
+        <div className="flex justify-center items-center py-10">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E3473]"></div>
+        </div>
+      ) : (
+        <Section1 products={products} />
       )}
     </div>
   );
