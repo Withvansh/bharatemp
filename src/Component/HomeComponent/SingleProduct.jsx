@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import Section1 from "../HomeComponent/Section1";
 import { fetchProducts } from "../../utils/api";
 import SideCart from './SideCart';
+import ProductDetailsModal from './ProductDetailsModal';
 const backend = import.meta.env.VITE_BACKEND;
 
 // Bulk order pricing data
@@ -40,6 +41,7 @@ export default function ProductCard() {
   });
   const [selectedBulkRange, setSelectedBulkRange] = useState(null);
   const [showCart, setShowCart] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
   const { addToCart, isInCart, getItemQuantity } = useCart();
@@ -442,7 +444,10 @@ export default function ProductCard() {
               increases in processor speed, multimedia performance, memory; and
               connectivity compared....
             </p>
-            <button className="bg-[#1e3473] text-white px-4 py-2 rounded-xl font-medium mb-4">
+            <button 
+              // onClick={() => setShowDetailsModal(true)}
+              className="bg-[#1e3473] text-white px-4 py-2 rounded-xl font-medium mb-4"
+            >
               More Details
             </button>
           </div>
@@ -589,6 +594,13 @@ export default function ProductCard() {
 
       {/* Add SideCart */}
       <SideCart isOpen={showCart} onClose={() => setShowCart(false)} />
+
+      {/* Add ProductDetailsModal */}
+      <ProductDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        product={product}
+      />
     </div>
   );
 }

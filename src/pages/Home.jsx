@@ -17,7 +17,7 @@ import image10 from "../assets/homepage10.png";
 import blue from "../assets/green.png";
 import top1 from '../assets/generator.png'
 import top2  from '../assets/top1.png'
-import cart1 from '../assets/cart4.png';
+import cart1 from '../assets/Cart4.png';
 import cart2 from '../assets/cart5.png';
 import cart3 from '../assets/cart6.png';
 // import InstagramCarousel from "../Component/HomeComponent/Instagram";
@@ -76,12 +76,7 @@ const ProductSlider = () => {
     image: top2,
     title: 'Raspberry Pi',
     version: '1.2.3',
-  },
-  {
-    image: top2,
-    title: 'Raspberry Pi',
-    version: '1.2.3',
-  },
+  }
 ];
 const features = [
     {
@@ -101,14 +96,14 @@ const features = [
   ];
 
   return (
-    <div className="px-4 md:px-10 py-10">
+    <div className="px-4 md:px-10 pt-6">
 {/* top section */}
         <div className=" py-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
         {cardData.map((card, index) => (
           <div
             key={index}
-            className="bg-[#F5F5F5] border-1 border-[#E0E0E0] rounded-4xl shadow px-3 flex flex-col md:flex-row items-center justify-between text-center"
+            className="bg-[#F5F5F5] border-1 border-[#E0E0E0] rounded-2xl shadow px-3 flex flex-col md:flex-row items-center justify-between text-center"
           >
            <div>
             <h2 className="text-lg font-semibold text-blue-900">{card.title}</h2>
@@ -176,66 +171,17 @@ const features = [
           <div className="  relative lg:w-[550px] md:w-[350px] w-[150px]  ">
             <img
               src={image7}
-              className=" object-contain rounded-2xlrelative z-40"
+              className=" object-contain rounded-2xl relative z-40"
             />
             <img 
               src={blue} 
-              className="absolute -top-24 -left-44 w-full h-[450px] z-10 " 
+              className="absolute -top-24 -left-44 w-full h-[480px] z-10 " 
             />
           </div>
         </div>
       </div>
 
-      {/* Bottom Categories */}
-      {/* <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-between items-center ">
-        <div className="flex-1 bg-[#E0E0E0] shadow-md rounded-xl p-4 flex items-center  gap-6 justify-between w-full relative">
-          <div className="text-sm h-[76px] ">
-            <span className="text-[#555555]">
-              CATCH BIG <span className="text-[#1E3473]">DEALS</span>ON
-            </span>
-            <br />
-            <span className="font-semibold text-[#555555]"> Drone Parts</span>
-          </div>
-
-          <img
-            src={image9}
-            className="w-[220px] md:h-[160px] lg:h-[190px] h-[120px] object-contain absolute md:right-6 -right-3 md:-top-14 -top-8"
-          />
-          <img src={icon4} className=" right w-8 h-5" />
-        </div>
-
-        <div className="flex-1 bg-[#E0E0E0] shadow-md rounded-xl p-4 flex items-center  gap-6 justify-between w-full relative">
-          <div className="text-sm h-[76px] ">
-            <span className="text-[#555555]">
-              CATCH BIG <span className="text-[#1E3473]">DEALS</span>ON
-            </span>
-            <br />
-            <span className="font-semibold text-[#555555]"> Drone Parts</span>
-          </div>
-
-          <img
-            src={image8}
-            className="w-[210px] lg:h-[180px] h-[120px] object-contain absolute md:right-6 right-4 lg:-top-12 -top-4"
-          />
-          <img src={icon4} className=" right w-8 h-5" />
-        </div>
-
-        <div className="flex-1 bg-[#E0E0E0] shadow-md rounded-xl p-4 flex items-center  gap-6 justify-between w-full relative">
-          <div className="text-sm h-[76px] ">
-            <span className="text-[#555555]">
-              CATCH BIG <span className="text-[#1E3473]">DEALS</span>ON
-            </span>
-            <br />
-            <span className="font-semibold text-[#555555]"> Drone Parts</span>
-          </div>
-
-          <img
-            src={image10}
-                className="w-[210px] lg:h-[150px] h-[120px] object-contain absolute md:right-6 right-4 lg:-top-10 -top-4"
-          />
-          <img src={icon4} className=" right w-8 h-5" />
-        </div>
-      </div> */}
+    
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10  py-6 ">
         {features.map((feature, index) => (
           <div
