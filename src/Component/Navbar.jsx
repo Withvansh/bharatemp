@@ -293,7 +293,7 @@ const Navbar = () => {
               </div>
 
               {showLocationDropdown && (
-                <div className="absolute z-10 mt-2 w-56 bg-white border border-gray-200 shadow-md rounded-md">
+                <div className="absolute z-40 mt-2 w-56 bg-white border border-gray-200 shadow-md rounded-md">
                   {locations.map((loc) => (
                     <div
                       key={loc}

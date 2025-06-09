@@ -38,7 +38,7 @@ const Footer = () => {
             <Link to="#" className="text-white p-3 border-2 border-transparent hover:border-white rounded-full transition-all duration-300 ease-in-out">
               <FaXTwitter  alt="Twitter" className="w-6 h-6" />
             </Link>
-            <Link to="#" className="text-white p-3 border-2 border-transparent hover:border-white rounded-full transition-all duration-300 ease-in-out">
+            <Link to="https://www.instagram.com/bharatronix?igsh=ZTY0enIzZHBhdHBy" className="text-white p-3 border-2 border-transparent hover:border-white rounded-full transition-all duration-300 ease-in-out">
               <img src={icon3} alt="Instagram" className="w-6 h-6" />
             </Link>
             <Link to="#" className="text-white p-3 border-2 border-transparent hover:border-white rounded-full transition-all duration-300 ease-in-out">
@@ -57,12 +57,12 @@ const Footer = () => {
         <div
           className="w-full md:w-[70%] px-4 md:px-6 py-6 md:py-8 text-white"
         >
-          <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-2 md:flex md:flex-row justify-between gap-4 md:gap-8">
+          <div className="grid lg:grid-cols-3 xl:grid-cols-4 md:grid-cols-2 grid-cols-2 md:flex md:flex-row justify-between gap-4 md:gap-8">
             {/* Column 1 */}
             <div className="mb-4 md:mb-0">
               <h3 className="mb-2 text-xs md:text-lg lg:text-base">Services </h3>
               <ul className="space-y-2 md:space-y-4 text-xs md:text-[12px] lg:text-[18px]">
-                <li>B2B</li>
+                <li >B2B</li>
                 <li>Manufacturing </li>
                 <li>Videos </li>
                 {/* <li>Trade program</li> */}
@@ -115,10 +115,10 @@ const Footer = () => {
             
               </ul>
               <div className='flex gap-2 mt-4'>
-                <img src={img1} alt="" className='w-20' />
-                <img src={img2} alt="" className='w-20' />
-                <img src={img3} alt="" className='w-20' />
-                <img src={img4} alt="" className='w-20' />
+                <img src={img1} alt="" className='w-16' />
+                <img src={img2} alt="" className='w-16' />
+                <img src={img3} alt="" className='w-16' />
+                <img src={img4} alt="" className='w-16' />
               </div>
             </div>
           </div>
