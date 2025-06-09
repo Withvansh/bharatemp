@@ -19,7 +19,7 @@ const PromoSection = () => {
                         <p className="text-[17px] font-medium ">From</p>
                         <p className="text-[30px] font-medium"> ₹399</p>
                     </div>
-                    <div className='w-1/2 '>
+                    <div className='w-full '>
                         <img
                             src={image7}
                             alt="Case BB-3"
@@ -30,7 +30,7 @@ const PromoSection = () => {
             </div>
             {/* Right Grid Cards */}
             <div className='md:w-1/2 w-full'>
-                <div className=" grid sm:grid-cols-2 gap-4 ">
+                <div className=" grid md:grid-cols-2 grid-cols-1 gap-4 ">
                     {/* Card 1 */}
                     <div className="bg-[#F6F6F6] rounded-2xl p-4 shadow-sm flex  justify-between relative">
                         <div >
