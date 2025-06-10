@@ -140,7 +140,7 @@ const ProductSlider = () => {
         </div>
 
 
-        <div className="bg-[#000127] w-full lg:h-[550px] h-auto lg:px-20 md:px-12 px-6 rounded-2xl p-6 flex flex-col lg:flex-row  gap-10 relative overflow-hidden ">
+        <div className="bg-[#000127] w-full xl:h-[550px] h-auto lg:px-20 md:px-12 px-6 rounded-2xl p-6 flex flex-col lg:flex-row  gap-10 relative overflow-hidden ">
           {/* Left: Text Section */}
           <div className="flex-1 md:w-1/2 w-full lg:text-left  pt-12">
             <h2 className="md:text-[33.12px] text-[20px] text-[#FFFFFF] font-semibold">
@@ -160,7 +160,7 @@ const ProductSlider = () => {
               </Link>
             </div>
             {/* Icons */}
-            <div className=" flex flex-col lg:flex-row  gap-6 pt-6  ">
+            <div className=" w-full flex flex-col xl:flex-row   gap-6 pt-6  ">
               <div className="flex items-center gap-2 font-[outfit]">
                 <img src={vector1} className="text-xl text-[#FFFFFF]" />
                 <div>
@@ -201,7 +201,7 @@ const ProductSlider = () => {
         </div>
 
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10  py-6 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10  py-6 ">
           {features.map((feature, index) => (
             <div
               key={index}
