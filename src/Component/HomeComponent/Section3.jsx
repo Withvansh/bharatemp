@@ -7,7 +7,7 @@ const PromoSection = () => {
     return (
         <div className=" w-full    py-10   flex flex-col lg:flex-row gap-6 ">
             {/* Left Main Card */}
-            <div className='md:w-1/2  w-full relative'>
+            <div className='lg:w-1/2  w-full relative'>
                 <div className="lg:col-span-1 bg-[#1e293b] rounded-2xl text-white flex  justify-between p-6 h-[390px] ">
                     <div className='md:w-1/2 w-full'>
                         <p className="text-[23.13px] mb-2">Rasberry Pie</p>
@@ -29,7 +29,7 @@ const PromoSection = () => {
                 </div>
             </div>
             {/* Right Grid Cards */}
-            <div className='md:w-1/2 w-full'>
+            <div className='lg:w-1/2 w-full'>
                 <div className=" grid sm:grid-cols-2 gap-4 ">
                     {/* Card 1 */}
                     <div className="bg-[#F6F6F6] rounded-2xl p-4 shadow-sm flex  justify-between relative">
