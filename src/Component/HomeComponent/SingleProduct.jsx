@@ -164,7 +164,6 @@ export default function ProductCard() {
         total: product.discounted_single_product_price * quantity,
         isBulkOrder: false
       };
-      console.log("Regular cart item:", regularItem);
       addToCart(regularItem);
       setShowCart(true);
     }
@@ -180,7 +179,6 @@ export default function ProductCard() {
         total: product.discounted_single_product_price * quantity,
         isBulkOrder: false
       };
-      console.log("Regular buy item:", regularItem);
       addToCart(regularItem);
       navigate("/cart");
     }
@@ -223,7 +221,6 @@ export default function ProductCard() {
     // Set initial quantity to minimum of range
     const minQuantity = parseInt(range.split('-')[0]);
     setBulkQuantity(minQuantity);
-    console.log("Selected bulk range:", range, "price:", price, "initial quantity:", minQuantity);
   };
 
   // Update bulk prices when product changes
@@ -234,7 +231,6 @@ export default function ProductCard() {
     }
   }, [product]);
 
-  console.log(selectedBulkPrice, product,bulkQuantity);
 
   const handleBulkAddToCart = () => {
     if (selectedBulkRange && selectedBulkPrice && product && bulkQuantity > 0) {
@@ -255,7 +251,6 @@ export default function ProductCard() {
           price: selectedBulkPrice,
           totalPrice: selectedBulkPrice * bulkQuantity,
         };
-        console.log("Bulk cart item:", bulkItem);
         addToCart(bulkItem);
         setShowBulkOrder(false);
         setShowCart(true);
@@ -287,7 +282,6 @@ export default function ProductCard() {
           bulkRange: selectedBulkRange,
           originalPrice: product.discounted_single_product_price
         };
-        console.log("Bulk buy item:", bulkItem);
         addToCart(bulkItem);
         setShowBulkOrder(false);
         navigate('/cart');
