@@ -139,9 +139,9 @@ const ProductSlider = () => {
         </div>
 
 
-        <div className="bg-[#000127] w-full xl:h-[550px] h-auto lg:px-20 md:px-12 px-6 rounded-2xl p-6 flex flex-col lg:flex-row  gap-10 relative overflow-hidden ">
+        <div className="bg-[#000127] w-full xl:h-[750px] h-auto lg:px-20 md:px-12 px-6 rounded-2xl p-6 flex flex-col lg:flex-row  gap-10 relative overflow-hidden ">
           {/* Left: Text Section */}
-          <div className="flex-1 md:w-1/2 w-full lg:text-left  pt-12">
+          <div className="flex-1 md:w-1/2 w-full lg:text-left  pt-50">
             <h2 className="md:text-[33.12px] text-[20px] text-[#FFFFFF] font-semibold">
               Rasberry Pie
             </h2>
@@ -226,12 +226,16 @@ const ProductSlider = () => {
           <div className="text-center py-10 text-red-500">{error}</div>
         ) : (
           <>
-            <Section1 products={products} />
+          <Section3 />
+           <Section1 products={products} />
+          <InstagramSection />
+           <Section5 />
+           
             <Section2 products={products} />
-            <Section3 />
-            <Section1 products={products} />
-            <Section5 />
-            <InstagramSection />
+{/*             
+            <Section1 products={products} /> */}
+           
+            
             {/* <Testimonials/> */}
             <Customers />
 

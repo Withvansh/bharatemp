@@ -20,8 +20,8 @@ import { useCart } from "../context/CartContext";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import icon3 from './../assets/Facebook.svg'
-import icon4 from './../assets/Twitter.svg'
-import icon5 from './../assets/Instagram.svg'
+import { FaSquareXTwitter } from "react-icons/fa6";
+import { FaInstagramSquare } from "react-icons/fa";
 import icon6 from './../assets/YouTube.svg'
 import top1 from '../assets/generator.png'
 import top2 from '../assets/top1.png'
@@ -251,7 +251,7 @@ const Navbar = () => {
         </div> */}
         <div className=" flex flex-wrap   gap-4 items-center ">
           <Link to="#" className="text-white  ">
-            <img src={icon5} alt="Instagram" className="w-6 h-6" />
+           <FaInstagramSquare  alt="Instagram" className="w-6 h-6" />
           </Link>
           <Link to="#" className="text-white  ">
             <img src={icon3} alt="Facebook" className="w-6 h-6" />
@@ -260,7 +260,7 @@ const Navbar = () => {
             <img src={icon6} alt="YouTube" className="w-6 h-6" />
           </Link>
           <Link to="#" className="text-white  ">
-            <img src={icon4} alt="Twitter" className="w-6 h-6" />
+            <FaSquareXTwitter  alt="Twitter" className="w-6 h-6" />
           </Link>
 
 
