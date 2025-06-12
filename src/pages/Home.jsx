@@ -113,7 +113,7 @@ const ProductSlider = () => {
     <div className="overflow-hidden">
       <div className="px-4 md:px-10 pt-6">
         {/* top section */}
-        <div className=" py-4">
+        <div className="py-4">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
             {cardData.map((card, index) => (
               <Link
@@ -121,17 +121,43 @@ const ProductSlider = () => {
                 key={index}
                 className="group"
               >
-                <div className="bg-[#F5F5F5] border-1 border-[#E0E0E0] rounded-2xl shadow px-3 flex flex-col md:flex-row items-center justify-between hover:shadow-lg transition-shadow duration-300">
-                  <div>
-                    <h2 className="text-sm mt-4 lg:mt-0 lg:text-lg font-semibold text-blue-900 group-hover:text-[#F7941D] transition-colors duration-300">{card.title}</h2>
+                <div className="relative overflow-hidden rounded-2xl">
+                  {/* Spinning gradient border */}
+                  <div 
+                    className="absolute inset-[-8px] bg-gradient-to-r from-[#1E3473] via-[#F7941D] to-[#1E3473]"
+                    style={{
+                      backgroundSize: '200% 100%',
+                      animation: 'moveGradient 2s linear infinite'
+                    }}
+                  />
+                  
+                  {/* Main content */}
+                  <div className="relative m-[2px] bg-[#F5F5F5] rounded-2xl px-3 flex flex-col md:flex-row items-center justify-between transition-all duration-300">
+                    <div>
+                      <h2 className="text-sm mt-4 lg:mt-0 lg:text-lg font-semibold text-blue-900 group-hover:text-[#F7941D] transition-colors duration-300">
+                        {card.title}
+                      </h2>
+                    </div>
+                    <div>
+                      <img
+                        src={card.image}
+                        alt={card.title}
+                        className="w-20 h-20 object-cover mb-2"
+                      />
+                    </div>
                   </div>
-                  <div className="">
-                    <img
-                      src={card.image}
-                      alt={card.title}
-                      className="w-20 h-20 object-cover mb-2"
-                    />
-                  </div>
+
+                  {/* Add the keyframes style */}
+                  <style jsx>{`
+                    @keyframes moveGradient {
+                      0% {
+                        background-position: 0% 0%;
+                      }
+                      100% {
+                        background-position: 200% 0%;
+                      }
+                    }
+                  `}</style>
                 </div>
               </Link>
             ))}
