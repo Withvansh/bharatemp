@@ -502,6 +502,17 @@ const Checkout = () => {
     }
   };
 
+  function randomOrderId() {
+    var chars = "0123456789";
+    var string_length = 6;
+    var randomstring = "";
+    for (var i = 0; i < string_length; i++) {
+      var rnum = Math.floor(Math.random() * chars.length);
+      randomstring += chars.substring(rnum, rnum + 1);
+    }
+    return randomstring;
+  }
+
   // Update the handlePayment function to create order and initiate payment
   const handlePayment = async () => {
     if (addresses.length === 0 || !selectedAddressId) {
@@ -531,30 +542,82 @@ const Checkout = () => {
         warrantyExpiry.setFullYear(warrantyExpiry.getFullYear() + 1);
 
         return {
-          product_id: item._id,
-          quantity: item.quantity,
-          warranty_expiry_date: warrantyExpiry,
-          extended_warranty: 0, // Default to 0 as it's not implemented yet
-          total_warranty: 12, // 12 months default warranty
+          product_quantity: item.quantity,
+          product_name: item.product_name,
+          product_sku: item.SKU,
+          product_price: item.discounted_single_product_price,
+          product_tax_rate: "0",
+          product_hsn_code: "0",
+          product_discount: "0",
+          product_img_url: item.product_image_main,
         };
       });
 
       const orderData = {
-        user_id: userId,
-        products: orderItems,
-        totalPrice: finalTotal,
-        shippingAddress: selectedAddr.fullAddress,
-        shippingCost: shippingFee,
-        email: userData?.email,
-        pincode: postalCode,
-        name: userData ? `${userData.name}` : "",
-        city: selectedAddr.city || "City", // Provide default if missing
-        expectedDelivery: expectedDelivery,
+        shipments: [
+          {
+            waybill: "",
+            order: randomOrderId(),
+            sub_order: "A1",
+            order_date: new Date().toISOString().split("T")[0],
+            total_amount: finalTotal,
+            name: userData ? `${userData.name}` : "",
+            company_name: "",
+            add: selectedAddr.fullAddress,
+            add2: "",
+            add3: "",
+            pin: postalCode,
+            city: selectedAddr.city || "City",
+            state: "Uttar Pradesh", // replace it later
+            country: "India",
+            phone: userData?.phone,
+            alt_phone: "",
+            email: userData?.email,
+            is_billing_same_as_shipping: "yes",
+            billing_name: "Bharatronix",
+            billing_company_name: "Anantakarma Technologies Pvt Ltd",
+            billing_add: "Sector 10, A-Block, A-36 Noida Gautam Buddha Nagar UttarPradesh India 201301",
+            billing_add2: "",
+            billing_add3: "",
+            billing_pin: "201301",
+            billing_city: "Noida",
+            billing_state: "Uttar Pradesh",
+            billing_country: "India",
+            billing_phone: "7982748787",
+            billing_alt_phone: "",
+            billing_email: "johndoe@example.com",
+            products: orderItems,
+            shipment_length: "30",
+            shipment_width: "20",
+            shipment_height: "10",
+            weight: "1.2",
+            shipping_charges: "0",
+            giftwrap_charges: "0",
+            transaction_charges: "0",
+            total_discount: "0",
+            first_attemp_discount: "0",
+            cod_charges: "0",
+            advance_amount: "0",
+            cod_amount: "0",
+            payment_mode: "Prepaid",
+            reseller_name: "",
+            eway_bill_number: "",
+            gst_number: "",
+            what3words: "",
+            return_address_id: "83828",
+            api_source: "1",
+            store_id: "1"
+          }
+        ],
+        pickup_address_id: "83828",
+        logistics: "Delhivery",
+        s_type: "air",
+        order_type: "",
       };
 
       // Create the order
       const orderResponse = await axios.post(
-        `${backend}/order/new`,
+        `${backend}/order/shipment`,
         {
           order: orderData,
         },
@@ -574,6 +637,8 @@ const Checkout = () => {
       }
 
       const createdOrderId = orderResponse.data.data.order._id;
+
+      console.log("Order",orderResponse)
 
       // Initiate PhonePe payment with the newly created orderId
       const FRONTEND_URL = "https://www.bharatronix.com/thankyou/";
