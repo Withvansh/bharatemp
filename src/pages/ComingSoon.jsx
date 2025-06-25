@@ -1,7 +1,12 @@
 import React from "react";
 import logo from "../assets/logo2.svg";
+import { useEffect } from "react";
 
 const ComingSoon = () => {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   return (
     <div className="flex flex-col items-center  min-h-screen bg-white text-[#1e3473] px-4 relative overflow-hidden">
       {/* Background logo with glow effect */}

@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Section2 from './Section2';
 import Section3 from './Section3';
 import Customers from './Customers';
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaCloud, FaRobot, FaPlusCircle, FaWind, FaHelicopter } from 'react-icons/fa';
-
 const OnlinePresenceSection = () => {
   const [showModal, setShowModal] = useState(false);
   const sectors = [
@@ -14,6 +13,23 @@ const OnlinePresenceSection = () => {
     { id: 4, name: "Renewable Energy", icon: FaWind },
     { id: 5, name: "Drone Manufacturer", icon: FaHelicopter }
   ];
+
+  const customerSectionRef = useRef(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === "/b2bpage") {
+      const el = document.getElementById("customer-section");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [location]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
 
   return (
     <div className="w-full">
@@ -74,7 +90,7 @@ const OnlinePresenceSection = () => {
     </div>
   </div>
 </div>
-      <div className="px-6 py-10 md:px-16">
+      <div id="customer-section" className="px-6 py-10 md:px-16">
         <Customers />
       </div>
       {showModal && <ContactFormModal onClose={() => setShowModal(false)} />}

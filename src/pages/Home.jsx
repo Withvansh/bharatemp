@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import Section1 from "./../Component/HomeComponent/Section1";
 import Section2 from "./../Component/HomeComponent/Section2";
@@ -17,7 +17,12 @@ import icon4 from "../assets/icon4.png";
 import image10 from "../assets/homepage10.png";
 import blue from "../assets/green.png";
 import top1 from '../assets/generator.png'
-import top2 from '../assets/top1.png'
+import battery from '../assets/battery.gif'
+import drone from "../assets/drone.gif"
+import sensor from "../assets/sensor.gif"
+import motors from "../assets/motors.gif"
+import board from "../assets/board.gif"
+import printer from "../assets/printer.gif"
 import cart1 from '../assets/Cart4.png';
 import cart2 from '../assets/cart5.png';
 import cart3 from '../assets/cart6.png';
@@ -32,6 +37,7 @@ const ProductSlider = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const reviewsRef = useRef(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -53,39 +59,49 @@ const ProductSlider = () => {
     getProducts();
   }, []);
 
+  // Expose scroll function for footer
+  useEffect(() => {
+    window.scrollToReviews = () => {
+      if (reviewsRef.current) {
+        reviewsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+    return () => { delete window.scrollToReviews; };
+  }, []);
+
   const cardData = [
     {
-      image: top1,
+      image: board,
       title: 'Development Board',
       version: 'Arduino, ESP32, RPi',
       category: 'Development Board'
     },
     {
-      image: top2,
+      image: sensor,
       title: 'Sensors',
       version: 'Temperature, Pressure, Motion',
       category: 'Sensors'
     },
     {
-      image: top2,
+      image: motors,
       title: 'Motors and Drivers',
       version: 'DC, Stepper, Servo',
       category: 'Motors and Drivers'
     },
     {
-      image: top2,
+      image: battery,
       title: 'Battery',
       version: 'LiPo, Li-ion, NiMH',
       category: 'Battery'
     },
     {
-      image: top2,
+      image: printer,
       title: '3D Printer',
       version: 'Parts & Accessories',
       category: '3D Printer'
     },
     {
-      image: top2,
+      image: drone,
       title: 'Drone Parts',
       version: 'ESC, Flight Controllers, Props',
       category: 'Drone Parts'
@@ -105,7 +121,7 @@ const ProductSlider = () => {
     {
       img: cart3,
       title: '24×7 Technical support available',
-      subtitle: 'We’re always here – round-the-clock technical assistance.',
+      subtitle: 'We are always here – round-the-clock technical assistance.'
     },
   ];
 
@@ -132,17 +148,17 @@ const ProductSlider = () => {
                   /> */}
                   
                   {/* Main content */}
-                  <div className="relative m-[2px] bg-[#F5F5F5] border-1 border-[#E0E0E0]  rounded-2xl px-3 flex flex-col md:flex-row items-center justify-between transition-all duration-300">
+                  <div className="relative m-[2px] bg-[#fff] border-1 border-[#E0E0E0]  rounded-2xl px-3 flex flex-col md:flex-row items-center justify-between transition-all duration-300">
                     <div>
                       <h2 className="text-sm mt-4 lg:mt-0 lg:text-lg font-semibold text-blue-900 group-hover:text-[#F7941D] transition-colors duration-300">
                         {card.title}
                       </h2>
                     </div>
-                    <div>
+                    <div className="flex items-center justify-center w-20 h-20 ">
                       <img
                         src={card.image}
                         alt={card.title}
-                        className="w-20 h-20 object-cover mb-2"
+                        className="w-16 h-16 object-cover"
                       />
                     </div>
                   </div>
@@ -165,7 +181,7 @@ const ProductSlider = () => {
         </div>
 
 
-        <div className="bg-[#000127] w-full xl:h-[750px] h-auto lg:px-20 md:px-12 px-4 rounded-2xl py-10 flex flex-col lg:flex-row gap-8 relative overflow-hidden">
+        <div className="bg-[#000127] w-full xl:h-[500px] h-auto lg:px-20 md:px-12 px-4 rounded-2xl py-10 flex flex-col lg:flex-row gap-8 relative overflow-hidden">
           {/* Left: Text Section */}
           <div className=" lg:w-1/2 w-full lg:text-left flex flex-col justify-center">
             <h2 className="md:text-[32px] text-[20px] text-[#FFFFFF] font-semibold mb-2">
@@ -237,7 +253,7 @@ const ProductSlider = () => {
         </div>
 
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10  py-16 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10  py-8 ">
           {features.map((feature, index) => (
             <div
               key={index}
@@ -279,7 +295,9 @@ const ProductSlider = () => {
            
             
             {/* <Testimonials/> */}
-            <Customers />
+            <div ref={reviewsRef} id="customer-feedback-section">
+              <Customers />
+            </div>
 
           </>
         )}

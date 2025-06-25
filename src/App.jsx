@@ -43,6 +43,7 @@ import Subcategory  from './pages/Subcategory.jsx'
 import SubCategories from './pages/SubCategories'
 import Contact from './pages/Contact'
 import ComingSoon from './pages/ComingSoon'
+import { FaWhatsapp } from 'react-icons/fa';
 
 const App = () => {
   return (
@@ -60,7 +61,7 @@ const App = () => {
           <Route path="/product/:id" element={<SingleProduct />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/thankyou/:id" element={<Thanku />} />
+          <Route path="/payment-status/:id" element={<Thanku />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/b2bpage" element={<Ouronline/>}/>
           <Route path="/subcategory" element={<Subcategory/>}/>
@@ -102,6 +103,16 @@ const App = () => {
           <Route path="/warranty-policy" element={<WarrantyPolicy />} />
         </Routes>
         <Footer />
+        {/* Floating WhatsApp Icon */}
+        <a
+          href="https://wa.link/594khg"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed z-50 bottom-12 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg p-4 flex items-center justify-center transition-all duration-300"
+          aria-label="Chat with us on WhatsApp"
+        >
+          <FaWhatsapp className="text-3xl" />
+        </a>
         </div>
       </Router>
     </CartProvider>

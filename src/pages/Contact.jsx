@@ -90,7 +90,7 @@ const Contact = () => {
             </span>
             <span className="flex flex-col items-center md:items-start gap-2 font-semibold">
                 <p className="text-base md:text-xl text-[#1e3473]">Email Address</p>
-                <p className="text-[#f7941d] text-base text-center md:text-start ">support@taxrishi.in</p>
+                <p className="text-[#f7941d] text-base text-center md:text-start ">Support@bharatronix.com</p>
             </span>
         </div>
         <div className="flex flex-col items-center md:items-start md:flex-row gap-6">
@@ -99,7 +99,7 @@ const Contact = () => {
             </span>
             <span className="flex flex-col items-center md:items-start gap-2 font-semibold">
                 <p className="text-base md:text-xl text-[#1e3473]">Telephone</p>
-                <p className="text-[#f7941d] text-base text-center md:text-start ">(+91) 9654640119</p>
+                <p className="text-[#f7941d] text-base text-center md:text-start ">(+91) 79827 48787</p>
             </span>
         </div>
       </div>

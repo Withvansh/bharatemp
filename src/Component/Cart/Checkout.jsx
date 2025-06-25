@@ -101,6 +101,8 @@ const Checkout = () => {
   const [loading, setLoading] = useState(true);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [orderId, setOrderId] = useState(null);
+  const access = import.meta.env.VITE_ACCESS_TOKEN;
+  const secret = import.meta.env.VITE_SECRET_KEY;
 
   const navigate = useNavigate();
   const handleBack = () => {
@@ -121,6 +123,7 @@ const Checkout = () => {
     postalCode: "",
   });
 
+  
   // Get selected address
   const selectedAddress =
     addresses.find((addr) => addr.id === selectedAddressId) || addresses[0];
@@ -146,14 +149,13 @@ const Checkout = () => {
 
   // Calculate pricing
   const codeDiscount = 15;
-  const platformFee = 5;
   const shippingFee = 5;
   const discountOnMrp = Math.round((totalMRP - totalAmount) * 100) / 100;
 
   // Calculate final total using only discounted price
   const finalTotal = Math.max(
     0,
-    totalAmount + platformFee + shippingFee - codeDiscount
+    totalAmount + shippingFee - codeDiscount
   );
 
   // Delivery date calculation
@@ -541,8 +543,11 @@ const Checkout = () => {
         const warrantyExpiry = new Date();
         warrantyExpiry.setFullYear(warrantyExpiry.getFullYear() + 1);
 
+        console.log("item",item)
+
         return {
-          product_quantity: item.quantity,
+          product_id: item._id,
+          quantity: item.quantity,
           product_name: item.product_name,
           product_sku: item.SKU,
           product_price: item.discounted_single_product_price,
@@ -554,70 +559,21 @@ const Checkout = () => {
       });
 
       const orderData = {
-        shipments: [
-          {
-            waybill: "",
-            order: randomOrderId(),
-            sub_order: "A1",
-            order_date: new Date().toISOString().split("T")[0],
-            total_amount: finalTotal,
-            name: userData ? `${userData.name}` : "",
-            company_name: "",
-            add: selectedAddr.fullAddress,
-            add2: "",
-            add3: "",
-            pin: postalCode,
-            city: selectedAddr.city || "City",
-            state: "Uttar Pradesh", // replace it later
-            country: "India",
-            phone: userData?.phone,
-            alt_phone: "",
-            email: userData?.email,
-            is_billing_same_as_shipping: "yes",
-            billing_name: "Bharatronix",
-            billing_company_name: "Anantakarma Technologies Pvt Ltd",
-            billing_add: "Sector 10, A-Block, A-36 Noida Gautam Buddha Nagar UttarPradesh India 201301",
-            billing_add2: "",
-            billing_add3: "",
-            billing_pin: "201301",
-            billing_city: "Noida",
-            billing_state: "Uttar Pradesh",
-            billing_country: "India",
-            billing_phone: "7982748787",
-            billing_alt_phone: "",
-            billing_email: "johndoe@example.com",
-            products: orderItems,
-            shipment_length: "30",
-            shipment_width: "20",
-            shipment_height: "10",
-            weight: "1.2",
-            shipping_charges: "0",
-            giftwrap_charges: "0",
-            transaction_charges: "0",
-            total_discount: "0",
-            first_attemp_discount: "0",
-            cod_charges: "0",
-            advance_amount: "0",
-            cod_amount: "0",
-            payment_mode: "Prepaid",
-            reseller_name: "",
-            eway_bill_number: "",
-            gst_number: "",
-            what3words: "",
-            return_address_id: "83828",
-            api_source: "1",
-            store_id: "1"
-          }
-        ],
-        pickup_address_id: "83828",
-        logistics: "Delhivery",
-        s_type: "air",
-        order_type: "",
+        user_id: userId,
+        products: orderItems,
+        totalPrice: finalTotal,
+        shippingAddress: selectedAddr.fullAddress,
+        shippingCost: shippingFee,
+        email: userData?.email,
+        pincode: postalCode,
+        name: userData ? `${userData.name}` : "",
+        city: selectedAddr.city || "City", 
+        expectedDelivery: expectedDelivery,
       };
 
       // Create the order
       const orderResponse = await axios.post(
-        `${backend}/order/shipment`,
+        `${backend}/order/new`,
         {
           order: orderData,
         },
@@ -627,6 +583,9 @@ const Checkout = () => {
           },
         }
       );
+
+      console.log("orderResponse",orderResponse)
+      
 
       if (
         !orderResponse.data ||
@@ -638,19 +597,18 @@ const Checkout = () => {
 
       const createdOrderId = orderResponse.data.data.order._id;
 
-      console.log("Order",orderResponse)
-
       // Initiate PhonePe payment with the newly created orderId
-      const FRONTEND_URL = "https://www.bharatronix.com/thankyou/";
+      const FRONTEND_URL = window.location.origin;
 
       const paymentData = {
-        orderId: createdOrderId, // Use the orderId directly instead of from state
+        orderId: createdOrderId, 
         userId: userId,
-        FRONTEND_URL: FRONTEND_URL,
+        MUID: "T" + Date.now(),
+        FRONTEND_URL: FRONTEND_URL
       };
 
       const paymentResponse = await axios.post(
-        `${backend}/payment/create-payment`,
+        `${backend}/payment/create-phonepe-payment`,
         paymentData,
         {
           headers: {
@@ -660,12 +618,11 @@ const Checkout = () => {
         }
       );
 
-      if (paymentResponse.data.data.response.phonepeResponse.redirectUrl) {
+      if (paymentResponse.data?.data?.response?.phonepeResponse?.instrumentResponse?.redirectInfo?.url) {
         // Set the orderId in state before redirecting
         setOrderId(createdOrderId);
         // Redirect to PhonePe payment page
-        window.location.href =
-          paymentResponse.data.data.response.phonepeResponse.redirectUrl;
+        window.location.href = paymentResponse.data.data.response.phonepeResponse.instrumentResponse.redirectInfo.url;
       } else {
         throw new Error("Invalid payment response");
       }
@@ -914,15 +871,7 @@ const Checkout = () => {
                 <span className="text-gray-600">Code Discount</span>
                 <span className="font-medium">₹{codeDiscount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <div className="flex items-center">
-                  <span className="text-gray-600">Platform fees</span>
-                  <button className="ml-2 text-blue-700 text-sm font-medium">
-                    Know more
-                  </button>
-                </div>
-                <span className="font-medium">₹{platformFee.toFixed(2)}</span>
-              </div>
+              
               <div className="flex justify-between">
                 <div className="flex items-center">
                   <span className="text-gray-600">Shipping fees</span>

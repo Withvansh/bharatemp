@@ -1,5 +1,6 @@
 import map from '../../assets/map.png'
 import { FaCloud, FaRobot, FaPlusCircle, FaWind, FaHelicopter } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const OnlinePresenceSection = () => {
   return (
@@ -22,9 +23,9 @@ const OnlinePresenceSection = () => {
         </p>
     
        </div>
-        <button className="bg-[#F7941D]  text-white font-semibold py-3 px-8 rounded-full mt-4">
+        <Link to="/allproducts" className="bg-[#F7941D]  text-white font-semibold py-3 px-8 rounded-full mt-4">
           Shop Now
-        </button>
+        </Link>
       </div>
 
 

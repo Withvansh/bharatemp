@@ -613,21 +613,21 @@ const Navbar = () => {
           </Link>
         </div>
         <div className="hidden lg:flex items-center text-[15px] gap-2">
-          <FaBolt className="text-[#F7941D] w-5 h-5" />
+          <FaBolt className="text-[#F7941D] w-5 h-5 rotate-20" />
           <span>24 hours Express delivery</span>
         </div>
 
         <div className=" flex flex-wrap pl-40 gap-4 items-center ">
-          <Link to="#" className="text-white  ">
+          <Link to="https://www.instagram.com/bharatronix/?hl=en" className="text-white  ">
             <FaInstagram alt="Instagram" className="w-6 h-6" />
           </Link>
           <Link to="#" className="text-white  ">
             <SlSocialFacebook alt=" Facebook" className="w-6 h-6" />
           </Link>
-          <Link to="#" className="text-white  ">
+          <Link to="https://www.youtube.com/@BharatroniX2024" className="text-white  ">
             <FiYoutube alt=" Facebook" className="w-6 h-6" />
           </Link>
-          <Link to="#" className="text-white  ">
+          <Link to="https://x.com/bharatroni68370" className="text-white  ">
             <FaXTwitter alt="Twitter" className="w-6 h-6" />
           </Link>
         </div>
