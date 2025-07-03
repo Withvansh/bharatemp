@@ -27,6 +27,13 @@ import top1 from "../assets/generator.png";
 import top2 from "../assets/top1.png";
 import axios from "axios";
 import trackorder from "../assets/trackorder.png";
+import search from "../assets/search.gif";
+import mic from "../assets/mic.gif";
+import cart from "../assets/cart.gif";
+import avatar from "../assets/avatar.gif";
+import truck from "../assets/truck.gif";
+import pincodes from "../utils/pincode.json";
+
 const backend = import.meta.env.VITE_BACKEND;
 
 const subcategories = {
@@ -353,7 +360,7 @@ const Navbar = () => {
     },
   ];
 
-  const locations = ["Mumbai, India", "Bengaluru, India", "Hyderabad, India"];
+  const locations = pincodes.map((item) => `${item.Pincode}, ${item.City}, ${item.state}`);
 
   const toggleDropdown = (key) => {
     setOpenDropdown(openDropdown === key ? "" : key);
@@ -635,7 +642,7 @@ const Navbar = () => {
 
       {/* Main Navbar */}
       <div className="font-inter bg-white border-b shadow-sm">
-        <div className="px-4 py-3 flex items-center justify-between lg:px-16 md:px-12">
+        <div className="px-4 py-1 flex items-center justify-between lg:px-16 md:px-12">
           {/* Logo and Location Section */}
           <div className="flex items-center gap-6">
             {/* Logo */}
@@ -652,7 +659,7 @@ const Navbar = () => {
                 <img src={location1} className="w-6 h-6 mt-1" alt="Location" />
                 <div>
                   <div className="flex items-center gap-1">
-                    <span className="text-lg font-semibold text-[#F7941D]">
+                    <span className="text-base font-semibold text-[#F7941D]">
                       {location}
                     </span>
                     <FaChevronDown className="text-blue-900 text-xs" />
@@ -664,7 +671,7 @@ const Navbar = () => {
               </div>
 
               {showLocationDropdown && (
-                <div className="absolute z-40 mt-2 w-56 bg-white border border-gray-200 shadow-md rounded-md">
+                <div className="absolute z-40 mt-2 w-80 bg-white border border-gray-200 shadow-md rounded-md max-h-[400px] overflow-y-auto">
                   {locations.map((loc) => (
                     <div
                       key={loc}
@@ -687,7 +694,7 @@ const Navbar = () => {
               <div className="relative flex-1 search-container">
                 <form
                   onSubmit={handleSearch}
-                  className="flex items-center flex-1 justify-between bg-gray-100 rounded-full px-4 py-2"
+                  className="flex items-center border border-gray-300 flex-1 justify-between  rounded-full px-4 py-2"
                 >
                   <input
                     type="text"
@@ -699,9 +706,9 @@ const Navbar = () => {
                   />
                   <button
                     type="submit"
-                    className="bg-[#F7941D] w-7 h-7 rounded-full flex items-center justify-center"
+                    className=" w-7 h-7 rounded-full flex items-center justify-center"
                   >
-                    <FaSearch size={15} className="text-white" />
+                    <img src={search} alt="Search" className="w-7 h-7" />
                   </button>
                 </form>
 
@@ -758,16 +765,12 @@ const Navbar = () => {
               {/* Voice Search Button */}
               <button
                 type="button"
-                className={`relative bg-gray-100 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors ${
+                className={`relative border cursor-pointer border-gray-300 w-9 h-9 rounded-full flex items-center justify-center  transition-colors ${
                   isListening ? "ring-2 ring-[#F7941D]" : ""
                 }`}
                 onClick={startVoiceSearch}
               >
-                <FaMicrophone
-                  className={`h-5 w-5 ${
-                    isListening ? "text-[#F7941D]" : "text-gray-600"
-                  }`}
-                />
+                <img src={mic} alt="Mic" className="w-7 h-7" />
                 {isListening && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="absolute w-full h-full rounded-full animate-ping bg-[#F7941D] opacity-20"></div>
@@ -784,10 +787,10 @@ const Navbar = () => {
             <div className="flex items-center space-x-4">
               {/* Shopping Bag Icon */}
               <div
-                className="bg-gray-100 p-3 rounded-full relative cursor-pointer"
+                className="relative border border-gray-300 rounded-3xl p-2 cursor-pointer"
                 onClick={() => navigate("/cart")}
               >
-                <img src={icon1} className="w-5 h-5" alt="Cart" />
+                <img src={cart} className="w-7 h-7" alt="Cart" />
                 {uniqueItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-[#F7941D] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {uniqueItems}
@@ -796,16 +799,16 @@ const Navbar = () => {
               </div>
 
               {/* Divider */}
-              <div className="w-px h-6 bg-gray-300"></div>
+              <div className="w-[2px] h-6 bg-gray-300"></div>
 
               {/* User Icon or Auth Buttons */}
               {user ? (
-                <div className="relative profile-dropdown-container">
+                <div className="relative border border-gray-300 rounded-3xl p-2 cursor-pointer profile-dropdown-container">
                   <div
-                    className="bg-gray-100 p-3 rounded-full cursor-pointer"
+                    className="cursor-pointer"
                     onClick={() => setShowProfileDropdown(!showProfileDropdown)}
                   >
-                    <img src={icon2} className="w-5 h-5" alt="User" />
+                    <img src={avatar} className="w-7 h-7" alt="User" />
                   </div>
                   {showProfileDropdown && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
@@ -814,7 +817,7 @@ const Navbar = () => {
                           navigate("/profile");
                           setShowProfileDropdown(false);
                         }}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block cursor-pointer w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Profile
                       </button>
@@ -825,7 +828,7 @@ const Navbar = () => {
                           window.location.href = "/";
                           setShowProfileDropdown(false);
                         }}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block cursor-pointer w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Logout
                       </button>
@@ -859,7 +862,7 @@ const Navbar = () => {
 
         {/* Bottom Nav */}
         <div className="bg-white hidden md:flex md:justify-between md:items-center">
-          <div className="px-4 py-1 flex items-center space-x-4 text-sm font-medium whitespace-nowrap lg:px-16 md:px-12">
+          <div className="px-4  flex items-center space-x-4 text-sm font-medium whitespace-nowrap lg:px-16 md:px-12">
             <Link
               to="/"
               className="hover:text-white hover:bg-blue-900 px-3 py-1 rounded-full"
@@ -992,7 +995,7 @@ const Navbar = () => {
               to="/track-order"
               className=" text-blue-900 px-3 py-1 flex items-center rounded-full gap-3 transition-colors duration-300"
             >
-              <img src={trackorder} alt="Logo" className="w-6 h-6 " /> Track
+              <img src={truck} alt="Logo" className="w-10 h-10 " /> Track
               Order
             </Link>
           </div>
