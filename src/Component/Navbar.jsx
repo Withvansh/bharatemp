@@ -33,6 +33,55 @@ import cart from "../assets/cart.gif";
 import avatar from "../assets/avatar.gif";
 import truck from "../assets/truck.gif";
 import pincodes from "../utils/pincode.json";
+import arduino from "../assets/arduino.jpg";
+import stm32 from "../assets/stm32.jpg";
+import esp32 from "../assets/esp32.jpg";
+import raspberry from "../assets/raspberry.jpg";
+import esp8266 from "../assets/esp8266.jpg";
+import teensy from "../assets/teensy.jpg";
+import beaglebone from "../assets/beaglebone.jpg";
+import fpga from "../assets/fpga.jpg";
+import dcmotor from "../assets/dcmotor.jpg";
+import stepper from "../assets/stepper.jpg";
+import servomotor from "../assets/servo.jpg";
+import motordriver from "../assets/motordriver.jpg";
+import encoder from "../assets/encoder.jpg";
+import gearbox from "../assets/gearboxes.jpg";
+import lactuator from "../assets/lactuators.jpg";
+import motorc from "../assets/motorc.jpg";
+import temperature from "../assets/temperature.jpg";
+import pressure from "../assets/pressure.jpg";
+import gas from "../assets/gas.jpg";
+import humidity from "../assets/humidity.jpg";
+import light from "../assets/light.jpg";
+import sound from "../assets/sound.jpg";
+import distance from "../assets/distance.jpg";
+import lipo from "../assets/lipo.jpg";
+import liion from "../assets/li-ion.jpg";
+import nihm from "../assets/nimh.jpg";
+import batteryholder from "../assets/batteryholder.jpg";
+import charger from "../assets/charger.jpg";
+import powerbank from "../assets/powerbank.jpg";
+import batterymonitor from "../assets/batterymonitor.jpg";
+import printerfilament from "../assets/printerfilament.jpg";
+import hotend from "../assets/hotend.jpg";
+import extruder from "../assets/extruders.jpg";
+import controlboard from "../assets/controlboards.jpg";
+import steppermotor from "../assets/stepperm.jpg";
+import buildplates from "../assets/buildplates.jpg";
+import dbattery from "../assets/dbattery.jpg";
+import dmotors from "../assets/dmotors.jpg";
+import dronepartsesc from "../assets/dronepartsesc.jpg";
+import fpvs from "../assets/fpvs.jpg";
+import nozzals from "../assets/nozzals.jpg";
+import radiosystems from "../assets/radiosystem.jpg";
+import LinearRails from "../assets/linearrails.jpg";
+import frames from "../assets/frames.jpg";
+import props from "../assets/props.jpg";
+import flightcontroller from "../assets/flightcontroller.jpg";
+import motions from "../assets/motions.jpg";
+import protectionc  from "../assets/protectionc.jpg";
+
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -41,252 +90,252 @@ const subcategories = {
     {
       name: "Arduino",
       description: "Boards & Accessories",
-      image: "https://picsum.photos/300/200?random=1",
+      image: arduino,
     },
     {
       name: "Raspberry Pi",
       description: "Boards & Kits",
-      image: "https://picsum.photos/300/200?random=2",
+      image: raspberry,
     },
     {
       name: "ESP32",
       description: "WiFi & Bluetooth",
-      image: "https://picsum.photos/300/200?random=3",
+      image: esp32,
     },
     {
       name: "ESP8266",
       description: "IoT Development",
-      image: "https://picsum.photos/300/200?random=4",
+      image: esp8266,
     },
     {
       name: "STM32",
       description: "ARM Controllers",
-      image: "https://picsum.photos/300/200?random=5",
+      image: stm32,
     },
     {
       name: "Teensy",
       description: "USB Development",
-      image: "https://picsum.photos/300/200?random=6",
+      image: teensy,
     },
     {
       name: "BeagleBone",
       description: "Linux Boards",
-      image: "https://picsum.photos/300/200?random=7",
+      image: beaglebone,
     },
     {
       name: "FPGA",
       description: "Programmable Logic",
-      image: "https://picsum.photos/300/200?random=8",
+      image: fpga,
     },
   ],
   Sensors: [
     {
       name: "Temperature",
       description: "Heat & Cold Detection",
-      image: "https://picsum.photos/300/200?random=11",
+      image: temperature,
     },
     {
       name: "Pressure",
       description: "Force & Weight",
-      image: "https://picsum.photos/300/200?random=12",
+      image: pressure,
     },
     {
       name: "Motion",
       description: "Movement Detection",
-      image: "https://picsum.photos/300/200?random=13",
+      image: motions,
     },
     {
       name: "Gas",
       description: "Air Quality",
-      image: "https://picsum.photos/300/200?random=14",
+      image: gas,
     },
     {
       name: "Humidity",
       description: "Moisture Sensing",
-      image: "https://picsum.photos/300/200?random=15",
+      image: humidity,
     },
     {
       name: "Light",
       description: "Luminosity Detection",
-      image: "https://picsum.photos/300/200?random=16",
+      image: light,
     },
     {
       name: "Sound",
       description: "Audio Sensing",
-      image: "https://picsum.photos/300/200?random=17",
+      image: sound,
     },
     {
       name: "Distance",
       description: "Range Finding",
-      image: "https://picsum.photos/300/200?random=18",
+      image: distance,
     },
   ],
   "Motors and Drivers": [
     {
       name: "DC Motors",
       description: "Various Sizes",
-      image: "https://picsum.photos/300/200?random=21",
+      image: dcmotor,
     },
     {
       name: "Stepper Motors",
       description: "Precise Control",
-      image: "https://picsum.photos/300/200?random=22",
+      image: stepper,
     },
     {
       name: "Servo Motors",
       description: "Robotics & RC",
-      image: "https://picsum.photos/300/200?random=23",
+      image: servomotor,
     },
     {
       name: "Motor Drivers",
       description: "Control Boards",
-      image: "https://picsum.photos/300/200?random=24",
+      image: motordriver,
     },
     {
       name: "Encoders",
       description: "Position Feedback",
-      image: "https://picsum.photos/300/200?random=25",
+      image: encoder,
     },
     {
       name: "Gearboxes",
       description: "Speed Reduction",
-      image: "https://picsum.photos/300/200?random=26",
+      image: gearbox,
     },
     {
       name: "Linear Actuators",
       description: "Linear Motion",
-      image: "https://picsum.photos/300/200?random=27",
+      image: lactuator,
     },
     {
       name: "Motor Controllers",
       description: "Speed Control",
-      image: "https://picsum.photos/300/200?random=28",
+      image: motorc,
     },
   ],
   Battery: [
     {
       name: "LiPo",
       description: "High Performance",
-      image: "https://picsum.photos/300/200?random=31",
+      image: lipo,
     },
     {
       name: "Li-ion",
       description: "Rechargeable",
-      image: "https://picsum.photos/300/200?random=32",
+      image: liion,
     },
     {
       name: "NiMH",
       description: "Long Lasting",
-      image: "https://picsum.photos/300/200?random=33",
+      image: nihm,
     },
     {
       name: "Battery Holders",
       description: "Storage Solutions",
-      image: "https://picsum.photos/300/200?random=34",
+      image: batteryholder,
     },
     {
       name: "Chargers",
       description: "Smart Charging",
-      image: "https://picsum.photos/300/200?random=35",
+      image: charger,
     },
     {
       name: "Power Banks",
       description: "Portable Power",
-      image: "https://picsum.photos/300/200?random=36",
+      image: powerbank,
     },
     {
       name: "Battery Monitors",
       description: "Voltage Display",
-      image: "https://picsum.photos/300/200?random=37",
+      image: batterymonitor,
     },
     {
       name: "Protection Circuits",
       description: "Safety First",
-      image: "https://picsum.photos/300/200?random=38",
+      image: protectionc,
     },
   ],
   "3D Printer": [
     {
       name: "Filaments",
       description: "PLA, ABS & More",
-      image: "https://picsum.photos/300/200?random=41",
+      image: printerfilament,
     },
     {
       name: "Hot Ends",
       description: "Print Heads",
-      image: "https://picsum.photos/300/200?random=42",
+      image: hotend,
     },
     {
       name: "Extruders",
       description: "Feed Systems",
-      image: "https://picsum.photos/300/200?random=43",
+      image: extruder,
     },
     {
       name: "Control Boards",
       description: "Printer Brains",
-      image: "https://picsum.photos/300/200?random=44",
+      image: controlboard,
     },
     {
       name: "Stepper Motors",
       description: "Axis Control",
-      image: "https://picsum.photos/300/200?random=45",
+      image: steppermotor,
     },
     {
       name: "Linear Rails",
       description: "Smooth Motion",
-      image: "https://picsum.photos/300/200?random=46",
+      image: LinearRails,
     },
     {
       name: "Build Plates",
       description: "Print Surfaces",
-      image: "https://picsum.photos/300/200?random=47",
+      image: buildplates,
     },
     {
       name: "Nozzles",
       description: "Various Sizes",
-      image: "https://picsum.photos/300/200?random=48",
+      image: nozzals,
     },
   ],
   "Drone Parts": [
     {
       name: "ESC",
       description: "Speed Controls",
-      image: "https://picsum.photos/300/200?random=51",
+      image: dronepartsesc,
     },
     {
       name: "Flight Controllers",
       description: "Brain Units",
-      image: "https://picsum.photos/300/200?random=52",
+      image: flightcontroller,
     },
     {
       name: "Props",
       description: "Propellers",
-      image: "https://picsum.photos/300/200?random=53",
+      image: props,
     },
     {
       name: "Frames",
       description: "Drone Bodies",
-      image: "https://picsum.photos/300/200?random=54",
+      image: frames,
     },
     {
       name: "Motors",
       description: "Brushless Motors",
-      image: "https://picsum.photos/300/200?random=55",
+      image: dmotors,
     },
     {
       name: "Batteries",
       description: "Flight Power",
-      image: "https://picsum.photos/300/200?random=56",
+      image: dbattery,
     },
     {
       name: "FPV Cameras",
       description: "Live View",
-      image: "https://picsum.photos/300/200?random=57",
+      image: fpvs,
     },
     {
       name: "Radio Systems",
       description: "Control Link",
-      image: "https://picsum.photos/300/200?random=58",
+      image: radiosystems,
     },
   ],
 };
@@ -922,7 +971,7 @@ const Navbar = () => {
                                 }
                                 className="group cursor-pointer"
                               >
-                                <div className="relative overflow-hidden rounded-lg">
+                                <div className="relative overflow-hidden rounded-lg border border-gray-200">
                                   <img
                                     src={subcat.image}
                                     alt={subcat.name}
@@ -943,7 +992,7 @@ const Navbar = () => {
                         <div
                           onClick={() => {
                             navigate(
-                              `/subcategories?category=${activeCategory}`
+                              `/product?category=${activeCategory}`
                             );
                             setShowCategoriesDropdown(false);
                           }}

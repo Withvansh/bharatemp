@@ -72,7 +72,6 @@ const OrderSuccess2 = () => {
       // Parse token if stored as JSON string
       const parsedToken = token.startsWith('"') ? JSON.parse(token) : token;
 
-      console.log("Verifying payment with:", { paymentId, gatewayOrderId });
 
       // Verify payment using Cashfree endpoint
       const response = await axios.post(
@@ -89,7 +88,6 @@ const OrderSuccess2 = () => {
         }
       );
 
-      console.log("Verification response:", response.data);
 
       if (response.data.status === "Success") {
         const paymentData = response.data.data.response.data;
@@ -106,11 +104,9 @@ const OrderSuccess2 = () => {
           return;
         }
 
-        console.log("Payment Data", paymentData);
 
         const orderId = response.data.data.response.orderId;
         setOrderId(orderId);
-        console.log("Order ID", orderId);
 
         // Check if order exists
         if (orderId) {
@@ -134,8 +130,6 @@ const OrderSuccess2 = () => {
 
             if (orderResponse.data.status === "Success") {
               const orderData = orderResponse.data.data.order;
-              console.log("Order Details fetched", orderData);
-              console.log("User Data", userDataResult);
 
               // Use userDataResult instead of userDataParam
               if (orderData && userDataResult) {
@@ -220,7 +214,6 @@ const OrderSuccess2 = () => {
                   order_type: "",
                 };
 
-                console.log("Creating shipment...");
                 toast.info("Creating your shipment...", { autoClose: false, toastId: 'creating-shipment' });
 
                 try {
@@ -238,13 +231,11 @@ const OrderSuccess2 = () => {
                     }
                   );
 
-                  console.log("Shipment Response", shipmentResponse);
 
                   // Dismiss the creating shipment toast
                   toast.dismiss('creating-shipment');
 
                   if (shipmentResponse.data?.status === "Success") {
-                    console.log("Shipment created successfully");
                     setOrderDetails(orderData);
                     toast.success("Shipment created successfully! Your order is being processed. 📦");
                   } else {

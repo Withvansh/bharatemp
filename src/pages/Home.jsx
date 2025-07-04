@@ -28,9 +28,7 @@ import cargo from "../assets/cargo.gif";
 import shield from "../assets/shield.gif";
 import wallet from "../assets/wallet.gif";
 import support from "../assets/support.gif";
-// import InstagramCarousel from "../Component/HomeComponent/Instagram";
-import InstagramSection from "../Component/InstagramSection";
-// import Testimonials from "../Component/Testimonials";
+import VideoSection from "../Component/VideoSection";
 import { fetchProducts } from "../utils/api";
 import Customers from '../Component/B2bComponent/Customers.jsx'
 import Marquee from "../Component/HomeComponent/Marquee.jsx";
@@ -288,7 +286,7 @@ const ProductSlider = () => {
           <Section1 products={products} />
 
           </div>
-          <InstagramSection />
+          <VideoSection />
            <Section5 />
            
             <Section2 products={products} />

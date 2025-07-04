@@ -123,7 +123,6 @@ const OrderSuccess = () => {
 
         const orderId = response.data.data.response.orderId;
         setOrderId(orderId);
-        console.log("Order ID", orderId);
         
         if (orderId) {
           const orderResponse = await axios.get(`${backend}/order/${orderId}`, {
@@ -134,8 +133,6 @@ const OrderSuccess = () => {
 
           if (orderResponse.data.status === "Success") {
             const orderData = orderResponse.data.data.order;
-            console.log("Order Details fetched", orderData);
-            console.log("User Data", userDataParam);
 
             // Use userDataParam instead of userData state
             if (orderData && userDataParam) {
@@ -214,7 +211,6 @@ const OrderSuccess = () => {
                 order_type: ""
               };
 
-              console.log("Shipment Data", shipmentData);
 
               try {
                 const shipmentResponse = await axios.post(
@@ -231,10 +227,9 @@ const OrderSuccess = () => {
                   }
                 );
 
-                console.log("Shipment Response", shipmentResponse);
                 
                 if (shipmentResponse.data?.status === "Success") {
-                  console.log("Shipment created successfully");
+                  alert("Shipment created successfully! Your order is being processed. 📦");
                   setOrderDetails(orderData);
                 } else {
                   console.error("Failed to create shipment");

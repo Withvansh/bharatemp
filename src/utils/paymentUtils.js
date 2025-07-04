@@ -22,7 +22,6 @@ initializeSDK();
 
 // Function to initialize Cashfree checkout
 const initializeCashfreeCheckout = async (response, navigate) => {
-  console.log("Cashfree Response", response);
   try {
     if (!cashfree) {
       await initializeSDK();
@@ -34,7 +33,6 @@ const initializeCashfreeCheckout = async (response, navigate) => {
       returnUrl: window.location.origin + "/cash-payment-status/" // Will be appended with payment ID
     };
 
-    console.log("Initializing Cashfree checkout with:", checkoutOptions);
 
     const result = await cashfree.checkout(checkoutOptions);
 
@@ -57,7 +55,6 @@ const initializeCashfreeCheckout = async (response, navigate) => {
 
     // Handle redirect case
     if (result.redirect) {
-      console.log("Payment requires redirect");
       // The SDK will handle the redirect automatically
     }
   } catch (error) {
@@ -144,7 +141,6 @@ export const handleBuyNow = async ({
       product_img_url: product.product_image_main,
     };
 
-    console.log("Order Item", orderItem);
 
     // Calculate total price
     const totalPrice = Math.max(
@@ -152,7 +148,6 @@ export const handleBuyNow = async ({
       product.discounted_single_product_price * quantity + customShippingFee
     );
 
-    console.log("Total Price", totalPrice);
 
     // Prepare order data
     const orderData = {
@@ -168,7 +163,6 @@ export const handleBuyNow = async ({
       expectedDelivery: expectedDelivery,
     };
 
-    console.log("Order Data", orderData);
 
     // Create the order
     const orderResponse = await axios.post(
