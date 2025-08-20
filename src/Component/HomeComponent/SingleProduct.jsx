@@ -107,26 +107,22 @@ export default function ProductCard() {
 
         if (response.data.status === "Success" && response.data.data.product) {
           setProduct(response.data.data.product);
+          setError(null);
         } else {
-          // If API doesn't return a product, try getting from localStorage as fallback
-          const selectedProduct = localStorage.getItem("selectedProduct");
-          if (selectedProduct) {
-            const parsedProduct = JSON.parse(selectedProduct);
-            setProduct(parsedProduct);
-          } else {
-            setError("Product not found");
-          }
+          throw new Error("Product not found in API");
         }
-        console.error("Error fetching product:", error);
-
+      } catch (err) {
         // Try to get from localStorage as fallback
         const selectedProduct = localStorage.getItem("selectedProduct");
         if (selectedProduct) {
           const parsedProduct = JSON.parse(selectedProduct);
           setProduct(parsedProduct);
+          setError(null);
         } else {
-          setError("Failed to load product data");
+          setError("Product not found");
+          setProduct(null);
         }
+        console.error("Error fetching product:", err);
       } finally {
         setLoading(false);
       }
@@ -146,6 +142,7 @@ export default function ProductCard() {
       try {
         setLoading(true);
         const data = await fetchProducts();
+        console.log("Fetched products:", data);
         setProducts(data);
         setLoading(false);
       } catch (err) {
