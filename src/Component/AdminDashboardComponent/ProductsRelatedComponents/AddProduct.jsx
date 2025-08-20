@@ -942,6 +942,17 @@ const AddProduct = () => {
                     </div>
                 </div>
 
+{/* Bulk Upload */}
+<div className="mb-6">
+  <label className="block text-sm font-medium mb-2">Bulk Upload Products</label>
+  <input
+    type="file"
+    accept=".csv, .xlsx, .xls"
+    onChange={handleBulkUpload}
+    className="w-full p-2 border rounded-md"
+  />
+</div>
+
                 <button
                     type="submit"
                     className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition-colors"
