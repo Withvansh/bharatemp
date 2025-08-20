@@ -93,6 +93,8 @@ const App = () => {
             <Route path='/admin-dashboard/news-updates' element={<NewsUpdates />} />
             <Route path='/admin-dashboard/inventory' element={<InventoryManagement />} />
             <Route path='/admin-dashboard/complaints' element={<AllComplaintRaised />} />
+            <Route path='/admin-dashboard/contactus' element={<Contactus />} />
+
           </Route>
 
           {/* Policy Routes */}
