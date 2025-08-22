@@ -53,7 +53,7 @@ const Contact = () => {
         <div className="w-full md:w-[45%] flex flex-col gap-4 bg-[#f9f9f9] rounded-3xl p-4 md:p-10 text-[#1e3473]">
           <h1 className="text-2xl font-bold md:text-4xl">Leave a Message For Us</h1>
           <p className="text-[#f7941d] text-sm md:text-base">
-            Navigating Taxes, Maximizing Savings – Your Trusted Taxation Partner. Simplify compliance, focus on growth with us!
+            Powering Innovation – Your Trusted Electronics Partner. From semiconductors to robotics, build the future with us!
           </p>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-4">
@@ -136,7 +136,7 @@ const Contact = () => {
         <div className="w-full md:w-[50%] flex flex-col items-center md:items-start gap-8">
           <div className="bg-[#cdd4f1] text-main font-bold flex justify-center items-center py-2 w-[250px] rounded-3xl">Stay tuned with us</div>
           <h1 className="text-2xl md:text-5xl text-center md:text-start font-bold md:leading-[50px] text-[#1e3473]">Keep Connected & Lets Get In Touch With Our Team</h1>
-          <p className="text-[#f7941d] text-center md:text-start">Maximize Your Tax Savings with Expert Guidance from TaxRishi – Your Trusted Partner in Tax Solutions.</p>
+          <p className="text-[#f7941d] text-center md:text-start">Bharatronix – your own electronics Made with Precision – One stop platform for electronics components sourcing and manufacturing..</p>
           <div className="flex flex-col items-center gap-6 md:items-start md:flex-row">
               <span className="flex-shrink-0">
                   <MdLocationOn className="w-8 h-8 text-[#1e3473]" />
