@@ -75,7 +75,7 @@ const Footer = () => {
                     Reviews
                   </Link>
                 </li>
-                <li><Link to="/contact" className="hover:text-[#F7941D]">Careers</Link></li>
+                <li><Link to="/contact" className="hover:text-[#F7941D]">Contact us</Link></li>
                 <li><Link to="/coming-soon" className="hover:text-[#F7941D]">Financing</Link></li>
                 <li><Link to="/coming-soon" className="hover:text-[#F7941D]">Patents</Link></li>
                 <li><Link to="/coming-soon" className="hover:text-[#F7941D]">Our Blog</Link></li>
@@ -99,7 +99,7 @@ const Footer = () => {
               <h3 className="mb-2 text-xs md:text-[24px] font-semibold">CONTACT US</h3>
               <ul className="space-y-2 md:space-y-2 text-xs md:text-[12px] lg:text-[18px]">
                 <li>Email: support@Bharatronix.com</li>
-                <li>Phone: +91 79827 48787</li>
+                <li>Phone: +91 94038 93115</li>
                 {/* <li>Hours:</li>
                 <li>Mon-Fri — 10am to 8pm</li>
                 <li>Sat-Sun — 10am to 2pm</li> */}
