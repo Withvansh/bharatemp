@@ -143,7 +143,7 @@ const Contact = () => {
               </span>
               <span className="flex flex-col items-center gap-2 font-semibold md:items-start">
                   <p className="text-base md:text-xl text-[#1e3473]">Our Head Office</p>
-                  <p className="text-[#f7941d] text-base text-center md:text-start "> Office No. 102, Shree Mahaveer Arcade, First Floor, C-19, Sector-15, Adjoing SBI Bank, Near Atal Chowk, Vasundhara, Ghaziabad - 201012 (U.P.)</p>
+                  <p className="text-[#f7941d] text-base text-center md:text-start ">3rd floor, A-36, A Block, Sector 10,Near ISUZU Showroom, Noida, Uttar Pradesh- 201301 (U.P.)</p>
               </span>
           </div>
           <div className="flex flex-col items-center gap-6 md:items-start md:flex-row">
@@ -161,7 +161,7 @@ const Contact = () => {
               </span>
               <span className="flex flex-col items-center gap-2 font-semibold md:items-start">
                   <p className="text-base md:text-xl text-[#1e3473]">Telephone</p>
-                  <p className="text-[#f7941d] text-base text-center md:text-start ">(+91) 79827 48787</p>
+                  <p className="text-[#f7941d] text-base text-center md:text-start ">(+91) 94038 93115</p>
               </span>
           </div>
         </div>
