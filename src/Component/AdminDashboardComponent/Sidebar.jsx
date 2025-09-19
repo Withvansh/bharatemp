@@ -151,9 +151,16 @@ const Sidebar = () => {
           <Link
             to="/admin-dashboard/news-updates"
             onClick={closeNav}
-            className="block p-2 md:p-3 hover:bg-gray-700 rounded text-sm md:text-base"
+            className="block p-2 border-t-1 mt-8 md:p-3 hover:bg-gray-700 rounded text-sm md:text-base"
           >
             News & Updates
+          </Link>
+          <Link
+            to="/admin-dashboard/blog-management"
+            onClick={closeNav}
+            className="block p-2 md:p-3 hover:bg-gray-700 rounded text-sm md:text-base"
+          >
+            Blog Management
           </Link>
           <Link
             to="/"

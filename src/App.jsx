@@ -1,4 +1,3 @@
-
 import {
   BrowserRouter as Router,
   Routes,
@@ -38,6 +37,7 @@ import AllComplaintRaised from "./Component/AdminDashboardComponent/ComplaintRai
 import ReturnRequest from "./Component/AdminDashboardComponent/ReturnRequestComponents/ReturnRequest.jsx";
 import NewsUpdates from "./Component/AdminDashboardComponent/NewsAndUpdatesComponents/NewsUpdates.jsx";
 import ContactUs from "./Component/AdminDashboardComponent/ContactUsComponent/contactus.jsx";
+import BlogManagement from "./Component/AdminDashboardComponent/BlogManagement/BlogManagement.jsx";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import OrdersAndPaymentPolicy from "./pages/OrdersAndPaymentPolicy";
@@ -48,9 +48,12 @@ import WarrantyPolicy from "./pages/WarrantyPolicy";
 import Subcategory from "./pages/Subcategory.jsx";
 import SubCategories from "./pages/SubCategories";
 import Contact from "./pages/Contact";
+import Blogs from "./pages/Blogs";
+import BlogPost from "./pages/BlogPost";
 import ComingSoon from "./pages/ComingSoon";
 import { FaWhatsapp } from "react-icons/fa";
 import OrderSuccess2 from "./Component/HomeComponent/CashThankyou.jsx";
+import ShopByBrand from "./pages/ShopByBrand.jsx";
 
 const AppContent = () => {
   const location = useLocation();
@@ -74,6 +77,7 @@ const AppContent = () => {
         <Route path="/b2bpage" element={<Ouronline />} />
         <Route path="/subcategory" element={<Subcategory />} />
         <Route path="/subcategories" element={<SubCategories />} />
+        <Route path="/shopbybrand" element={<ShopByBrand />} />
         {/* Authentication Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -81,6 +85,8 @@ const AppContent = () => {
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/blogs" element={<Blogs />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
 
         {/* dashboard */}
@@ -111,6 +117,10 @@ const AppContent = () => {
           <Route
             path="/admin-dashboard/news-updates"
             element={<NewsUpdates />}
+          />
+          <Route
+            path="/admin-dashboard/blog-management"
+            element={<BlogManagement />}
           />
           <Route
             path="/admin-dashboard/inventory"
