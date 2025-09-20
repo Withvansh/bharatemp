@@ -77,6 +77,8 @@ const AddProduct = () => {
   ]);
   const [loading, setLoading] = useState(false);
   const [isBulkMode, setIsBulkMode] = useState(false);
+  
+
 
   // Define form steps
   const steps = [
@@ -164,7 +166,7 @@ const AddProduct = () => {
       case 3:
         return true; // Product details are mostly optional
       case 4:
-        return (formData.product_image_urls && formData.product_image_urls.length > 0) || formData.product_image_sub.length > 0; // At least one image required
+        return true; // Allow proceeding to review step even without images
       case 5:
         return true; // Final step
       default:
@@ -386,8 +388,8 @@ const AddProduct = () => {
       }
 
       // Validate images
-      if (!formData.product_image_urls || formData.product_image_urls.length === 0) {
-        toast.error("Please upload at least one image");
+      if ((!formData.product_image_urls || formData.product_image_urls.length === 0) && formData.product_image_sub.length === 0) {
+        toast.error("Please upload at least one image before submitting");
         setLoading(false);
         return;
       }
@@ -571,8 +573,15 @@ const AddProduct = () => {
       );
 
       if (response.data.status === "SUCCESS") {
-        toast.success("Product added successfully!");
         setLoading(false);
+        
+        // Trigger refresh in products page
+        localStorage.setItem('refreshProducts', 'true');
+        
+        toast.success("🎉 Product added successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
         // Reset form to initial state
         setFormData({
           category_id: "",
@@ -620,13 +629,48 @@ const AddProduct = () => {
           coupon: "",
         });
         setPreviewImages([]);
+        setCurrentStep(1); // Reset to first step
+        
+        // Show success message with navigation option
+        toast.success(
+          <div>
+            <p>Product added successfully! Form has been reset.</p>
+            <button 
+              onClick={() => window.open('/product', '_blank')}
+              className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+            >
+              View Products
+            </button>
+          </div>,
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
       }
     } catch (error) {
       console.error(error);
-      toast.error(
-        error.response?.data?.data?.message || "Failed to add product"
-      );
       setLoading(false);
+      
+      let errorMessage = "❌ Failed to add product to database";
+      
+      if (error.response?.data?.data?.message) {
+        const message = error.response.data.data.message;
+        if (message.includes("duplicate key error") && message.includes("SKU")) {
+          errorMessage = `❌ SKU "${formData.SKU}" already exists! Please use a unique SKU.`;
+        } else {
+          errorMessage = message;
+        }
+      }
+      
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+      });
     }
   };
 
@@ -1438,48 +1482,202 @@ const AddProduct = () => {
         </div>
       </div>
 
-      {/* Summary */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-        <h4 className="text-lg font-medium text-gray-800 mb-3">
+      {/* Enhanced Product Summary */}
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 shadow-sm">
+        <h4 className="text-xl font-semibold text-blue-800 mb-4 flex items-center">
+          <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+          </svg>
           Product Summary
         </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="font-medium text-gray-600">Product Name:</span>
-            <p className="text-gray-800">
-              {formData.product_name || "Not specified"}
-            </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <h5 className="font-semibold text-gray-700 mb-3">Basic Information</h5>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Product Name:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.product_name || "Not specified"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">SKU:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.SKU || "Not specified"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Category:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.category_name || "Not specified"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Brand:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.brand_name || "Not specified"}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <h5 className="font-semibold text-gray-700 mb-3">Media & Content</h5>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Images:</span>
+                  <span className={`font-medium ${
+                    previewImages.length > 0 ? "text-green-600" : "text-gray-500"
+                  }`}>
+                    {previewImages.length > 0 ? `${previewImages.length} uploaded` : "No images"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Description:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.product_description ? "Added" : "Not added"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Specifications:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.specifications.filter(spec => spec.title.trim() !== "").length} groups
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <span className="font-medium text-gray-600">SKU:</span>
-            <p className="text-gray-800">{formData.SKU || "Not specified"}</p>
+          
+          {/* Pricing & Stock */}
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <h5 className="font-semibold text-gray-700 mb-3">Pricing & Stock</h5>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Original Price:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.non_discounted_price ? `₹${formData.non_discounted_price}` : "Not specified"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Selling Price:</span>
+                  <span className="font-medium text-green-600">
+                    {formData.discounted_single_product_price ? `₹${formData.discounted_single_product_price}` : "Not specified"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Discount:</span>
+                  <span className="font-medium text-orange-600">
+                    {formData.discount ? `${formData.discount}%` : "No discount"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Stock Status:</span>
+                  <span className={`font-medium ${
+                    formData.product_instock ? "text-green-600" : "text-red-600"
+                  }`}>
+                    {formData.product_instock
+                      ? `${formData.no_of_product_instock || 0} in stock`
+                      : "Out of stock"}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <h5 className="font-semibold text-gray-700 mb-3">Additional Details</h5>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Product Type:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.product_type || "Not specified"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Model:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.model || "Not specified"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Tags:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.product_tags.length > 0 ? `${formData.product_tags.length} tags` : "No tags"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Warranty:</span>
+                  <span className="font-medium text-gray-800">
+                    {formData.product_warranty ? "Added" : "Not specified"}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <span className="font-medium text-gray-600">Category:</span>
-            <p className="text-gray-800">
-              {formData.category_name || "Not specified"}
-            </p>
+        </div>
+        
+        {/* Image Preview */}
+        {previewImages.length > 0 && (
+          <div className="mt-6">
+            <h5 className="font-semibold text-gray-700 mb-3">Product Images Preview</h5>
+            <div className="flex gap-3 flex-wrap">
+              {previewImages.slice(0, 4).map((image, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={image.url}
+                    alt={`Preview ${index + 1}`}
+                    className="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm"
+                  />
+                  {index === 0 && (
+                    <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                      Main
+                    </span>
+                  )}
+                </div>
+              ))}
+              {previewImages.length > 4 && (
+                <div className="w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center">
+                  <span className="text-gray-500 text-sm">+{previewImages.length - 4}</span>
+                </div>
+              )}
+            </div>
           </div>
-          <div>
-            <span className="font-medium text-gray-600">Images:</span>
-            <p className="text-gray-800">{previewImages.length} uploaded</p>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">Price:</span>
-            <p className="text-gray-800">
-              ₹
-              {formData.discounted_single_product_price ||
-                formData.non_discounted_price ||
-                "Not specified"}
-            </p>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">Stock:</span>
-            <p className="text-gray-800">
-              {formData.product_instock
-                ? `${formData.no_of_product_instock || 0} in stock`
-                : "Out of stock"}
-            </p>
+        )}
+        
+        {/* Validation Status */}
+        <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
+          <h5 className="font-semibold text-gray-700 mb-3">Validation Status</h5>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex items-center">
+              <div className={`w-3 h-3 rounded-full mr-2 ${
+                formData.product_name && formData.SKU && formData.category_id
+                  ? "bg-green-500" : "bg-red-500"
+              }`}></div>
+              <span className="text-sm text-gray-600">Basic Info</span>
+            </div>
+            <div className="flex items-center">
+              <div className={`w-3 h-3 rounded-full mr-2 ${
+                previewImages.length > 0 ? "bg-green-500" : "bg-red-500"
+              }`}></div>
+              <span className="text-sm text-gray-600">Images</span>
+            </div>
+            <div className="flex items-center">
+              <div className={`w-3 h-3 rounded-full mr-2 ${
+                formData.discounted_single_product_price || formData.non_discounted_price
+                  ? "bg-green-500" : "bg-yellow-500"
+              }`}></div>
+              <span className="text-sm text-gray-600">Pricing</span>
+            </div>
+            <div className="flex items-center">
+              <div className={`w-3 h-3 rounded-full mr-2 ${
+                formData.product_description || formData.product_feature
+                  ? "bg-green-500" : "bg-yellow-500"
+              }`}></div>
+              <span className="text-sm text-gray-600">Description</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1571,14 +1769,31 @@ const AddProduct = () => {
                 ) : (
                   <button
                     type="submit"
-                    disabled={isBulkMode}
+                    disabled={isBulkMode || loading}
                     className={`flex items-center gap-2 px-8 py-3 rounded-lg font-medium transition-colors ${
-                      isBulkMode
+                      isBulkMode || loading
                         ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                        : "bg-green-600 text-white hover:bg-green-700"
+                        : "bg-green-600 text-white hover:bg-green-700 shadow-lg hover:shadow-xl"
                     }`}
                   >
-                    {isBulkMode ? "Bulk Upload Active" : "Add Product"}
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Adding Product...
+                      </>
+                    ) : isBulkMode ? (
+                      "Bulk Upload Active"
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                        </svg>
+                        Add Product
+                      </>
+                    )}
                   </button>
                 )}
               </div>

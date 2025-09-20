@@ -116,6 +116,8 @@ const Product = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [activeTab, setActiveTab] = useState("All");
   const [loadingBuyNow, setLoadingBuyNow] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(24);
 
   const [showSidebar, setShowSidebar] = useState(false);
   const [sliderValue, setSliderValue] = useState(50000);
@@ -180,30 +182,53 @@ const Product = () => {
       setLoading(true);
       const response = await axios.post(`${backend}/product/list`, {
         pageNum: 1,
-        pageSize: 50,
+        pageSize: 1000,
         filters: {},
       });
       if (response.data.status === "Success") {
-        setAllProducts(response.data.data.productList);
-        setTotalProducts(response.data.data.productCount);
+        const products = response.data.data.productList || [];
+        setAllProducts(products);
+        setTotalProducts(response.data.data.productCount || products.length);
       } else {
-        // If API fails or returns no products, use mock data
-        setAllProducts(mockProducts);
-        setTotalProducts(mockProducts.length);
+        setAllProducts([]);
+        setTotalProducts(0);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
-      // If API call fails, use mock data
-      setAllProducts(mockProducts);
-      setTotalProducts(mockProducts.length);
+      setAllProducts([]);
+      setTotalProducts(0);
     } finally {
       setLoading(false);
     }
   }
+  
+  // Add refresh function for when new products are added
+  const refreshProducts = () => {
+    fetchAllProducts();
+  };
+  
+  // Listen for storage events to refresh when products are added
+  useEffect(() => {
+    const checkForRefresh = setInterval(() => {
+      if (localStorage.getItem('refreshProducts')) {
+        refreshProducts();
+        localStorage.removeItem('refreshProducts');
+      }
+    }, 1000);
+    
+    return () => {
+      clearInterval(checkForRefresh);
+    };
+  }, []);
 
   useEffect(() => {
     fetchAllProducts();
   }, []);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, priceRangeFilter, priceCheckboxFilters, categoryFilters, subcategoryFilters, brandFilters, searchQuery]);
 
   // Fix the order of function declarations and usage
   const tabs = ["All", "On Sale", "Top Rated"];
@@ -397,6 +422,13 @@ const Product = () => {
     brandFilters,
     searchQuery,
   ]);
+
+  // Get paginated products for display
+  const getPaginatedProducts = () => {
+    const startIndex = (currentPage - 1) * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+    return displayedProducts.slice(startIndex, endIndex);
+  };
 
   const handleSliderChange = (e) => {
     const value = Number(e.target.value);
@@ -892,6 +924,13 @@ const Product = () => {
                   {displayedProducts.length === 1 ? "product" : "products"}{" "}
                   found
                 </p>
+                <button
+                  onClick={refreshProducts}
+                  className="ml-2 px-3 py-1 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors"
+                  title="Refresh products list"
+                >
+                  🔄 Refresh
+                </button>
 
                 {[
                   // Add slider price range if it's not at max
@@ -1008,8 +1047,8 @@ const Product = () => {
                   <div className="col-span-full flex justify-center items-center py-40">
                     <LoadingSpinner />
                   </div>
-                ) : displayedProducts.length > 0 ? (
-                  displayedProducts.map((product, index) => (
+                ) : getPaginatedProducts().length > 0 ? (
+                  getPaginatedProducts().map((product, index) => (
                     <div
                       key={index}
                       className="bg-white border border-gray-200 rounded-[20px] p-4 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col h-full"
@@ -1017,26 +1056,34 @@ const Product = () => {
                     >
                       <div className="flex justify-center mb-5">
                         <img
-                          src={product.product_image_main}
-                          alt={product.product_name}
+                          src={
+                            product.product_image_main || 
+                            (Array.isArray(product.product_image_sub) && product.product_image_sub[0]) ||
+                            (Array.isArray(product.product_image_urls) && product.product_image_urls[0]) ||
+                            raspberry
+                          }
+                          alt={product.product_name || 'Product'}
                           className="w-full h-40 object-contain"
+                          onError={(e) => {
+                            e.target.src = raspberry;
+                          }}
                         />
                       </div>
                       <div className="">
                         <h2 className="text-[#1e3473] font-semibold h-[84px] text-lg">
-                          {product.product_name}
+                          {product.product_name || 'Unnamed Product'}
                         </h2>
                         <p className="text-gray-400 text-sm">
-                          {product.category_name}
+                          {product.category_name || 'Uncategorized'}
                         </p>
                         <div className="flex items-center my-3">
                           {Array(5)
                             .fill()
                             .map((_, i) => (
                               <span key={i} className="text-orange-400">
-                                {i < Math.floor(product.review_stars || 0) ? (
+                                {i < Math.floor(Number(product.review_stars) || 0) ? (
                                   <FaStar />
-                                ) : i < (product.review_stars || 0) ? (
+                                ) : i < (Number(product.review_stars) || 0) ? (
                                   <FaStarHalfAlt />
                                 ) : (
                                   <FaRegStar />
@@ -1044,17 +1091,18 @@ const Product = () => {
                               </span>
                             ))}
                           <span className="text-gray-600 ml-1 text-sm">
-                            ({product.no_of_reviews || 0})
+                            ({Number(product.no_of_reviews) || 0})
                           </span>
                         </div>
                         <div className="">
                           <span className="text-xl font-semibold">
-                            ₹
-                            {product.discounted_single_product_price?.toLocaleString()}
+                            ₹{(Number(product.discounted_single_product_price) || Number(product.non_discounted_price) || 0).toLocaleString()}
                           </span>
-                          <span className="text-sm line-through text-gray-400 ml-2">
-                            ₹{product.non_discounted_price?.toLocaleString()}
-                          </span>
+                          {Number(product.non_discounted_price) && Number(product.discounted_single_product_price) && Number(product.non_discounted_price) > Number(product.discounted_single_product_price) && (
+                            <span className="text-sm line-through text-gray-400 ml-2">
+                              ₹{Number(product.non_discounted_price).toLocaleString()}
+                            </span>
+                          )}
                         </div>
                       </div>
 
@@ -1148,6 +1196,62 @@ const Product = () => {
                   </div>
                 )}
               </div>
+              
+              {/* Pagination */}
+              {displayedProducts.length > productsPerPage && (
+                <div className="flex justify-end mt-8">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className={`px-3 py-2 rounded-lg text-sm ${
+                        currentPage === 1
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      Previous
+                    </button>
+                    
+                    {Array.from({ length: Math.ceil(displayedProducts.length / productsPerPage) }, (_, i) => i + 1)
+                      .filter(page => 
+                        page === 1 || 
+                        page === Math.ceil(displayedProducts.length / productsPerPage) || 
+                        Math.abs(page - currentPage) <= 1
+                      )
+                      .map((page, index, array) => (
+                        <React.Fragment key={page}>
+                          {index > 0 && array[index - 1] !== page - 1 && (
+                            <span className="px-2 text-gray-400">...</span>
+                          )}
+                          <button
+                            onClick={() => setCurrentPage(page)}
+                            className={`px-3 py-2 rounded-lg text-sm ${
+                              currentPage === page
+                                ? "bg-[#1e3473] text-white"
+                                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      ))
+                    }
+                    
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(displayedProducts.length / productsPerPage)))}
+                      disabled={currentPage === Math.ceil(displayedProducts.length / productsPerPage)}
+                      className={`px-3 py-2 rounded-lg text-sm ${
+                        currentPage === Math.ceil(displayedProducts.length / productsPerPage)
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
