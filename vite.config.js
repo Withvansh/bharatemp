@@ -4,7 +4,11 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: {
-    port: 5174, // Change this to any available port you want
+  css: {
+    // Force PostCSS pipeline (no lightningcss .node binary issues)
+    transformer: 'postcss',
   },
+  server: {
+    port: 5174, 
+},
 });
