@@ -77,8 +77,6 @@ const AddProduct = () => {
   ]);
   const [loading, setLoading] = useState(false);
   const [isBulkMode, setIsBulkMode] = useState(false);
-  
-
 
   // Define form steps
   const steps = [
@@ -123,20 +121,6 @@ const AddProduct = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    const newImages = files.map((file) => ({
-      file,
-      url: URL.createObjectURL(file),
-    }));
-
-    setPreviewImages((prev) => [...prev, ...newImages]);
-    setFormData((prev) => ({
-      ...prev,
-      product_image_sub: [...prev.product_image_sub, ...files],
-    }));
-  };
-
   // Step navigation functions
   const nextStep = () => {
     if (currentStep < totalSteps) {
@@ -167,20 +151,20 @@ const AddProduct = () => {
         return true; // Product details are mostly optional
       case 4:
         return true; // Allow proceeding to review step even without images
-      case 5:
+      case 5: {
         // Final step validation - check all required fields and images
-        const hasRequiredFields = (
+        const hasRequiredFields =
           formData.category_id &&
           formData.category_name &&
           formData.sub_category_id &&
           formData.SKU &&
-          formData.product_name
-        );
-        const hasImages = (
-          (formData.product_image_urls && formData.product_image_urls.length > 0) ||
-          previewImages.length > 0
-        );
+          formData.product_name;
+        const hasImages =
+          (formData.product_image_urls &&
+            formData.product_image_urls.length > 0) ||
+          previewImages.length > 0;
         return hasRequiredFields && hasImages;
+      }
       default:
         return true;
     }
@@ -400,7 +384,11 @@ const AddProduct = () => {
       }
 
       // Validate images
-      if ((!formData.product_image_urls || formData.product_image_urls.length === 0) && formData.product_image_sub.length === 0) {
+      if (
+        (!formData.product_image_urls ||
+          formData.product_image_urls.length === 0) &&
+        formData.product_image_sub.length === 0
+      ) {
         toast.error("Please upload at least one image before submitting");
         setLoading(false);
         return;
@@ -428,8 +416,14 @@ const AddProduct = () => {
       formDataToSend.append("product_name", formData.product_name);
 
       // Images - Send Cloudinary URLs
-      if (formData.product_image_urls && formData.product_image_urls.length > 0) {
-        formDataToSend.append("product_image_urls", JSON.stringify(formData.product_image_urls));
+      if (
+        formData.product_image_urls &&
+        formData.product_image_urls.length > 0
+      ) {
+        formDataToSend.append(
+          "product_image_urls",
+          JSON.stringify(formData.product_image_urls)
+        );
       }
 
       // Product Details
@@ -586,10 +580,10 @@ const AddProduct = () => {
 
       if (response.data.status === "SUCCESS") {
         setLoading(false);
-        
+
         // Trigger refresh in products page
-        localStorage.setItem('refreshProducts', 'true');
-        
+        localStorage.setItem("refreshProducts", "true");
+
         toast.success("Product added successfully", {
           position: "top-right",
           autoClose: 3000,
@@ -642,24 +636,25 @@ const AddProduct = () => {
         });
         setPreviewImages([]);
         setCurrentStep(1); // Reset to first step
-        
-
       }
     } catch (error) {
       console.error(error);
       setLoading(false);
-      
+
       let errorMessage = "❌ Failed to add product to database";
-      
+
       if (error.response?.data?.data?.message) {
         const message = error.response.data.data.message;
-        if (message.includes("duplicate key error") && message.includes("SKU")) {
+        if (
+          message.includes("duplicate key error") &&
+          message.includes("SKU")
+        ) {
           errorMessage = `❌ SKU "${formData.SKU}" already exists! Please use a unique SKU.`;
         } else {
           errorMessage = message;
         }
       }
-      
+
       toast.error(errorMessage, {
         position: "top-right",
         autoClose: 5000,
@@ -1269,31 +1264,37 @@ const AddProduct = () => {
           onUploadSuccess={(uploadedData) => {
             if (uploadedData && Array.isArray(uploadedData)) {
               // Handle array of images
-              const newImages = uploadedData.map(item => ({
+              const newImages = uploadedData.map((item) => ({
                 url: item?.url || item,
-                cloudinary_url: item?.url || item
+                cloudinary_url: item?.url || item,
               }));
-              setPreviewImages(prev => [...prev, ...newImages]);
-              setFormData(prev => ({
+              setPreviewImages((prev) => [...prev, ...newImages]);
+              setFormData((prev) => ({
                 ...prev,
-                product_image_urls: [...(prev.product_image_urls || []), ...uploadedData.map(item => item?.url || item)]
+                product_image_urls: [
+                  ...(prev.product_image_urls || []),
+                  ...uploadedData.map((item) => item?.url || item),
+                ],
               }));
             } else if (uploadedData) {
               // Handle single image or fallback
               const imageUrl = uploadedData.url || uploadedData;
               const newImage = {
                 url: imageUrl,
-                cloudinary_url: imageUrl
+                cloudinary_url: imageUrl,
               };
-              setPreviewImages(prev => [...prev, newImage]);
-              setFormData(prev => ({
+              setPreviewImages((prev) => [...prev, newImage]);
+              setFormData((prev) => ({
                 ...prev,
-                product_image_urls: [...(prev.product_image_urls || []), imageUrl]
+                product_image_urls: [
+                  ...(prev.product_image_urls || []),
+                  imageUrl,
+                ],
               }));
             }
           }}
         />
-        
+
         {previewImages.length > 0 && (
           <div className="flex gap-3 flex-wrap mt-4">
             {previewImages.map((image, index) => (
@@ -1479,16 +1480,22 @@ const AddProduct = () => {
       <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 shadow-sm">
         <h4 className="text-xl font-semibold text-blue-800 mb-4 flex items-center">
           <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+            <path
+              fillRule="evenodd"
+              d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+              clipRule="evenodd"
+            />
           </svg>
           Product Summary
         </h4>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Basic Information */}
           <div className="space-y-4">
             <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <h5 className="font-semibold text-gray-700 mb-3">Basic Information</h5>
+              <h5 className="font-semibold text-gray-700 mb-3">
+                Basic Information
+              </h5>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Product Name:</span>
@@ -1516,16 +1523,24 @@ const AddProduct = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <h5 className="font-semibold text-gray-700 mb-3">Media & Content</h5>
+              <h5 className="font-semibold text-gray-700 mb-3">
+                Media & Content
+              </h5>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Images:</span>
-                  <span className={`font-medium ${
-                    previewImages.length > 0 ? "text-green-600" : "text-gray-500"
-                  }`}>
-                    {previewImages.length > 0 ? `${previewImages.length} uploaded` : "No images"}
+                  <span
+                    className={`font-medium ${
+                      previewImages.length > 0
+                        ? "text-green-600"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {previewImages.length > 0
+                      ? `${previewImages.length} uploaded`
+                      : "No images"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -1537,41 +1552,58 @@ const AddProduct = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Specifications:</span>
                   <span className="font-medium text-gray-800">
-                    {formData.specifications.filter(spec => spec.title.trim() !== "").length} groups
+                    {
+                      formData.specifications.filter(
+                        (spec) => spec.title.trim() !== ""
+                      ).length
+                    }{" "}
+                    groups
                   </span>
                 </div>
               </div>
             </div>
           </div>
-          
+
           {/* Pricing & Stock */}
           <div className="space-y-4">
             <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <h5 className="font-semibold text-gray-700 mb-3">Pricing & Stock</h5>
+              <h5 className="font-semibold text-gray-700 mb-3">
+                Pricing & Stock
+              </h5>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Original Price:</span>
                   <span className="font-medium text-gray-800">
-                    {formData.non_discounted_price ? `₹${formData.non_discounted_price}` : "Not specified"}
+                    {formData.non_discounted_price
+                      ? `₹${formData.non_discounted_price}`
+                      : "Not specified"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Selling Price:</span>
                   <span className="font-medium text-green-600">
-                    {formData.discounted_single_product_price ? `₹${formData.discounted_single_product_price}` : "Not specified"}
+                    {formData.discounted_single_product_price
+                      ? `₹${formData.discounted_single_product_price}`
+                      : "Not specified"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Discount:</span>
                   <span className="font-medium text-orange-600">
-                    {formData.discount ? `${formData.discount}%` : "No discount"}
+                    {formData.discount
+                      ? `${formData.discount}%`
+                      : "No discount"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Stock Status:</span>
-                  <span className={`font-medium ${
-                    formData.product_instock ? "text-green-600" : "text-red-600"
-                  }`}>
+                  <span
+                    className={`font-medium ${
+                      formData.product_instock
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
                     {formData.product_instock
                       ? `${formData.no_of_product_instock || 0} in stock`
                       : "Out of stock"}
@@ -1579,9 +1611,11 @@ const AddProduct = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <h5 className="font-semibold text-gray-700 mb-3">Additional Details</h5>
+              <h5 className="font-semibold text-gray-700 mb-3">
+                Additional Details
+              </h5>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Product Type:</span>
@@ -1598,7 +1632,9 @@ const AddProduct = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tags:</span>
                   <span className="font-medium text-gray-800">
-                    {formData.product_tags.length > 0 ? `${formData.product_tags.length} tags` : "No tags"}
+                    {formData.product_tags.length > 0
+                      ? `${formData.product_tags.length} tags`
+                      : "No tags"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -1611,11 +1647,13 @@ const AddProduct = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Image Preview */}
         {previewImages.length > 0 && (
           <div className="mt-6">
-            <h5 className="font-semibold text-gray-700 mb-3">Product Images Preview</h5>
+            <h5 className="font-semibold text-gray-700 mb-3">
+              Product Images Preview
+            </h5>
             <div className="flex gap-3 flex-wrap">
               {previewImages.slice(0, 4).map((image, index) => (
                 <div key={index} className="relative">
@@ -1633,42 +1671,58 @@ const AddProduct = () => {
               ))}
               {previewImages.length > 4 && (
                 <div className="w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500 text-sm">+{previewImages.length - 4}</span>
+                  <span className="text-gray-500 text-sm">
+                    +{previewImages.length - 4}
+                  </span>
                 </div>
               )}
             </div>
           </div>
         )}
-        
+
         {/* Validation Status */}
         <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
-          <h5 className="font-semibold text-gray-700 mb-3">Validation Status</h5>
+          <h5 className="font-semibold text-gray-700 mb-3">
+            Validation Status
+          </h5>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex items-center">
-              <div className={`w-3 h-3 rounded-full mr-2 ${
-                formData.product_name && formData.SKU && formData.category_id
-                  ? "bg-green-500" : "bg-red-500"
-              }`}></div>
+              <div
+                className={`w-3 h-3 rounded-full mr-2 ${
+                  formData.product_name && formData.SKU && formData.category_id
+                    ? "bg-green-500"
+                    : "bg-red-500"
+                }`}
+              ></div>
               <span className="text-sm text-gray-600">Basic Info</span>
             </div>
             <div className="flex items-center">
-              <div className={`w-3 h-3 rounded-full mr-2 ${
-                previewImages.length > 0 ? "bg-green-500" : "bg-red-500"
-              }`}></div>
+              <div
+                className={`w-3 h-3 rounded-full mr-2 ${
+                  previewImages.length > 0 ? "bg-green-500" : "bg-red-500"
+                }`}
+              ></div>
               <span className="text-sm text-gray-600">Images</span>
             </div>
             <div className="flex items-center">
-              <div className={`w-3 h-3 rounded-full mr-2 ${
-                formData.discounted_single_product_price || formData.non_discounted_price
-                  ? "bg-green-500" : "bg-yellow-500"
-              }`}></div>
+              <div
+                className={`w-3 h-3 rounded-full mr-2 ${
+                  formData.discounted_single_product_price ||
+                  formData.non_discounted_price
+                    ? "bg-green-500"
+                    : "bg-yellow-500"
+                }`}
+              ></div>
               <span className="text-sm text-gray-600">Pricing</span>
             </div>
             <div className="flex items-center">
-              <div className={`w-3 h-3 rounded-full mr-2 ${
-                formData.product_description || formData.product_feature
-                  ? "bg-green-500" : "bg-yellow-500"
-              }`}></div>
+              <div
+                className={`w-3 h-3 rounded-full mr-2 ${
+                  formData.product_description || formData.product_feature
+                    ? "bg-green-500"
+                    : "bg-yellow-500"
+                }`}
+              ></div>
               <span className="text-sm text-gray-600">Description</span>
             </div>
           </div>
@@ -1776,9 +1830,25 @@ const AddProduct = () => {
                   >
                     {loading ? (
                       <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
                         </svg>
                         Adding Product...
                       </>
@@ -1786,8 +1856,16 @@ const AddProduct = () => {
                       "Bulk Upload Active"
                     ) : (
                       <>
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                         Add Product
                       </>
