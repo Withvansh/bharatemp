@@ -55,6 +55,7 @@ import ComingSoon from "./pages/ComingSoon";
 import { FaWhatsapp } from "react-icons/fa";
 import OrderSuccess2 from "./Component/HomeComponent/CashThankyou.jsx";
 import ShopByBrand from "./pages/ShopByBrand.jsx";
+import PaymentCancelled from "./pages/PaymentCancelled.jsx";
 
 const AppContent = () => {
   const location = useLocation();
@@ -74,6 +75,7 @@ const AppContent = () => {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/payment-status/:id" element={<Thanku />} />
         <Route path="/cash-payment-status/:id" element={<OrderSuccess2 />} />
+        <Route path="/payment-cancelled/:orderId?" element={<PaymentCancelled />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/b2bpage" element={<Ouronline />} />
         <Route path="/subcategory" element={<Subcategory />} />

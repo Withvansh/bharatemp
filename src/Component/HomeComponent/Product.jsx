@@ -1052,20 +1052,12 @@ const Product = () => {
                             )}
                         </div>
                         
-                        {/* Stock Information */}
+                        {/* Stock Information - Only show Out of Stock */}
                         <div className="mt-2">
                           {product.product_instock === false || product.no_of_product_instock === 0 ? (
                             <span className="text-red-600 text-sm font-medium">Out of Stock</span>
-                          ) : product.no_of_product_instock && product.no_of_product_instock < 5 ? (
-                            <span className="text-orange-600 text-sm font-medium">
-                              Only {product.no_of_product_instock} left in stock
-                            </span>
-                          ) : product.no_of_product_instock ? (
-                            <span className="text-green-600 text-sm font-medium">
-                              {product.no_of_product_instock} in stock
-                            </span>
                           ) : (
-                            <span className="text-gray-500 text-sm">Stock info unavailable</span>
+                            <span className="text-green-600 text-sm font-medium">In Stock</span>
                           )}
                         </div>
                       </div>

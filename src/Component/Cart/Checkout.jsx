@@ -663,32 +663,21 @@ const Checkout = () => {
           const response = await axios.get(`${backend}/product/${item._id}`);
           const product = response.data?.data?.product;
           
-          if (!product) {
-            throw new Error(`Product ${item.product_name} not found`);
-          }
-          
-          if (!product.product_instock || product.no_of_product_instock < item.quantity) {
-            throw new Error(`${item.product_name} is out of stock or insufficient quantity. Available: ${product.no_of_product_instock || 0}, Required: ${item.quantity}`);
-          }
-        } catch (stockError) {
-          console.error('Stock validation error:', stockError);
-          const errorMsg = stockError.response?.data?.message || stockError.message || `Failed to validate stock for ${item.product_name}`;
-          
-          // Show error with cart update option
-          toast.error(errorMsg, {
-            position: "top-right",
-            autoClose: 8000,
-          });
-          
-          setTimeout(() => {
-            toast.info('Please update your cart quantities and try again.', {
+          if (!product || !product.product_instock || product.no_of_product_instock < item.quantity) {
+            toast.error('Product is out of stock', {
               position: "top-right",
               autoClose: 5000,
-              onClick: () => navigate('/cart')
             });
-          }, 2000);
-          
-          throw new Error(errorMsg);
+            throw new Error('Stock validation failed');
+          }
+        } catch (stockError) {
+          if (stockError.message !== 'Stock validation failed') {
+            toast.error('Product is out of stock', {
+              position: "top-right",
+              autoClose: 5000,
+            });
+          }
+          throw new Error('Stock validation failed');
         }
       }
 
@@ -793,6 +782,14 @@ const Checkout = () => {
       if (paymentResponse.data.data.response.phonepeResponse.redirectUrl) {
         // Set the orderId in state before redirecting
         setOrderId(createdOrderId);
+        
+        // Store payment details for potential cancellation handling
+        sessionStorage.setItem('pendingPayment', JSON.stringify({
+          orderId: createdOrderId,
+          paymentId: paymentResponse.data.data.response.payment._id,
+          amount: finalTotal
+        }));
+        
         // Redirect to PhonePe payment page
         window.location.href =
           paymentResponse.data.data.response.phonepeResponse.redirectUrl;
@@ -801,49 +798,31 @@ const Checkout = () => {
         throw new Error("Payment gateway redirect URL not found. Please contact support.");
       }
     } catch (error) {
-      console.error("Payment error:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        stack: error.stack
-      });
       
       let errorMessage = "Failed to process payment. Please try again.";
       
-      // Handle different types of errors
-      if (error.response?.status === 500) {
-        if (error.response?.data?.data?.message?.includes('out of stock')) {
-          errorMessage = error.response.data.data.message;
-        } else {
-          errorMessage = "Payment service is temporarily unavailable. Please try again in a few minutes.";
-        }
-      } else if (error.response?.status === 400) {
-        errorMessage = "Invalid payment request. Please check your order details.";
-      } else if (error.response?.data?.data?.message) {
-        errorMessage = error.response.data.data.message;
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      } else if (error.code === 'ECONNABORTED') {
-        errorMessage = "Payment request timed out. Please try again.";
-      } else if (error.code === 'NETWORK_ERROR') {
-        errorMessage = "Network error. Please check your connection and try again.";
+      // Handle stock validation errors silently
+      if (error.message === 'Stock validation failed') {
+        setProcessingPayment(false);
+        return;
       }
       
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 10000,
-      });
+      // Handle other errors
+      if (error.response?.status === 500) {
+        errorMessage = "Payment service is temporarily unavailable. Please try again.";
+      } else if (error.response?.status === 400) {
+        errorMessage = "Invalid payment request. Please check your order details.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       
-      // If it's a stock error, suggest user to update cart
-      if (errorMessage.includes('out of stock') || errorMessage.includes('insufficient quantity')) {
-        setTimeout(() => {
-          toast.info('Please update your cart and try again.', {
-            position: "top-right",
-            autoClose: 5000,
-          });
-        }, 2000);
+      // Only show toast for non-stock errors
+      if (error.message !== 'Stock validation failed') {
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 8000,
+        });
       }
       
       // Send payment failure notification

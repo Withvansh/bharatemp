@@ -117,6 +117,24 @@ const OrderSuccess = () => {
       );
 
       if (response.data.status === "Success") {
+        const responseData = response.data.data.response;
+        
+        // Check if payment was cancelled
+        if (responseData.status === 'CANCELLED') {
+          setVerificationStatus("cancelled");
+          localStorage.removeItem("cart");
+          
+          // Redirect to cancellation page with details
+          const cancelParams = new URLSearchParams({
+            paymentId: responseData.paymentId || id,
+            amount: responseData.amount || '0',
+            reason: 'Payment cancelled by user'
+          });
+          
+          navigate(`/payment-cancelled/${responseData.orderId}?${cancelParams.toString()}`);
+          return;
+        }
+        
         setVerificationStatus("success");
         localStorage.removeItem("cart");
         toast.success("Payment successful!");
