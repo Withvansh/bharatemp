@@ -168,7 +168,19 @@ const AddProduct = () => {
       case 4:
         return true; // Allow proceeding to review step even without images
       case 5:
-        return true; // Final step
+        // Final step validation - check all required fields and images
+        const hasRequiredFields = (
+          formData.category_id &&
+          formData.category_name &&
+          formData.sub_category_id &&
+          formData.SKU &&
+          formData.product_name
+        );
+        const hasImages = (
+          (formData.product_image_urls && formData.product_image_urls.length > 0) ||
+          previewImages.length > 0
+        );
+        return hasRequiredFields && hasImages;
       default:
         return true;
     }
@@ -578,7 +590,7 @@ const AddProduct = () => {
         // Trigger refresh in products page
         localStorage.setItem('refreshProducts', 'true');
         
-        toast.success("🎉 Product added successfully!", {
+        toast.success("Product added successfully", {
           position: "top-right",
           autoClose: 3000,
         });
@@ -631,26 +643,7 @@ const AddProduct = () => {
         setPreviewImages([]);
         setCurrentStep(1); // Reset to first step
         
-        // Show success message with navigation option
-        toast.success(
-          <div>
-            <p>Product added successfully! Form has been reset.</p>
-            <button 
-              onClick={() => window.open('/product', '_blank')}
-              className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-            >
-              View Products
-            </button>
-          </div>,
-          {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          }
-        );
+
       }
     } catch (error) {
       console.error(error);
@@ -1749,10 +1742,6 @@ const AddProduct = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      console.log('Current step:', currentStep);
-                      console.log('Form data:', formData);
-                      console.log('Validation result:', validateStep(currentStep));
-                      
                       if (validateStep(currentStep)) {
                         nextStep();
                       } else {
@@ -1768,7 +1757,16 @@ const AddProduct = () => {
                   </button>
                 ) : (
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={(e) => {
+                      if (!validateStep(5)) {
+                        toast.error(
+                          "Please complete all required fields and upload at least one image before adding the product."
+                        );
+                        return;
+                      }
+                      handleSubmit(e);
+                    }}
                     disabled={isBulkMode || loading}
                     className={`flex items-center gap-2 px-8 py-3 rounded-lg font-medium transition-colors ${
                       isBulkMode || loading
