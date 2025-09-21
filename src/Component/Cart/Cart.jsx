@@ -167,12 +167,28 @@ const Cart = () => {
                 </div>
                 <div className="flex justify-between w-full h-32">
                   <div className="flex flex-row justify-between items-start w-full">
-                    <h3
-                      className="font-medium text-[#2F294D] text-lg cursor-pointer hover:text-[#f7941d]"
-                      onClick={() => navigate(`/product/${item._id}`)}
-                    >
-                      {item.product_name}
-                    </h3>
+                    <div>
+                      <h3
+                        className="font-medium text-[#2F294D] text-lg cursor-pointer hover:text-[#f7941d]"
+                        onClick={() => navigate(`/product/${item._id}`)}
+                      >
+                        {item.product_name}
+                      </h3>
+                      {item.no_of_product_instock !== undefined && (
+                        <p className={`text-sm mt-1 ${
+                          item.no_of_product_instock > 0 
+                            ? item.no_of_product_instock < 5 
+                              ? 'text-orange-600' 
+                              : 'text-green-600'
+                            : 'text-red-600'
+                        }`}>
+                          {item.no_of_product_instock > 0 
+                            ? `${item.no_of_product_instock} in stock`
+                            : 'Out of stock'
+                          }
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex flex-col h-full items-end justify-between">
                     <span className="font-bold text-[#1E3473] text-xl">
@@ -197,8 +213,18 @@ const Cart = () => {
                         </button>
                         <span className="w-8 text-center">{item.quantity}</span>
                         <button
-                          onClick={() => increaseQuantity(item._id)}
-                          className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900"
+                          onClick={() => {
+                            if (item.no_of_product_instock && item.quantity >= item.no_of_product_instock) {
+                              toast.warning(`Only ${item.no_of_product_instock} items available in stock`);
+                              return;
+                            }
+                            increaseQuantity(item._id);
+                          }}
+                          className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 ${
+                            item.no_of_product_instock && item.quantity >= item.no_of_product_instock
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
                         >
                           <FaPlus size={12} />
                         </button>

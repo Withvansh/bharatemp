@@ -82,11 +82,17 @@ const cartReducer = (state, action) => {
     case "INCREASE_QUANTITY":
       return {
         ...state,
-        cartItems: state.cartItems.map((item) =>
-          item._id === action.payload
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        ),
+        cartItems: state.cartItems.map((item) => {
+          if (item._id === action.payload) {
+            // Check stock limit if available
+            const maxStock = item.no_of_product_instock;
+            if (maxStock && item.quantity >= maxStock) {
+              return item; // Don't increase if at stock limit
+            }
+            return { ...item, quantity: item.quantity + 1 };
+          }
+          return item;
+        }),
       };
 
     case "DECREASE_QUANTITY":
@@ -210,8 +216,13 @@ export const CartProvider = ({ children }) => {
     dispatch({ type: "CLEAR_CART" });
   };
 
-  // Increase item quantity
+  // Increase item quantity with stock check
   const increaseQuantity = (productId) => {
+    const item = state.cartItems.find(item => item._id === productId);
+    if (item && item.no_of_product_instock && item.quantity >= item.no_of_product_instock) {
+      // Don't show toast here, let the UI handle it
+      return;
+    }
     dispatch({ type: "INCREASE_QUANTITY", payload: productId });
   };
 

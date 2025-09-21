@@ -164,6 +164,43 @@ const AllProducts = () => {
     openModalDelete(productId);
   };
 
+  // Handle stock update
+  const handleStockUpdate = async (productId, newStock) => {
+    try {
+      const response = await axios.post(
+        `${backend}/product/${productId}/update`,
+        {
+          product: {
+            no_of_product_instock: newStock,
+            product_instock: newStock > 0
+          }
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+          },
+        }
+      );
+      
+      if (response.data.status === "Success") {
+        // Update local state
+        setProducts(prev => prev.map(p => 
+          p._id === productId 
+            ? { ...p, no_of_product_instock: newStock, product_instock: newStock > 0 }
+            : p
+        ));
+        
+        toast.success("Stock updated successfully");
+        
+        // Trigger refresh in products page
+        localStorage.setItem('refreshProducts', 'true');
+      }
+    } catch (error) {
+      console.error("Error updating stock:", error);
+      toast.error("Failed to update stock");
+    }
+  };
+
   async function deleteProduct(id) {
     toast.dismiss();
     try {
@@ -386,6 +423,18 @@ const AllProducts = () => {
             >
               <FaTrash /> Delete
             </button>
+          </div>
+          
+          {/* Quick Stock Update */}
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-xs text-gray-500">Stock:</span>
+            <input
+              type="number"
+              min="0"
+              value={product.no_of_product_instock || 0}
+              onChange={(e) => handleStockUpdate(product._id, parseInt(e.target.value) || 0)}
+              className="w-16 px-2 py-1 text-xs border rounded"
+            />
           </div>
         </div>
       </div>

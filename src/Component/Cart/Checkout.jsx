@@ -545,14 +545,14 @@ const Checkout = () => {
 
         // Process each item in the cart
         for (const item of cartItems) {
-          const [lengthStr, widthStr] = item.product_dimension_length_breadth
-            .split("*")
-            .map((s) => s.trim());
+          // Handle missing dimensions with defaults
+          const dimensionStr = item.product_dimension_length_breadth || "10*10";
+          const [lengthStr, widthStr] = dimensionStr.split("*").map((s) => s.trim());
 
-          const itemLength = parseFloat(lengthStr);
-          const itemWidth = parseFloat(widthStr);
-          const itemHeight = parseFloat(item.product_dimension_height);
-          const itemWeight = parseFloat(item.product_dimension_weight);
+          const itemLength = parseFloat(lengthStr) || 10;
+          const itemWidth = parseFloat(widthStr) || 10;
+          const itemHeight = parseFloat(item.product_dimension_height) || 5;
+          const itemWeight = parseFloat(item.product_dimension_weight) || 0.1;
 
           // Calculate based on quantity
           const quantity = item.quantity || 1;
@@ -656,6 +656,41 @@ const Checkout = () => {
 
     try {
       setProcessingPayment(true);
+      
+      // Validate stock for all products before creating order
+      for (const item of cartItems) {
+        try {
+          const response = await axios.get(`${backend}/product/${item._id}`);
+          const product = response.data?.data?.product;
+          
+          if (!product) {
+            throw new Error(`Product ${item.product_name} not found`);
+          }
+          
+          if (!product.product_instock || product.no_of_product_instock < item.quantity) {
+            throw new Error(`${item.product_name} is out of stock or insufficient quantity. Available: ${product.no_of_product_instock || 0}, Required: ${item.quantity}`);
+          }
+        } catch (stockError) {
+          console.error('Stock validation error:', stockError);
+          const errorMsg = stockError.response?.data?.message || stockError.message || `Failed to validate stock for ${item.product_name}`;
+          
+          // Show error with cart update option
+          toast.error(errorMsg, {
+            position: "top-right",
+            autoClose: 8000,
+          });
+          
+          setTimeout(() => {
+            toast.info('Please update your cart quantities and try again.', {
+              position: "top-right",
+              autoClose: 5000,
+              onClick: () => navigate('/cart')
+            });
+          }, 2000);
+          
+          throw new Error(errorMsg);
+        }
+      }
 
       // Get the selected address details
       const selectedAddr = addresses.find(
@@ -777,7 +812,11 @@ const Checkout = () => {
       
       // Handle different types of errors
       if (error.response?.status === 500) {
-        errorMessage = "Payment service is temporarily unavailable. Please try again in a few minutes.";
+        if (error.response?.data?.data?.message?.includes('out of stock')) {
+          errorMessage = error.response.data.data.message;
+        } else {
+          errorMessage = "Payment service is temporarily unavailable. Please try again in a few minutes.";
+        }
       } else if (error.response?.status === 400) {
         errorMessage = "Invalid payment request. Please check your order details.";
       } else if (error.response?.data?.data?.message) {
@@ -794,8 +833,18 @@ const Checkout = () => {
       
       toast.error(errorMessage, {
         position: "top-right",
-        autoClose: 8000,
+        autoClose: 10000,
       });
+      
+      // If it's a stock error, suggest user to update cart
+      if (errorMessage.includes('out of stock') || errorMessage.includes('insufficient quantity')) {
+        setTimeout(() => {
+          toast.info('Please update your cart and try again.', {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }, 2000);
+      }
       
       // Send payment failure notification
       if (userData?.email && createdOrderId) {

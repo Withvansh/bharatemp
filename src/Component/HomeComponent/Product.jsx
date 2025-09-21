@@ -1051,33 +1051,66 @@ const Product = () => {
                               </span>
                             )}
                         </div>
+                        
+                        {/* Stock Information */}
+                        <div className="mt-2">
+                          {product.product_instock === false || product.no_of_product_instock === 0 ? (
+                            <span className="text-red-600 text-sm font-medium">Out of Stock</span>
+                          ) : product.no_of_product_instock && product.no_of_product_instock < 5 ? (
+                            <span className="text-orange-600 text-sm font-medium">
+                              Only {product.no_of_product_instock} left in stock
+                            </span>
+                          ) : product.no_of_product_instock ? (
+                            <span className="text-green-600 text-sm font-medium">
+                              {product.no_of_product_instock} in stock
+                            </span>
+                          ) : (
+                            <span className="text-gray-500 text-sm">Stock info unavailable</span>
+                          )}
+                        </div>
                       </div>
 
                       <div className="mt-auto pt-5 space-y-3">
                         <div className="flex gap-3">
                           <button
-                            className="bg-[#f7941d] cursor-pointer text-white font-medium py-1 px-4 rounded-2xl text-sm"
+                            className={`font-medium py-1 px-4 rounded-2xl text-sm ${
+                              product.product_instock === false || product.no_of_product_instock === 0
+                                ? "bg-gray-400 text-white cursor-not-allowed"
+                                : "bg-[#f7941d] cursor-pointer text-white"
+                            }`}
                             onClick={(e) => handleBuyNowClick(e, product)}
+                            disabled={product.product_instock === false || product.no_of_product_instock === 0}
                           >
-                            {loadingBuyNow[product._id]
+                            {product.product_instock === false || product.no_of_product_instock === 0
+                              ? "Out of Stock"
+                              : loadingBuyNow[product._id]
                               ? "Buying..."
                               : "Buy Now"}
                           </button>
                           <button
-                            className="bg-gray-50 border border-gray-200 text-[#f7941d] py-1 px-4 rounded-2xl text-sm"
+                            className={`border py-1 px-4 rounded-2xl text-sm ${
+                              product.product_instock === false || product.no_of_product_instock === 0
+                                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
+                                : "bg-gray-50 border-gray-200 text-[#f7941d]"
+                            }`}
                             onClick={(e) => {
-                              handleAddToCart(e, product);
-                              toast.success("Added to cart successfully!", {
-                                position: "top-right",
-                                autoClose: 2000,
-                                hideProgressBar: false,
-                                closeOnClick: true,
-                                pauseOnHover: true,
-                                draggable: true,
-                              });
+                              if (product.product_instock !== false && product.no_of_product_instock !== 0) {
+                                handleAddToCart(e, product);
+                                toast.success("Added to cart successfully!", {
+                                  position: "top-right",
+                                  autoClose: 2000,
+                                  hideProgressBar: false,
+                                  closeOnClick: true,
+                                  pauseOnHover: true,
+                                  draggable: true,
+                                });
+                              }
                             }}
+                            disabled={product.product_instock === false || product.no_of_product_instock === 0}
                           >
-                            {isInCart(product._id)
+                            {product.product_instock === false || product.no_of_product_instock === 0
+                              ? "Unavailable"
+                              : isInCart(product._id)
                               ? `In Cart (${getItemQuantity(product._id)})`
                               : "Add to cart"}
                           </button>
