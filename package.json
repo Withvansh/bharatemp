@@ -7,8 +7,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "postinstall": "npm rebuild"
+    "preview": "vite preview"
   },
   "optionalDependencies": {
   "lightningcss": "1.29.2"
@@ -20,7 +19,6 @@
     "gsap": "^3.13.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.509.0",
-    "papaparse": "^5.5.3",
     "pg-sdk-node": "https://phonepe.mycloudrepo.io/public/repositories/phonepe-pg-sdk-node/releases/v2/phonepe-pg-sdk-node.tgz",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
