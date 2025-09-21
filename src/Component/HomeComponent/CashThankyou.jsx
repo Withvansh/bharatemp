@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import thanku from "../../assets/thanku.webp";
@@ -8,10 +8,10 @@ import { jwtDecode } from "jwt-decode";
 
 const OrderSuccess2 = () => {
   const [verificationStatus, setVerificationStatus] = useState("verifying");
-  const [userId, setUserId] = useState(null);
-  const [orderId, setOrderId] = useState(null);
-  const [userData, setUserData] = useState(null);
-  const [orderDetails, setOrderDetails] = useState(null);
+  const [_userId, _setUserId] = useState(null);
+  const [_orderId, _setOrderId] = useState(null);
+  const [_userData, _setUserData] = useState(null);
+  const [_orderDetails, _setOrderDetails] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,29 +25,32 @@ const OrderSuccess2 = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     verifyPayment();
-  }, []);
+  }, [verifyPayment]);
 
-  const fetchUserDetails = async (userId, token) => {
-    try {
-      const response = await axios.get(`${backend}/user/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const fetchUserDetails = useCallback(
+    async (userId, token) => {
+      try {
+        const response = await axios.get(`${backend}/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      if (response.status === 200 && response.data) {
-        const userData = response.data.data.user;
-        setUserData(userData);
-        return userData; // Return the user data
+        if (response.status === 200 && response.data) {
+          const userData = response.data.data.user;
+          _setUserData(userData);
+          return userData; // Return the user data
+        }
+        return null;
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+        return null;
       }
-      return null;
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-      return null;
-    }
-  };
+    },
+    [backend]
+  );
 
-  const verifyPayment = async () => {
+  const verifyPayment = useCallback(async () => {
     try {
       // Check if we have the required payment details
       if (!paymentId || !gatewayOrderId) {
@@ -72,7 +75,6 @@ const OrderSuccess2 = () => {
       // Parse token if stored as JSON string
       const parsedToken = token.startsWith('"') ? JSON.parse(token) : token;
 
-
       // Verify payment using Cashfree endpoint
       const response = await axios.post(
         `${backend}/payment/verify-cashfree-payment`,
@@ -87,7 +89,6 @@ const OrderSuccess2 = () => {
           },
         }
       );
-
 
       if (response.data.status === "Success") {
         const paymentData = response.data.data.response.data;
@@ -104,29 +105,34 @@ const OrderSuccess2 = () => {
           return;
         }
 
-
         const orderId = response.data.data.response.orderId;
-        setOrderId(orderId);
+        _setOrderId(orderId);
 
         // Check if order exists
         if (orderId) {
           // Get user data first
           const decoded = jwtDecode(parsedToken);
-          const userId = decoded.id || decoded.userId || decoded._id || decoded.sub;
+          const userId =
+            decoded.id || decoded.userId || decoded._id || decoded.sub;
           const userDataResult = await fetchUserDetails(userId, parsedToken);
 
           if (!userDataResult) {
             console.error("Failed to fetch user details");
-            toast.error("Failed to fetch user details. Please contact support.");
+            toast.error(
+              "Failed to fetch user details. Please contact support."
+            );
             return;
           }
 
           try {
-            const orderResponse = await axios.get(`${backend}/order/${orderId}`, {
-              headers: {
-                Authorization: `Bearer ${parsedToken}`,
-              },
-            });
+            const orderResponse = await axios.get(
+              `${backend}/order/${orderId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${parsedToken}`,
+                },
+              }
+            );
 
             if (orderResponse.data.status === "Success") {
               const orderData = orderResponse.data.data.order;
@@ -214,7 +220,10 @@ const OrderSuccess2 = () => {
                   order_type: "",
                 };
 
-                toast.info("Creating your shipment...", { autoClose: false, toastId: 'creating-shipment' });
+                toast.info("Creating your shipment...", {
+                  autoClose: false,
+                  toastId: "creating-shipment",
+                });
 
                 try {
                   const shipmentResponse = await axios.post(
@@ -231,32 +240,43 @@ const OrderSuccess2 = () => {
                     }
                   );
 
-
                   // Dismiss the creating shipment toast
-                  toast.dismiss('creating-shipment');
+                  toast.dismiss("creating-shipment");
 
                   if (shipmentResponse.data?.status === "Success") {
-                    setOrderDetails(orderData);
-                    toast.success("Shipment created successfully! Your order is being processed. 📦");
+                    _setOrderDetails(orderData);
+                    toast.success(
+                      "Shipment created successfully! Your order is being processed. 📦"
+                    );
                   } else {
                     console.error("Failed to create shipment");
-                    toast.error("Failed to create shipment. Our team will process it manually.");
+                    toast.error(
+                      "Failed to create shipment. Our team will process it manually."
+                    );
                   }
                 } catch (shipmentError) {
                   console.error("Error creating shipment:", shipmentError);
-                  toast.dismiss('creating-shipment');
-                  toast.error("Error creating shipment. Our team will process it manually.");
+                  toast.dismiss("creating-shipment");
+                  toast.error(
+                    "Error creating shipment. Our team will process it manually."
+                  );
                 }
               } else {
                 console.error("Missing order data or user data");
-                toast.error("Failed to create shipment: Missing required data. Please contact support.");
+                toast.error(
+                  "Failed to create shipment: Missing required data. Please contact support."
+                );
               }
             } else {
-              toast.error("Failed to fetch order details. Please contact support.");
+              toast.error(
+                "Failed to fetch order details. Please contact support."
+              );
             }
           } catch (orderError) {
             console.error("Error fetching order:", orderError);
-            toast.error("Failed to fetch order details. Please contact support.");
+            toast.error(
+              "Failed to fetch order details. Please contact support."
+            );
           }
         } else {
           toast.error("Order ID not found. Please contact support.");
@@ -264,16 +284,20 @@ const OrderSuccess2 = () => {
       } else {
         setVerificationStatus("failed");
         localStorage.removeItem("cart");
-        toast.error(response.data.message || "Payment verification failed. Please contact support.");
+        toast.error(
+          response.data.message ||
+            "Payment verification failed. Please contact support."
+        );
       }
     } catch (error) {
       console.error("Payment verification error:", error);
       setVerificationStatus("failed");
       toast.error(
-        error.response?.data?.message || "Payment verification failed. Please try again or contact support."
+        error.response?.data?.message ||
+          "Payment verification failed. Please try again or contact support."
       );
     }
-  };
+  }, [paymentId, gatewayOrderId, backend, navigate, fetchUserDetails]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {

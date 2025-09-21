@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { FaArrowLeft, FaTimes, FaChevronRight } from "react-icons/fa";
@@ -35,8 +35,9 @@ const AddressForm = ({
           type="text"
           name="address"
           placeholder="Enter address"
-          className={`w-full border ${errors?.address ? "border-red-500" : "border-gray-300"
-            } rounded-lg p-2`}
+          className={`w-full border ${
+            errors?.address ? "border-red-500" : "border-gray-300"
+          } rounded-lg p-2`}
           value={address.address}
           onChange={onInputChange}
         />
@@ -52,8 +53,9 @@ const AddressForm = ({
             type="text"
             name="city"
             placeholder="City, State"
-            className={`w-full border ${errors?.city ? "border-red-500" : "border-gray-300"
-              } rounded-lg p-2`}
+            className={`w-full border ${
+              errors?.city ? "border-red-500" : "border-gray-300"
+            } rounded-lg p-2`}
             value={address.city}
             onChange={onInputChange}
           />
@@ -68,8 +70,9 @@ const AddressForm = ({
             name="postalCode"
             placeholder="6 digits"
             maxLength="6"
-            className={`w-full border ${errors?.postalCode ? "border-red-500" : "border-gray-300"
-              } rounded-lg p-2`}
+            className={`w-full border ${
+              errors?.postalCode ? "border-red-500" : "border-gray-300"
+            } rounded-lg p-2`}
             value={address.postalCode}
             onChange={onInputChange}
           />
@@ -115,7 +118,7 @@ const AddressForm = ({
 );
 
 const Checkout = () => {
-  const { cartItems, clearCart } = useCart();
+  const { cartItems } = useCart();
   const backend = import.meta.env.VITE_BACKEND;
   const [userId, setUserId] = useState(null);
   const [token, setToken] = useState(null);
@@ -123,7 +126,7 @@ const Checkout = () => {
   const [loading, setLoading] = useState(true);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [deliveryDates, setDeliveryDates] = useState("");
-  const [orderId, setOrderId] = useState(null);
+  const [_orderId, setOrderId] = useState(null);
   const access = import.meta.env.VITE_ACCESS_TOKEN;
   const secret = import.meta.env.VITE_SECRET_KEY;
   const [rate, setRate] = useState(0);
@@ -146,7 +149,7 @@ const Checkout = () => {
     city: "",
     postalCode: "",
     companyName: "",
-    gstNumber: ""
+    gstNumber: "",
   });
 
   // Get selected address
@@ -177,7 +180,10 @@ const Checkout = () => {
   // const discountOnMrp = Math.round((totalMRP - totalAmount) * 100) / 100;
 
   // Calculate final total using only discounted price
-  const finalTotal = Math.max(0, totalAmount + shippingFee + (totalAmount * 0.18));
+  const finalTotal = Math.max(
+    0,
+    totalAmount + shippingFee + totalAmount * 0.18
+  );
 
   // Validation functions
   const validateAddress = (address) => {
@@ -235,7 +241,7 @@ const Checkout = () => {
       return false;
     }
 
-    toast.dismiss()
+    toast.dismiss();
 
     try {
       const fullAddress = `${address.address}, ${address.city}, ${address.postalCode}`;
@@ -247,7 +253,7 @@ const Checkout = () => {
             address_index: index,
             address_value: fullAddress,
             companyName: address.companyName,
-            gstNumber: address.gstNumber
+            gstNumber: address.gstNumber,
           },
         },
         {
@@ -271,7 +277,7 @@ const Checkout = () => {
   };
 
   // Fetch user details
-  const fetchUserDetails = async () => {
+  const fetchUserDetails = useCallback(async () => {
     if (!userId || !token) return;
 
     try {
@@ -358,7 +364,7 @@ const Checkout = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, token, backend]);
 
   // Handle adding a new address with validation
   const handleAddAddress = () => {
@@ -524,17 +530,6 @@ const Checkout = () => {
     }
   };
 
-  function randomOrderId() {
-    var chars = "0123456789";
-    var string_length = 6;
-    var randomstring = "";
-    for (var i = 0; i < string_length; i++) {
-      var rnum = Math.floor(Math.random() * chars.length);
-      randomstring += chars.substring(rnum, rnum + 1);
-    }
-    return randomstring;
-  }
-
   // console.log("Selected Address:", selectedAddress?.postalCode);
 
   useEffect(() => {
@@ -620,7 +615,8 @@ const Checkout = () => {
 
         // Find the rate option for DTDC with service_type "Air"
         const dtdcAirOption = rateOptions.find(
-          (option) => option.logistic_name === "DTDC" && option.service_type === "Air"
+          (option) =>
+            option.logistic_name === "DTDC" && option.service_type === "Air"
         );
 
         if (dtdcAirOption) {
@@ -630,7 +626,6 @@ const Checkout = () => {
           // console.log("DTDC Air not available, using default rate option:", rateOptions[0]?.rate);
           setRate(rateOptions[0]?.rate || 0);
         }
-
       } catch (error) {
         console.error("Error while calling Rate Check API:", error);
         if (error.response) {
@@ -638,7 +633,6 @@ const Checkout = () => {
         }
       }
     };
-
 
     if (selectedAddress) {
       fetchRate();
@@ -745,13 +739,12 @@ const Checkout = () => {
         }
       );
       // console.log(paymentResponse)
-      if (
-        paymentResponse.data.data.response.phonepeResponse.redirectUrl
-      ) {
+      if (paymentResponse.data.data.response.phonepeResponse.redirectUrl) {
         // Set the orderId in state before redirecting
         setOrderId(createdOrderId);
         // Redirect to PhonePe payment page
-        window.location.href = paymentResponse.data.data.response.phonepeResponse.redirectUrl;
+        window.location.href =
+          paymentResponse.data.data.response.phonepeResponse.redirectUrl;
       } else {
         throw new Error("Invalid payment response");
       }
@@ -802,7 +795,7 @@ const Checkout = () => {
     if (userId && token) {
       fetchUserDetails();
     }
-  }, [userId, token]);
+  }, [userId, token, fetchUserDetails]);
 
   // Show add form by default if no addresses
   useEffect(() => {
@@ -869,18 +862,20 @@ const Checkout = () => {
                     {addresses.map((addr) => (
                       <div
                         key={addr.id}
-                        className={`border-2 ${addr.id === selectedAddressId
-                          ? "border-[#f7941d]"
-                          : "border-gray-300"
-                          } rounded-2xl p-6 relative cursor-pointer`}
+                        className={`border-2 ${
+                          addr.id === selectedAddressId
+                            ? "border-[#f7941d]"
+                            : "border-gray-300"
+                        } rounded-2xl p-6 relative cursor-pointer`}
                         onClick={() => handleSelectAddress(addr.id)}
                       >
                         <div className="absolute right-4 top-4">
                           <div
-                            className={`w-4 h-4 border-2 ${addr.id === selectedAddressId
-                              ? "border-[#f7941d]"
-                              : "border-gray-300"
-                              } rounded-full flex items-center justify-center`}
+                            className={`w-4 h-4 border-2 ${
+                              addr.id === selectedAddressId
+                                ? "border-[#f7941d]"
+                                : "border-gray-300"
+                            } rounded-full flex items-center justify-center`}
                           >
                             {addr.id === selectedAddressId && (
                               <div className="w-2 h-2 bg-[#f7941d] rounded-full"></div>
@@ -895,7 +890,8 @@ const Checkout = () => {
                         )}
                         <p className="text-gray-600 mb-3">
                           {addr.fullAddress ||
-                            `${addr.address}, ${addr.city}${addr.postalCode ? `, ${addr.postalCode}` : ""
+                            `${addr.address}, ${addr.city}${
+                              addr.postalCode ? `, ${addr.postalCode}` : ""
                             }`}
                         </p>
 
@@ -954,7 +950,13 @@ const Checkout = () => {
                     onClose={() => {
                       setShowEditForm(false);
                       setEditingAddressId(null);
-                      setNewAddress({ address: "", city: "", postalCode: "", companyName: "", gstNumber: "" });
+                      setNewAddress({
+                        address: "",
+                        city: "",
+                        postalCode: "",
+                        companyName: "",
+                        gstNumber: "",
+                      });
                       setErrors({});
                     }}
                     onSubmit={handleSaveEditedAddress}
@@ -983,15 +985,14 @@ const Checkout = () => {
               <div className="bg-white p-4 rounded-xl mb-6">
                 <h3 className="text-lg font-medium mb-2">
                   Deliver Between :{" "}
-                  <span className="text-[#f7941d]">
-                    {deliveryDates}
-                  </span>
+                  <span className="text-[#f7941d]">{deliveryDates}</span>
                 </h3>
                 <p className="text-gray-500 text-sm">
                   {selectedAddress.fullAddress ||
-                    `${selectedAddress.address}, ${selectedAddress.city}${selectedAddress.postalCode
-                      ? `, ${selectedAddress.postalCode}`
-                      : ""
+                    `${selectedAddress.address}, ${selectedAddress.city}${
+                      selectedAddress.postalCode
+                        ? `, ${selectedAddress.postalCode}`
+                        : ""
                     }`}
                 </p>
               </div>
@@ -1005,7 +1006,9 @@ const Checkout = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">GST (18% tax)</span>
-                <span className="font-medium">₹{(totalMRP * 0.18).toFixed(2)}</span>
+                <span className="font-medium">
+                  ₹{(totalMRP * 0.18).toFixed(2)}
+                </span>
               </div>
 
               <div className="flex justify-between">
@@ -1032,10 +1035,11 @@ const Checkout = () => {
             </div>
             <button
               onClick={handlePayment}
-              className={`w-full ${!selectedAddress || processingPayment
-                ? "bg-gray-400"
-                : "bg-[#f7941d]"
-                } cursor-pointer text-white py-3 rounded-2xl font-medium mt-4 flex items-center justify-center`}
+              className={`w-full ${
+                !selectedAddress || processingPayment
+                  ? "bg-gray-400"
+                  : "bg-[#f7941d]"
+              } cursor-pointer text-white py-3 rounded-2xl font-medium mt-4 flex items-center justify-center`}
               disabled={!selectedAddress || processingPayment}
             >
               {processingPayment ? (
