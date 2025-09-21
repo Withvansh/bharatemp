@@ -1,23 +1,19 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  FaUser,
   FaSearch,
   FaBars,
   FaTimes,
-  FaGlobeAmericas,
   FaChevronDown,
   FaBolt,
   FaMicrophone,
   FaChevronRight,
-  FaMapMarkerAlt,
   FaCrosshairs,
 } from "react-icons/fa";
-// import { IoMdArrowDropdown } from "react-icons/io";
+
 import location1 from "../assets/location.webp";
-// import { FaShoppingBag } from "react-icons/fa";
+
 import logo from "../assets/Logo.webp";
-// import icon1 from "../assets/Icon1.webp";
-// import icon2 from "../assets/icon2.webp";
+
 import { useCart } from "../context/CartContext";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -25,10 +21,7 @@ import { SlSocialFacebook } from "react-icons/sl";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaInstagram } from "react-icons/fa";
 import { FiYoutube } from "react-icons/fi";
-import top1 from "../assets/generator.webp";
-import top2 from "../assets/top1.webp";
 import axios from "axios";
-import trackorder from "../assets/trackorder.webp";
 import search from "../assets/search.webp";
 import mic from "../assets/mic.gif";
 import cart from "../assets/cart.gif";
@@ -36,326 +29,22 @@ import avatar from "../assets/avatar.gif";
 import truck from "../assets/truck.gif";
 import pincodes from "../utils/pincode.json";
 import {
-  getLocationByCoordinates,
   searchLocations,
   getCurrentLocation as getCurrentLocationService,
   formatLocationString,
 } from "../utils/locationService";
-import arduino from "../assets/arduino.webp";
-import stm32 from "../assets/stm32.webp";
-import esp32 from "../assets/esp32.webp";
-import raspberry from "../assets/raspberry.webp";
-import esp8266 from "../assets/esp8266.webp";
-import teensy from "../assets/teensy.webp";
-import beaglebone from "../assets/beaglebone.webp";
-import fpga from "../assets/fpga.webp";
-import dcmotor from "../assets/dcmotor.webp";
-import stepper from "../assets/stepper.webp";
-import servomotor from "../assets/servo.webp";
-import motordriver from "../assets/motordriver.webp";
-import encoder from "../assets/encoder.webp";
-import gearbox from "../assets/gearboxes.webp";
-import lactuator from "../assets/lactuators.webp";
-import motorc from "../assets/motorc.webp";
-import temperature from "../assets/temperature.webp";
-import pressure from "../assets/pressure.webp";
-import gas from "../assets/gas.webp";
-import humidity from "../assets/humidity.webp";
-import light from "../assets/light.webp";
-import sound from "../assets/sound.webp";
-import distance from "../assets/distance.webp";
-import lipo from "../assets/lipo.webp";
-import liion from "../assets/li-ion.webp";
-import nihm from "../assets/nimh.webp";
-import batteryholder from "../assets/batteryholder.webp";
-import charger from "../assets/charger.webp";
-import powerbank from "../assets/powerbank.webp";
-import batterymonitor from "../assets/batterymonitor.webp";
-import printerfilament from "../assets/printerfilament.webp";
-import hotend from "../assets/hotend.webp";
-import extruder from "../assets/extruders.webp";
-import controlboard from "../assets/controlboards.webp";
-import steppermotor from "../assets/stepperm.webp";
-import buildplates from "../assets/buildplates.webp";
-import dbattery from "../assets/dbattery.webp";
-import dmotors from "../assets/dmotors.webp";
-import dronepartsesc from "../assets/dronepartsesc.webp";
-import fpvs from "../assets/fpvs.webp";
-import nozzals from "../assets/nozzals.webp";
-import radiosystems from "../assets/radiosystem.webp";
-import LinearRails from "../assets/linearrails.webp";
-import frames from "../assets/frames.webp";
-import props from "../assets/props.webp";
-import flightcontroller from "../assets/flightcontroller.webp";
-import motions from "../assets/motions.webp";
-import protectionc from "../assets/protectionc.webp";
+
 
 const backend = import.meta.env.VITE_BACKEND;
 
-const subcategories = {
-  "Development Board": [
-    {
-      name: "Arduino",
-      description: "Boards & Accessories",
-      image: arduino,
-    },
-    {
-      name: "Raspberry Pi",
-      description: "Boards & Kits",
-      image: raspberry,
-    },
-    {
-      name: "ESP32",
-      description: "WiFi & Bluetooth",
-      image: esp32,
-    },
-    {
-      name: "ESP8266",
-      description: "IoT Development",
-      image: esp8266,
-    },
-    {
-      name: "STM32",
-      description: "ARM Controllers",
-      image: stm32,
-    },
-    {
-      name: "Teensy",
-      description: "USB Development",
-      image: teensy,
-    },
-    {
-      name: "BeagleBone",
-      description: "Linux Boards",
-      image: beaglebone,
-    },
-    {
-      name: "FPGA",
-      description: "Programmable Logic",
-      image: fpga,
-    },
-  ],
-  Sensors: [
-    {
-      name: "Temperature",
-      description: "Heat & Cold Detection",
-      image: temperature,
-    },
-    {
-      name: "Pressure",
-      description: "Force & Weight",
-      image: pressure,
-    },
-    {
-      name: "Motion",
-      description: "Movement Detection",
-      image: motions,
-    },
-    {
-      name: "Gas",
-      description: "Air Quality",
-      image: gas,
-    },
-    {
-      name: "Humidity",
-      description: "Moisture Sensing",
-      image: humidity,
-    },
-    {
-      name: "Light",
-      description: "Luminosity Detection",
-      image: light,
-    },
-    {
-      name: "Sound",
-      description: "Audio Sensing",
-      image: sound,
-    },
-    {
-      name: "Distance",
-      description: "Range Finding",
-      image: distance,
-    },
-  ],
-  "Motors and Drivers": [
-    {
-      name: "DC Motors",
-      description: "Various Sizes",
-      image: dcmotor,
-    },
-    {
-      name: "Stepper Motors",
-      description: "Precise Control",
-      image: stepper,
-    },
-    {
-      name: "Servo Motors",
-      description: "Robotics & RC",
-      image: servomotor,
-    },
-    {
-      name: "Motor Drivers",
-      description: "Control Boards",
-      image: motordriver,
-    },
-    {
-      name: "Encoders",
-      description: "Position Feedback",
-      image: encoder,
-    },
-    {
-      name: "Gearboxes",
-      description: "Speed Reduction",
-      image: gearbox,
-    },
-    {
-      name: "Linear Actuators",
-      description: "Linear Motion",
-      image: lactuator,
-    },
-    {
-      name: "Motor Controllers",
-      description: "Speed Control",
-      image: motorc,
-    },
-  ],
-  Battery: [
-    {
-      name: "LiPo",
-      description: "High Performance",
-      image: lipo,
-    },
-    {
-      name: "Li-ion",
-      description: "Rechargeable",
-      image: liion,
-    },
-    {
-      name: "NiMH",
-      description: "Long Lasting",
-      image: nihm,
-    },
-    {
-      name: "Battery Holders",
-      description: "Storage Solutions",
-      image: batteryholder,
-    },
-    {
-      name: "Chargers",
-      description: "Smart Charging",
-      image: charger,
-    },
-    {
-      name: "Power Banks",
-      description: "Portable Power",
-      image: powerbank,
-    },
-    {
-      name: "Battery Monitors",
-      description: "Voltage Display",
-      image: batterymonitor,
-    },
-    {
-      name: "Protection Circuits",
-      description: "Safety First",
-      image: protectionc,
-    },
-  ],
-  "3D Printer": [
-    {
-      name: "Filaments",
-      description: "PLA, ABS & More",
-      image: printerfilament,
-    },
-    {
-      name: "Hot Ends",
-      description: "Print Heads",
-      image: hotend,
-    },
-    {
-      name: "Extruders",
-      description: "Feed Systems",
-      image: extruder,
-    },
-    {
-      name: "Control Boards",
-      description: "Printer Brains",
-      image: controlboard,
-    },
-    {
-      name: "Stepper Motors",
-      description: "Axis Control",
-      image: steppermotor,
-    },
-    {
-      name: "Linear Rails",
-      description: "Smooth Motion",
-      image: LinearRails,
-    },
-    {
-      name: "Build Plates",
-      description: "Print Surfaces",
-      image: buildplates,
-    },
-    {
-      name: "Nozzles",
-      description: "Various Sizes",
-      image: nozzals,
-    },
-  ],
-  "Drone Parts": [
-    {
-      name: "ESC",
-      description: "Speed Controls",
-      image: dronepartsesc,
-    },
-    {
-      name: "Flight Controllers",
-      description: "Brain Units",
-      image: flightcontroller,
-    },
-    {
-      name: "Props",
-      description: "Propellers",
-      image: props,
-    },
-    {
-      name: "Frames",
-      description: "Drone Bodies",
-      image: frames,
-    },
-    {
-      name: "Motors",
-      description: "Brushless Motors",
-      image: dmotors,
-    },
-    {
-      name: "Batteries",
-      description: "Flight Power",
-      image: dbattery,
-    },
-    {
-      name: "FPV Cameras",
-      description: "Live View",
-      image: fpvs,
-    },
-    {
-      name: "Radio Systems",
-      description: "Control Link",
-      image: radiosystems,
-    },
-  ],
-};
-
 const Navbar = () => {
-  const [openDropdown, setOpenDropdown] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
   const [location, setLocation] = useState("Detecting...");
   const [stringForDelivery, setStringForDelivery] = useState("");
-  const [userPincode, setUserPincode] = useState("");
+  const [_userPincode, setUserPincode] = useState("");
   const [userCoordinates, setUserCoordinates] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isListening, setIsListening] = useState(false);
@@ -364,7 +53,7 @@ const Navbar = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
-  const { uniqueItems, cartItems } = useCart();
+  const { uniqueItems } = useCart();
   const [categories, setCategories] = useState([]);
   const currentLocation = useLocation();
   const [isGettingLocation, setIsGettingLocation] = useState(false);
@@ -376,7 +65,7 @@ const Navbar = () => {
   };
 
   // Get location by browser geolocation
-  const fetchLocationAndDelivery = () => {
+  const fetchLocationAndDelivery = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
@@ -426,7 +115,7 @@ const Navbar = () => {
       setLocation("Geolocation not supported");
       setStringForDelivery("");
     }
-  };
+  }, []);
 
   async function getAllCategories() {
     try {
@@ -463,34 +152,6 @@ const Navbar = () => {
     }
   };
 
-  // Enhanced location detection using geolocation API
-  const getLocationByCoordinatesLocal = async (latitude, longitude) => {
-    try {
-      setIsGettingLocation(true);
-
-      const result = await getLocationByCoordinates(latitude, longitude);
-
-      if (result.success) {
-        setStringForDelivery(result.deliveryTime);
-        setLocation(formatLocationString(result));
-        setUserPincode({
-          postal: result.postcode,
-          city: result.city,
-          state: result.state,
-        });
-        setUserCoordinates(result.coordinates);
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error("Error getting location by coordinates:", error);
-      return false;
-    } finally {
-      setIsGettingLocation(false);
-    }
-  };
-
   // Get current location using browser geolocation
   const getCurrentLocation = async () => {
     try {
@@ -520,18 +181,6 @@ const Navbar = () => {
     }
   };
 
-  // Search location by coordinates
-  const searchLocationByCoordinates = async (latitude, longitude) => {
-    try {
-      const success = await getLocationByCoordinatesLocal(latitude, longitude);
-      if (success) {
-        setShowLocationDropdown(false);
-      }
-    } catch (error) {
-      console.error("Error searching location by coordinates:", error);
-    }
-  };
-
   // Enhanced location search with coordinates
   const handleLocationSearch = async (searchTerm) => {
     try {
@@ -557,7 +206,7 @@ const Navbar = () => {
   useEffect(() => {
     fetchLocationAndDelivery();
     getAllCategories();
-  }, []);
+  }, [fetchLocationAndDelivery]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -613,10 +262,6 @@ const Navbar = () => {
   const locations = pincodes.map(
     (item) => `${item.Pincode}, ${item.City}, ${item.state}`
   );
-
-  const toggleDropdown = (key) => {
-    setOpenDropdown(openDropdown === key ? "" : key);
-  };
 
   const handleLocationSelect = (loc) => {
     setLocation(loc);
@@ -727,20 +372,6 @@ const Navbar = () => {
     };
   }, []);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest(".dropdown-container")) {
-        setOpenDropdown("");
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   // Close location dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -788,15 +419,6 @@ const Navbar = () => {
     if (e.key === "Enter") {
       handleSearch(e);
     }
-  };
-
-  const categoryImages = {
-    "Development Board": top1,
-    Sensors: top2,
-    "Motors and Drivers": top2,
-    Battery: top2,
-    "3D Printer": top2,
-    "Drone Parts": top2,
   };
 
   console.log(categories);
@@ -1326,7 +948,7 @@ const Navbar = () => {
 
             <div className="relative dropdown-container">
               <Link
-                to={'/shopbybrand'}
+                to={"/shopbybrand"}
                 className="flex items-center gap-1 px-3 py-1 text-gray-700 rounded-full hover:text-white hover:bg-blue-900"
               >
                 Shop By Brands

@@ -34,6 +34,7 @@ const WholesaleBulkOrders = () => {
         } catch (err) {
             setError('Failed to fetch orders');
             setLoading(false);
+            throw err;
         }
     };
 

@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useCart } from '../../context/CartContext';
-import { FaPlus, FaMinus, FaTrash, FaArrowLeft, FaChevronRight } from 'react-icons/fa';
-import { toast, ToastContainer } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
+import {
+  FaPlus,
+  FaMinus,
+  FaTrash,
+  FaArrowLeft,
+  FaChevronRight,
+} from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 
 const Cart = () => {
   const {
     cartItems,
-    totalItems,
-    uniqueItems,
-    totalAmount: rawTotalAmount,
-    shipping,
-    tax,
     removeFromCart,
     increaseQuantity,
     decreaseQuantity,
-    clearCart
+    clearCart,
   } = useCart();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -31,7 +31,7 @@ const Cart = () => {
   const calculateTotalAmount = () => {
     return cartItems.reduce((sum, item) => {
       const price = Number(item.discounted_single_product_price || 0);
-      return sum + (price * item.quantity);
+      return sum + price * item.quantity;
     }, 0);
   };
 
@@ -39,7 +39,7 @@ const Cart = () => {
   const calculateTotalMRP = () => {
     return cartItems.reduce((sum, item) => {
       const mrp = Number(item.discounted_single_product_price || 0);
-      return sum + (mrp * item.quantity);
+      return sum + mrp * item.quantity;
     }, 0);
   };
 
@@ -56,7 +56,7 @@ const Cart = () => {
 
   // Check if user is logged in
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
     window.scrollTo(0, 0);
   }, []);
@@ -64,9 +64,9 @@ const Cart = () => {
   // Handle checkout - check if user is logged in first
   const handleCheckout = () => {
     if (isLoggedIn) {
-      navigate('/checkout');
+      navigate("/checkout");
     } else {
-      toast.warning('Please login to proceed with checkout');
+      toast.warning("Please login to proceed with checkout");
       setTimeout(() => {
         navigate("/login", { state: { from: "cart" } });
       }, 1500);
@@ -78,14 +78,29 @@ const Cart = () => {
       <div className="bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto my-10">
         <div className="text-center py-10">
           <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-10 w-10 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+              />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Your cart is empty</h2>
-          <p className="text-gray-600 mb-8">Looks like you haven't added any products to your cart yet.</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Your cart is empty
+          </h2>
+          <p className="text-gray-600 mb-8">
+            Looks like you haven't added any products to your cart yet.
+          </p>
           <button
-            onClick={() => navigate('/product')}
+            onClick={() => navigate("/product")}
             className="bg-[#f7941d] text-white px-6 py-3 rounded-full font-medium hover:bg-orange-600 transition-colors"
           >
             Continue Shopping
@@ -114,7 +129,10 @@ const Cart = () => {
             </Link>
             <FaChevronRight className="text-gray-400" size={12} />
 
-            <Link to="/allproducts" className="hover:text-[#f7941d] transition-colors">
+            <Link
+              to="/allproducts"
+              className="hover:text-[#f7941d] transition-colors"
+            >
               All Products
             </Link>
             <FaChevronRight className="text-gray-400" size={12} />
@@ -128,14 +146,21 @@ const Cart = () => {
         <div className="flex flex-col md:flex-row gap-6 mt-6">
           {/* Cart Items Section */}
           <div className="p-6 md:w-[65%]">
-            <h1 className="text-xl font-bold text-gray-800 mb-4">Current Order</h1>
-            <p className="text-gray-500 text-sm mb-6">The sum of all total payments for goods there</p>
+            <h1 className="text-xl font-bold text-gray-800 mb-4">
+              Current Order
+            </h1>
+            <p className="text-gray-500 text-sm mb-6">
+              The sum of all total payments for goods there
+            </p>
 
             {cartItems.map((item) => (
-              <div key={item._id} className="flex border-2 border-gray-300 rounded-2xl p-4 flex-col md:flex-row mb-4 items-start">
+              <div
+                key={item._id}
+                className="flex border-2 border-gray-300 rounded-2xl p-4 flex-col md:flex-row mb-4 items-start"
+              >
                 <div className="w-32 h-32 flex items-center justify-center mr-4">
                   <img
-                    src={item.product_image_main || ''}
+                    src={item.product_image_main || ""}
                     alt={item.product_name}
                     className="w-full h-full object-contain"
                   />
@@ -151,14 +176,21 @@ const Cart = () => {
                   </div>
                   <div className="flex flex-col h-full items-end justify-between">
                     <span className="font-bold text-[#1E3473] text-xl">
-                      ₹ {Number(item.discounted_single_product_price).toLocaleString()}
+                      ₹{" "}
+                      {Number(
+                        item.discounted_single_product_price
+                      ).toLocaleString()}
                     </span>
 
                     <div className="flex items-center">
                       <div className="flex items-center border border-gray-300 rounded-md mr-3">
                         <button
                           onClick={() => decreaseQuantity(item._id)}
-                          className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 ${item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 ${
+                            item.quantity <= 1
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
                           disabled={item.quantity <= 1}
                         >
                           <FaMinus size={12} />
@@ -194,7 +226,7 @@ const Cart = () => {
                 Clear Cart
               </button>
               <button
-                onClick={() => navigate('/product')}
+                onClick={() => navigate("/product")}
                 className="px-4 py-2 bg-[#1e3473] text-white rounded-lg hover:bg-blue-800 transition-colors"
               >
                 Continue Shopping
@@ -208,11 +240,13 @@ const Cart = () => {
             <div className="space-y-4 text-[#2F294D]">
               <div className="flex justify-between">
                 <span className="text-gray-600">Total MRP</span>
-                <span className="font-medium">₹{(totalMRP).toFixed(2)}</span>
+                <span className="font-medium">₹{totalMRP.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">GST (18% tax)</span>
-                <span className="font-medium">₹{(finalTotal * 0.18).toFixed(2)}</span>
+                <span className="font-medium">
+                  ₹{(finalTotal * 0.18).toFixed(2)}
+                </span>
               </div>
               {/* <div className="flex justify-between">
                 <div className="flex items-center">
@@ -236,9 +270,30 @@ const Cart = () => {
               onClick={handleCheckout}
               className="w-full bg-[#f7941d] cursor-pointer  text-white py-3 rounded-md font-medium mt-4 flex items-center justify-center"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                <path d="M9 22H15C19.02 22 19.74 20.39 19.95 18.43L20.7 12.43C20.97 9.99 20.27 8 16 8H8C3.73 8 3.03 9.99 3.3 12.43L4.05 18.43C4.26 20.39 4.98 22 9 22Z" stroke="white" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M7.5 7.67V6.7C7.5 4.45 9.31 2.24 11.56 2.03C14.24 1.77 16.5 3.88 16.5 6.51V7.89" stroke="white" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="mr-2"
+              >
+                <path
+                  d="M9 22H15C19.02 22 19.74 20.39 19.95 18.43L20.7 12.43C20.97 9.99 20.27 8 16 8H8C3.73 8 3.03 9.99 3.3 12.43L4.05 18.43C4.26 20.39 4.98 22 9 22Z"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M7.5 7.67V6.7C7.5 4.45 9.31 2.24 11.56 2.03C14.24 1.77 16.5 3.88 16.5 6.51V7.89"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
               Checkout
             </button>
@@ -249,4 +304,4 @@ const Cart = () => {
   );
 };
 
-export default Cart; 
+export default Cart;

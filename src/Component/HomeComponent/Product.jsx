@@ -14,7 +14,7 @@ import { fetchProductsDynamic } from "../../utils/api";
 const Product = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
-  const [loadingBuyNow, setLoadingBuyNow] = useState({});
+  const [loadingBuyNow] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(24);
 
