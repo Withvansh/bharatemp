@@ -1,5 +1,6 @@
 // Location Service Utility Functions
 import pincodes from './pincode.json';
+import { calculateDeliveryTime } from './deliveryService';
 
 // OpenStreetMap Nominatim API base URL
 const NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
@@ -41,7 +42,7 @@ export const getLocationByCoordinates = async (latitude, longitude) => {
         fullAddress: data.display_name,
         coordinates: { latitude, longitude },
         pincodeData: foundPincode,
-        deliveryTime: foundPincode ? "Delivery in 24 Hours" : "Delivery in 24 to 72 Hours"
+        deliveryTime: calculateDeliveryTime(city, state)
       };
     }
     
@@ -106,7 +107,7 @@ export const searchLocations = async (searchTerm) => {
             longitude: parseFloat(place.lon) 
           },
           pincodeData: foundPincode,
-          deliveryTime: foundPincode ? "Delivery in 24 Hours" : "Delivery in 24 to 72 Hours"
+          deliveryTime: calculateDeliveryTime(city, state)
         };
       });
     }

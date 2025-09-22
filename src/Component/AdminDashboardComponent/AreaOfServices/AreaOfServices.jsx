@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { MdDelete, MdEdit, MdSearch } from "react-icons/md";
 import { useAdminRouteProtection } from "../../../utils/AuthUtils";
 import UnauthorizedPopup from "../../../utils/UnAuthorizedPopup";
+import { calculateDeliveryTime } from "../../../utils/deliveryService";
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -31,6 +32,22 @@ function AreaOfServices() {
   const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection([
     "SuperAdmin",
   ]);
+
+  // Fallback delivery time function
+  const getDeliveryTime = (city, state) => {
+    const location = city?.toLowerCase() || '';
+    const stateLocation = state?.toLowerCase() || '';
+    
+    if (location.includes('ghaziabad') || location.includes('noida')) {
+      return 'Delivery in 24 hours';
+    }
+    if (location.includes('delhi') || location.includes('gurgaon') || stateLocation.includes('haryana')) {
+      return 'Delivery in 72 hours';
+    }
+    return 'Delivery in 24 to 72 hours';
+  };
+
+
 
   // Validation function
   const validateForm = () => {
@@ -67,12 +84,14 @@ function AreaOfServices() {
   };
 
   useEffect(() => {
+    fetchZipcodes();
+  }, [currentPage]);
+
+  useEffect(() => {
     if (searchQuery) {
-      // searchWithPincode();
-    } else {
-      fetchZipcodes();
+      searchWithPincode();
     }
-  }, [currentPage, searchQuery, fetchZipcodes]);
+  }, [searchQuery]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -113,12 +132,13 @@ function AreaOfServices() {
       }
     } catch (error) {
       console.error("Error fetching zipcodes:", error);
+      toast.error("Failed to search zipcodes");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchZipcodes = useCallback(async () => {
+  const fetchZipcodes = async () => {
     try {
       toast.dismiss();
       setLoading(true);
@@ -143,10 +163,11 @@ function AreaOfServices() {
       }
     } catch (error) {
       console.error("Error fetching zipcodes:", error);
+      toast.error("Failed to fetch zipcodes");
     } finally {
       setLoading(false);
     }
-  }, [currentPage, itemsPerPage]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -341,6 +362,9 @@ function AreaOfServices() {
                     ODA
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">
+                    Delivery Time
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">
                     Actions
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">
@@ -384,6 +408,11 @@ function AreaOfServices() {
                           {zipcode.outOfDeliveryArea ? "Yes" : "No"}
                         </span>
                       </td>
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
+                          {getDeliveryTime(zipcode.facilityCity, zipcode.facilityState)}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => handleEdit(zipcode)}
@@ -403,7 +432,7 @@ function AreaOfServices() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="9" className="text-center py-4 text-gray-600">
+                    <td colSpan="10" className="text-center py-4 text-gray-600">
                       No zipcodes found
                     </td>
                   </tr>

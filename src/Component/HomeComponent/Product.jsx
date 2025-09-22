@@ -10,9 +10,13 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingSpinner from "../../utils/LoadingSpinner";
 import { fetchProductsDynamic } from "../../utils/api";
+import axios from "axios";
+
+const backend = import.meta.env.VITE_BACKEND;
 
 const Product = () => {
   const [allProducts, setAllProducts] = useState([]);
+  const [wholesaleProducts, setWholesaleProducts] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
   const [loadingBuyNow] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -122,8 +126,25 @@ const Product = () => {
     };
   }, [refreshProducts]);
 
+  // Fetch wholesale products
+  const fetchWholesaleProducts = async () => {
+    try {
+      const response = await axios.post(`${backend}/wholesale/list`, {
+        pageNum: 1,
+        pageSize: 1000,
+        filters: {}
+      });
+      if (response.data.status === "Success") {
+        setWholesaleProducts(response.data.data.wholesaleProductsList || []);
+      }
+    } catch (error) {
+      console.error('Error fetching wholesale products:', error);
+    }
+  };
+
   useEffect(() => {
     fetchAllProducts();
+    fetchWholesaleProducts();
   }, []);
 
   // Reset to page 1 when filters change
@@ -1052,6 +1073,24 @@ const Product = () => {
                             )}
                         </div>
                         
+                        {/* Bulk Pricing Indicator - Only show for products with stock > 10 or admin wholesale rates */}
+                        {((product.no_of_product_instock && product.no_of_product_instock > 10) || 
+                          wholesaleProducts.some(wp => wp.product_id._id === product._id)) && (
+                          <div className="mt-2">
+                            <div className="flex items-center gap-2">
+                              <span className="bg-[#f7941d] text-white text-xs px-2 py-1 rounded-full">
+                                Bulk Discount
+                              </span>
+                              <span className="text-xs text-gray-600">
+                                {wholesaleProducts.some(wp => wp.product_id._id === product._id) 
+                                  ? "Special rates available"
+                                  : "Starting from 5+ units"
+                                }
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        
                         {/* Stock Information - Only show Out of Stock */}
                         <div className="mt-2">
                           {product.product_instock === false || product.no_of_product_instock === 0 ? (
@@ -1062,10 +1101,10 @@ const Product = () => {
                         </div>
                       </div>
 
-                      <div className="mt-auto pt-5 space-y-3">
-                        <div className="flex gap-3">
+                      <div className="mt-auto pt-3 space-y-3">
+                        <div className="flex gap-2">
                           <button
-                            className={`font-medium py-1 px-4 rounded-2xl text-sm ${
+                            className={`font-medium py-2 px-3 rounded-2xl text-xs ${
                               product.product_instock === false || product.no_of_product_instock === 0
                                 ? "bg-gray-400 text-white cursor-not-allowed"
                                 : "bg-[#f7941d] cursor-pointer text-white"
@@ -1080,7 +1119,7 @@ const Product = () => {
                               : "Buy Now"}
                           </button>
                           <button
-                            className={`border py-1 px-4 rounded-2xl text-sm ${
+                            className={`border py-2 px-3 rounded-2xl text-xs ${
                               product.product_instock === false || product.no_of_product_instock === 0
                                 ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
                                 : "bg-gray-50 border-gray-200 text-[#f7941d]"
@@ -1105,6 +1144,28 @@ const Product = () => {
                               : isInCart(product._id)
                               ? `In Cart (${getItemQuantity(product._id)})`
                               : "Add to cart"}
+                          </button>
+                        </div>
+                        
+                        {/* Bulk Order Button */}
+                        <div className="mt-2">
+                          <button
+                            className={`w-full border border-[#1e3473] py-1 px-3 rounded-2xl text-xs ${
+                              product.product_instock === false || product.no_of_product_instock === 0
+                                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
+                                : "bg-white text-[#1e3473] hover:bg-[#1e3473] hover:text-white transition-colors"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (product.product_instock !== false && product.no_of_product_instock !== 0) {
+                                handleProductClick(product);
+                              }
+                            }}
+                            disabled={product.product_instock === false || product.no_of_product_instock === 0}
+                          >
+                            {product.product_instock === false || product.no_of_product_instock === 0
+                              ? "Bulk Orders Unavailable"
+                              : "View Bulk Pricing"}
                           </button>
                         </div>
                         <div className="text-sm text-gray-600">

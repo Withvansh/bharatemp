@@ -156,10 +156,12 @@ const Checkout = () => {
   const selectedAddress =
     addresses.find((addr) => addr.id === selectedAddressId) || addresses[0];
 
-  // Calculate total amount using only discounted price
+  // Calculate total amount using discounted price or bulk price
   const calculateTotalAmount = () => {
     return cartItems.reduce((sum, item) => {
-      const price = Number(item.discounted_single_product_price || 0);
+      const price = item.isBulkOrder 
+        ? Number(item.price || 0)
+        : Number(item.discounted_single_product_price || 0);
       return sum + price * item.quantity;
     }, 0);
   };
@@ -167,7 +169,9 @@ const Checkout = () => {
   // Calculate the total MRP (original price)
   const calculateTotalMRP = () => {
     return cartItems.reduce((sum, item) => {
-      const mrp = Number(item.discounted_single_product_price || 0);
+      const mrp = item.isBulkOrder 
+        ? Number(item.originalPrice || item.discounted_single_product_price || 0)
+        : Number(item.discounted_single_product_price || 0);
       return sum + mrp * item.quantity;
     }, 0);
   };
@@ -693,7 +697,7 @@ const Checkout = () => {
       const expectedDelivery = new Date();
       expectedDelivery.setDate(expectedDelivery.getDate() + 4);
 
-      // Prepare order items with warranty information
+      // Prepare order items with bulk order information
       const orderItems = cartItems.map((item) => {
         console.log("Processing cart item:", item);
         
@@ -706,11 +710,14 @@ const Checkout = () => {
           quantity: item.quantity,
           product_name: item.product_name,
           product_sku: item.SKU,
-          product_price: item.discounted_single_product_price,
+          product_price: item.isBulkOrder ? item.price : item.discounted_single_product_price,
           product_tax_rate: "0",
           product_hsn_code: "0",
-          product_discount: "0",
+          product_discount: item.isBulkOrder ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100) : "0",
           product_img_url: item.product_image_main,
+          is_bulk_order: item.isBulkOrder || false,
+          bulk_range: item.bulkRange || null,
+          original_price: item.originalPrice || null,
         };
       });
       
@@ -730,6 +737,8 @@ const Checkout = () => {
         name: userData ? `${userData.name}` : "",
         city: selectedAddr.city || "City",
         expectedDelivery: expectedDelivery,
+        hasBulkItems: cartItems.some(item => item.isBulkOrder),
+        bulkOrderCount: cartItems.filter(item => item.isBulkOrder).length,
       };
 
       // Create the order
@@ -1126,6 +1135,14 @@ const Checkout = () => {
                 <span className="text-gray-600">Total MRP</span>
                 <span className="font-medium">₹{totalMRP.toFixed(2)}</span>
               </div>
+              {totalMRP > totalAmount && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Bulk Discount</span>
+                  <span className="font-medium text-green-600">
+                    -₹{(totalMRP - totalAmount).toFixed(2)}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-600">GST (18% tax)</span>
                 <span className="font-medium">

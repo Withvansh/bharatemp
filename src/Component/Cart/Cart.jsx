@@ -27,10 +27,12 @@ const Cart = () => {
     navigate(-1); // Go back to previous page
   };
 
-  // Calculate total amount using only discounted price
+  // Calculate total amount using discounted price or bulk price
   const calculateTotalAmount = () => {
     return cartItems.reduce((sum, item) => {
-      const price = Number(item.discounted_single_product_price || 0);
+      const price = item.isBulkOrder 
+        ? Number(item.price || 0)
+        : Number(item.discounted_single_product_price || 0);
       return sum + price * item.quantity;
     }, 0);
   };
@@ -38,7 +40,9 @@ const Cart = () => {
   // Calculate the total MRP (original price)
   const calculateTotalMRP = () => {
     return cartItems.reduce((sum, item) => {
-      const mrp = Number(item.discounted_single_product_price || 0);
+      const mrp = item.isBulkOrder 
+        ? Number(item.originalPrice || item.discounted_single_product_price || 0)
+        : Number(item.discounted_single_product_price || 0);
       return sum + mrp * item.quantity;
     }, 0);
   };
@@ -138,7 +142,7 @@ const Cart = () => {
             <FaChevronRight className="text-gray-400" size={12} />
 
             <span className="text-[#f7941d]">
-              Shopping Cart ({cartItems.length} items)
+              Shopping Cart ({cartItems.length} items{cartItems.some(item => item.isBulkOrder) ? ' - Bulk Orders Included' : ''})
             </span>
           </div>
         </nav>
@@ -150,7 +154,10 @@ const Cart = () => {
               Current Order
             </h1>
             <p className="text-gray-500 text-sm mb-6">
-              The sum of all total payments for goods there
+              {cartItems.some(item => item.isBulkOrder) 
+                ? "Your cart includes bulk order items with special pricing"
+                : "The sum of all total payments for goods there"
+              }
             </p>
 
             {cartItems.map((item) => (
@@ -174,6 +181,16 @@ const Cart = () => {
                       >
                         {item.product_name}
                       </h3>
+                      {item.isBulkOrder && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="bg-[#f7941d] text-white text-xs px-2 py-1 rounded-full">
+                            Bulk Order
+                          </span>
+                          <span className="text-xs text-gray-600">
+                            Range: {item.bulkRange}
+                          </span>
+                        </div>
+                      )}
                       {item.no_of_product_instock !== undefined && (
                         <p className={`text-sm mt-1 ${
                           item.no_of_product_instock > 0 
@@ -191,44 +208,62 @@ const Cart = () => {
                     </div>
                   </div>
                   <div className="flex flex-col h-full items-end justify-between">
-                    <span className="font-bold text-[#1E3473] text-xl">
-                      ₹{" "}
-                      {Number(
-                        item.discounted_single_product_price
-                      ).toLocaleString()}
-                    </span>
+                    <div className="text-right">
+                      <span className="font-bold text-[#1E3473] text-xl">
+                        ₹{" "}
+                        {Number(
+                          item.isBulkOrder ? item.price : item.discounted_single_product_price
+                        ).toLocaleString()}
+                      </span>
+                      {item.isBulkOrder && item.originalPrice && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          <span className="line-through">₹{item.originalPrice}</span>
+                          <span className="text-green-600 ml-1">
+                            ({Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}% off)
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
                     <div className="flex items-center">
-                      <div className="flex items-center border border-gray-300 rounded-md mr-3">
-                        <button
-                          onClick={() => decreaseQuantity(item._id)}
-                          className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 ${
-                            item.quantity <= 1
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }`}
-                          disabled={item.quantity <= 1}
-                        >
-                          <FaMinus size={12} />
-                        </button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <button
-                          onClick={() => {
-                            if (item.no_of_product_instock && item.quantity >= item.no_of_product_instock) {
-                              toast.warning(`Only ${item.no_of_product_instock} items available in stock`);
-                              return;
-                            }
-                            increaseQuantity(item._id);
-                          }}
-                          className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 ${
-                            item.no_of_product_instock && item.quantity >= item.no_of_product_instock
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }`}
-                        >
-                          <FaPlus size={12} />
-                        </button>
-                      </div>
+                      {!item.isBulkOrder ? (
+                        <div className="flex items-center border border-gray-300 rounded-md mr-3">
+                          <button
+                            onClick={() => decreaseQuantity(item._id)}
+                            className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 ${
+                              item.quantity <= 1
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
+                            disabled={item.quantity <= 1}
+                          >
+                            <FaMinus size={12} />
+                          </button>
+                          <span className="w-8 text-center">{item.quantity}</span>
+                          <button
+                            onClick={() => {
+                              if (item.no_of_product_instock && item.quantity >= item.no_of_product_instock) {
+                                toast.warning(`Only ${item.no_of_product_instock} items available in stock`);
+                                return;
+                              }
+                              increaseQuantity(item._id);
+                            }}
+                            className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 ${
+                              item.no_of_product_instock && item.quantity >= item.no_of_product_instock
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
+                          >
+                            <FaPlus size={12} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center mr-3">
+                          <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-md">
+                            Qty: {item.quantity}
+                          </span>
+                        </div>
+                      )}
                       <button
                         onClick={() => removeFromCart(item._id)}
                         className="text-red-500 hover:text-red-700"
@@ -268,6 +303,14 @@ const Cart = () => {
                 <span className="text-gray-600">Total MRP</span>
                 <span className="font-medium">₹{totalMRP.toFixed(2)}</span>
               </div>
+              {totalMRP > totalAmount && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Bulk Discount</span>
+                  <span className="font-medium text-green-600">
+                    -₹{(totalMRP - totalAmount).toFixed(2)}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-600">GST (18% tax)</span>
                 <span className="font-medium">

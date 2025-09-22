@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Section2 from './Section2';
 import Section3 from './Section3';
 import Customers from './Customers';
+import BulkOrderForm from './BulkOrderForm';
 import b2b from "../../assets/b2b.webp";
 import { Link, useLocation } from "react-router-dom";
 import { FaCloud, FaRobot, FaPlusCircle, FaWind, FaHelicopter } from 'react-icons/fa';
@@ -93,6 +94,11 @@ const OnlinePresenceSection = () => {
     </div>
   </div>
 </div>
+      {/* Bulk Order Form Section */}
+      <div className="px-6 py-16 md:px-16 bg-gray-50">
+        <BulkOrderForm />
+      </div>
+      
       <div id="customer-section" className="px-6 py-10 md:px-16">
         <Customers />
       </div>

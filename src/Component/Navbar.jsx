@@ -33,6 +33,7 @@ import {
   getCurrentLocation as getCurrentLocationService,
   formatLocationString,
 } from "../utils/locationService";
+import { calculateDeliveryTime } from "../utils/deliveryService";
 
 
 const backend = import.meta.env.VITE_BACKEND;
@@ -84,21 +85,12 @@ const Navbar = () => {
               data.address.zip ||
               "";
 
-            setLocation(
-              `${zipcode}, ${
-                data.address.city ||
-                data.address.town ||
-                data.address.village ||
-                ""
-              }, ${data.address.state || ""}`
-            );
+            const city = data.address.city || data.address.town || data.address.village || "";
+            const state = data.address.state || "";
+            
+            setLocation(`${zipcode}, ${city}, ${state}`);
             setUserPincode(zipcode);
-
-            if (isPincodeAvailable(zipcode)) {
-              setStringForDelivery("Delivery in 24 Hours");
-            } else {
-              setStringForDelivery("");
-            }
+            setStringForDelivery(calculateDeliveryTime(city, state));
           } catch (err) {
             setLocation("Location not found");
             setStringForDelivery("");
@@ -134,7 +126,7 @@ const Navbar = () => {
         (pincode) => pincode.Pincode === String(data.postal)
       );
       if (foundPincode) {
-        setStringForDelivery("Delivery in 24 Hours");
+        setStringForDelivery(calculateDeliveryTime(foundPincode.City, foundPincode.state));
         setLocation(
           foundPincode.Pincode +
             ", " +
@@ -143,7 +135,7 @@ const Navbar = () => {
             foundPincode.state
         );
       } else {
-        setStringForDelivery("Delivery in 24 to 72 Hours");
+        setStringForDelivery(calculateDeliveryTime(data.city, data.region));
         setLocation(data.city);
       }
       setUserPincode(data);

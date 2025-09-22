@@ -1,49 +1,49 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { IoClose, IoPencil, IoTrash } from "react-icons/io5";
+import { IoClose, IoPencil, IoTrash, IoAdd } from "react-icons/io5";
 import LoadingSpinner from '../../../utils/LoadingSpinner';
 import { toast } from 'react-toastify';
 import { useAdminRouteProtection } from '../../../utils/AuthUtils';
 import UnauthorizedPopup from '../../../utils/UnAuthorizedPopup';
+import BulkOrderDetails from './BulkOrderDetails';
+import BulkOrderRequests from './BulkOrderRequests';
 
 const backend = import.meta.env.VITE_BACKEND;
 
 const WholesaleProductsPage = () => {
-    const [products, setProducts] = useState([]);
-    const [wholesaleProducts, setSelectedProducts] = useState([]);
+    const [allProducts, setAllProducts] = useState([]);
+    const [wholesaleProducts, setWholesaleProducts] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [showAllProducts, setShowAllProducts] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [editingWholesale, setEditingWholesale] = useState(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
     const [wholesaleToDelete, setWholesaleToDelete] = useState(null);
-    const [currentPage] = useState(1);
-    const [productsPerPage] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [productsPerPage] = useState(12);
+    const [activeTab, setActiveTab] = useState('products');
+    const [searchTerm, setSearchTerm] = useState('');
     const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
 
     useEffect(() => {
-        fetchWholesaleProducts()
+        fetchAllProducts();
+        fetchWholesaleProducts();
     }, []);
 
-    async function fetchAllProducts(products) {
+    async function fetchAllProducts() {
         try {
             setLoading(true);
             const response = await axios.post(`${backend}/product/list`, {
                 pageNum: currentPage,
-                pageSize: productsPerPage,
+                pageSize: 1000,
                 filters: {}
             });
             if (response.data.status === "Success") {
-                const allProducts = response.data.data.productList;
-                const filteredProducts = allProducts.filter(
-                    (product) => !products.some(
-                        (wholesale) => wholesale.product_id._id === product._id
-                    )
-                );
-                setProducts(filteredProducts);
+                setAllProducts(response.data.data.productList || []);
             }
         } catch (error) {
             console.error('Error fetching products:', error);
+            toast.error('Failed to fetch products');
         } finally {
             setLoading(false);
         }
@@ -51,20 +51,17 @@ const WholesaleProductsPage = () => {
 
     async function fetchWholesaleProducts() {
         try {
-            setLoading(true);
             const response = await axios.post(`${backend}/wholesale/list`, {
                 pageNum: currentPage,
-                pageSize: 20,
+                pageSize: 1000,
                 filters: {},
             });
             if (response.data.status === "Success") {
-                setLoading(false);
-                setSelectedProducts(response.data.data.wholesaleProductsList);
-                fetchAllProducts(response.data.data.wholesaleProductsList);
+                setWholesaleProducts(response.data.data.wholesaleProductsList || []);
             }
         } catch (error) {
             console.error('Error fetching wholesale products:', error);
-            setLoading(false);
+            toast.error('Failed to fetch wholesale products');
         }
     }
 
@@ -80,26 +77,43 @@ const WholesaleProductsPage = () => {
         setDeleteModalOpen(true);
     };
 
+    const handleDeleteProduct = async (productId) => {
+        setProductToDelete(productId);
+        setDeleteModalOpen(true);
+    };
+
     const confirmDelete = async () => {
-        if (!wholesaleToDelete) return;
         setLoading(true);
         try {
-            const response = await axios.post(`${backend}/wholesale/${wholesaleToDelete}/remove`, {}, {
-                headers: {
-                    'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+            if (wholesaleToDelete) {
+                const response = await axios.post(`${backend}/wholesale/${wholesaleToDelete}/remove`, {}, {
+                    headers: {
+                        'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+                    }
+                });
+                if (response.data.status === "Success") {
+                    toast.success("Wholesale product deleted successfully.");
+                    fetchWholesaleProducts();
                 }
-            });
-
-            if (response.data.status === "Success") {
-                toast.success("Wholesale product deleted successfully.");
-                fetchWholesaleProducts();
+            } else if (productToDelete) {
+                const response = await axios.post(`${backend}/product/${productToDelete}/remove`, {}, {
+                    headers: {
+                        'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+                    }
+                });
+                if (response.data.status === "Success") {
+                    toast.success("Product deleted successfully.");
+                    fetchAllProducts();
+                    fetchWholesaleProducts();
+                }
             }
         } catch (error) {
-            console.error("Error deleting wholesale product:", error);
-            toast.error("Failed to delete wholesale product.");
+            console.error("Error deleting:", error);
+            toast.error("Failed to delete.");
         } finally {
             setDeleteModalOpen(false);
             setWholesaleToDelete(null);
+            setProductToDelete(null);
             setLoading(false);
         }
     };
@@ -107,6 +121,7 @@ const WholesaleProductsPage = () => {
     const cancelDelete = () => {
         setDeleteModalOpen(false);
         setWholesaleToDelete(null);
+        setProductToDelete(null);
     };
 
     const handleUpdateWholesale = async () => {
@@ -130,8 +145,8 @@ const WholesaleProductsPage = () => {
                     toast.error("Min Quantity is required and must be at least 1.");
                     return;
                 }
-                if (breakItem.discount === undefined || breakItem.discount < 0 || breakItem.discount === 0) {
-                    toast.error("Discount is required and cannot be negative and cannot be 0.");
+                if (breakItem.discount === undefined || breakItem.discount < 0) {
+                    toast.error("Discount is required and cannot be negative.");
                     return;
                 }
             }
@@ -166,7 +181,7 @@ const WholesaleProductsPage = () => {
     const handleAddClick = (product) => {
         setSelectedProduct({
             ...product,
-            priceBreaks: [{ minQuantity: 1, discount: 0 }]
+            priceBreaks: [{ minQuantity: 10, discount: 50 }]
         });
     };
 
@@ -205,7 +220,7 @@ const WholesaleProductsPage = () => {
                 ...prev,
                 priceBreaks: [
                     ...prev.priceBreaks,
-                    { minQuantity: 1, discount: 0 }
+                    { minQuantity: 10, discount: 50 }
                 ]
             }));
         } else {
@@ -214,7 +229,7 @@ const WholesaleProductsPage = () => {
                 ...prev,
                 priceBreaks: [
                     ...prev.priceBreaks,
-                    { minQuantity: 1, discount: 0 }
+                    { minQuantity: 10, discount: 50 }
                 ]
             }));
         }
@@ -259,8 +274,8 @@ const WholesaleProductsPage = () => {
                     toast.error("Min Quantity is required and must be at least 1.");
                     return;
                 }
-                if (breakItem.discount === undefined || breakItem.discount < 0 || breakItem.discount === 0) {
-                    toast.error("Discount is required and cannot be negative and cannot be 0.");
+                if (breakItem.discount === undefined || breakItem.discount < 0) {
+                    toast.error("Discount is required and cannot be negative.");
                     return;
                 }
             }
@@ -287,7 +302,6 @@ const WholesaleProductsPage = () => {
                 setLoading(false);
                 fetchWholesaleProducts();
                 setSelectedProduct(null);
-                setShowAllProducts(false);
             }
         } catch (error) {
             console.error("Error saving wholesale data:", error);
@@ -296,108 +310,363 @@ const WholesaleProductsPage = () => {
         }
     };
 
+    // Filter products based on search term
+    const filteredProducts = allProducts.filter(product =>
+        product.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.product_description?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const filteredWholesaleProducts = wholesaleProducts.filter(product =>
+        product.product_id.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.product_id.product_description?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Pagination logic
+    const getPaginatedProducts = (products) => {
+        const startIndex = (currentPage - 1) * productsPerPage;
+        const endIndex = startIndex + productsPerPage;
+        return products.slice(startIndex, endIndex);
+    };
+
+    const getTotalPages = (products) => Math.ceil(products.length / productsPerPage);
+
+    // Reset to page 1 when switching tabs or searching
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [activeTab, searchTerm]);
+
     if (!isAuthorized) {
         return showPopup ? <UnauthorizedPopup onClose={closePopup} /> : null;
     }
 
     return (
         <div className="container mx-auto p-5 md:px-10 pt-14 bg-gradient-to-b from-gray-50 to-blue-50">
-            <h1 className="text-2xl font-bold mb-6 lg:text-4xl">Wholesale & Bulk Products Management</h1>
+            <h1 className="text-2xl font-bold mb-6 lg:text-4xl">Wholesale & Bulk Management</h1>
 
-            <div className="flex justify-between items-center mb-6">
+            {/* Tab Navigation */}
+            <div className="flex border-b border-gray-200 mb-6">
                 <button
-                    onClick={() => setShowAllProducts(!showAllProducts)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    onClick={() => setActiveTab('products')}
+                    className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+                        activeTab === 'products'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
                 >
-                    {showAllProducts ? 'View Wholesale Products' : 'Add New Wholesale Products'}
+                    All Products ({allProducts.length})
+                </button>
+                <button
+                    onClick={() => setActiveTab('wholesale')}
+                    className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+                        activeTab === 'wholesale'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                    Wholesale Products ({wholesaleProducts.length})
+                </button>
+                <button
+                    onClick={() => setActiveTab('orders')}
+                    className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+                        activeTab === 'orders'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                    Bulk Orders
+                </button>
+                <button
+                    onClick={() => setActiveTab('requests')}
+                    className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+                        activeTab === 'requests'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                    Quote Requests
                 </button>
             </div>
 
-            {
-                loading && <LoadingSpinner />
-            }
+            {/* Search Bar */}
+            {(activeTab === 'products' || activeTab === 'wholesale') && (
+                <div className="mb-6">
+                    <input
+                        type="text"
+                        placeholder="Search products..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+            )}
 
-            {showAllProducts ? (
+            {loading && <LoadingSpinner />}
+
+            {activeTab === 'orders' ? (
+                <BulkOrderDetails />
+            ) : activeTab === 'requests' ? (
+                <BulkOrderRequests />
+            ) : activeTab === 'products' ? (
                 <div className="space-y-4">
                     <h2 className="text-lg font-semibold mb-4">All Products</h2>
-                    {products?.length === 0 ? (
-                        <div className="text-gray-500">No products found</div>
+                    {filteredProducts.length === 0 ? (
+                        <div className="text-gray-500 text-center py-8">No products found</div>
                     ) : (
-                        products.map(product => (
-                            <div key={product._id} className="border p-4 rounded-lg">
-                                <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
-                                    <div>
-                                        <h3 className="font-medium">{product.name}</h3>
-                                        <p className="text-gray-600">₹{product.price}</p>
-                                    </div>
-                                    <button
-                                        onClick={() => handleAddClick(product)}
-                                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                                    >
-                                        Add Wholesale
-                                    </button>
-                                </div>
+                        <>
+                            <div className="mb-4 text-sm text-gray-600">
+                                Showing {((currentPage - 1) * productsPerPage) + 1} to {Math.min(currentPage * productsPerPage, filteredProducts.length)} of {filteredProducts.length} products
                             </div>
-                        ))
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {getPaginatedProducts(filteredProducts).map(product => (
+                                    <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow p-4">
+                                        <div className="flex flex-col h-full">
+                                            <img
+                                                src={product.product_image_main || product.image?.[0] || '/placeholder.webp'}
+                                                alt={product.product_name}
+                                                className="w-full h-48 object-contain rounded-md mb-4 bg-gray-50"
+                                            />
+                                            <div className="flex-1">
+                                                <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product.product_name}</h3>
+                                                <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.product_description}</p>
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <span className="text-xl font-bold text-green-600">
+                                                        ₹{product.discounted_single_product_price?.toLocaleString('en-IN') || product.price}
+                                                    </span>
+                                                    {product.non_discounted_price && (
+                                                        <span className="text-sm text-gray-500 line-through">
+                                                            ₹{product.non_discounted_price.toLocaleString('en-IN')}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <span className={`px-2 py-1 text-xs rounded-full ${
+                                                        product.product_instock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                    }`}>
+                                                        {product.product_instock ? 'In Stock' : 'Out of Stock'}
+                                                    </span>
+                                                    {wholesaleProducts.some(wp => wp.product_id._id === product._id) && (
+                                                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                                                            Wholesale Available
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2 mt-4">
+                                                {!wholesaleProducts.some(wp => wp.product_id._id === product._id) ? (
+                                                    <button
+                                                        onClick={() => handleAddClick(product)}
+                                                        className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center justify-center gap-2"
+                                                    >
+                                                        <IoAdd size={16} />
+                                                        Add Wholesale
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => {
+                                                            const wholesale = wholesaleProducts.find(wp => wp.product_id._id === product._id);
+                                                            handleEditClick(wholesale);
+                                                        }}
+                                                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
+                                                    >
+                                                        <IoPencil size={16} />
+                                                        Edit Wholesale
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => handleDeleteProduct(product._id)}
+                                                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                                                    title="Delete Product"
+                                                >
+                                                    <IoTrash size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            {/* Pagination for All Products */}
+                            {getTotalPages(filteredProducts) > 1 && (
+                                <div className="flex justify-center mt-8">
+                                    <div className="flex items-center space-x-2">
+                                        <button
+                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                            disabled={currentPage === 1}
+                                            className={`px-3 py-2 rounded-lg text-sm ${
+                                                currentPage === 1
+                                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            Previous
+                                        </button>
+
+                                        {Array.from({ length: getTotalPages(filteredProducts) }, (_, i) => i + 1).map(page => (
+                                            <button
+                                                key={page}
+                                                onClick={() => setCurrentPage(page)}
+                                                className={`px-3 py-2 rounded-lg text-sm ${
+                                                    currentPage === page
+                                                        ? 'bg-blue-600 text-white'
+                                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
+
+                                        <button
+                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, getTotalPages(filteredProducts)))}
+                                            disabled={currentPage === getTotalPages(filteredProducts)}
+                                            className={`px-3 py-2 rounded-lg text-sm ${
+                                                currentPage === getTotalPages(filteredProducts)
+                                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             ) : (
                 <div className="space-y-4">
                     <h2 className="text-lg font-semibold mb-4">Wholesale Products</h2>
-                    {wholesaleProducts?.length === 0 ? (
-                        <div className="text-gray-500">No wholesale products added yet</div>
+                    {filteredWholesaleProducts.length === 0 ? (
+                        <div className="text-gray-500 text-center py-8">No wholesale products found</div>
                     ) : (
-                        wholesaleProducts?.map(product => (
-                            <div key={product._id} className="border p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center gap-4">
+                        <>
+                            <div className="mb-4 text-sm text-gray-600">
+                                Showing {((currentPage - 1) * productsPerPage) + 1} to {Math.min(currentPage * productsPerPage, filteredWholesaleProducts.length)} of {filteredWholesaleProducts.length} wholesale products
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {getPaginatedProducts(filteredWholesaleProducts).map(product => (
+                                <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow p-4">
+                                    <div className="flex flex-col h-full">
                                         <img
-                                            src={product.product_id.image?.[0] || '/placeholder.webp'}
-                                            alt={product.product_id.name}
-                                            className="w-16 h-16 object-cover rounded-md border"
+                                            src={product.product_id.product_image_main || product.product_id.image?.[0] || '/placeholder.webp'}
+                                            alt={product.product_id.product_name}
+                                            className="w-full h-48 object-contain rounded-md mb-4 bg-gray-50"
                                         />
-                                        <div>
-                                            <h3 className="font-semibold text-lg">{product.product_id.name}</h3>
-                                            <p className="text-gray-600">₹{product.product_id.price}</p>
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product.product_id.product_name}</h3>
+                                            <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.product_id.product_description}</p>
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <span className="text-xl font-bold text-green-600">
+                                                    ₹{product.product_id.discounted_single_product_price?.toLocaleString('en-IN') || product.product_id.price}
+                                                </span>
+                                                {product.product_id.non_discounted_price && (
+                                                    <span className="text-sm text-gray-500 line-through">
+                                                        ₹{product.product_id.non_discounted_price.toLocaleString('en-IN')}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            
+                                            {/* Wholesale Price Breaks */}
+                                            <div className="mb-3">
+                                                <h4 className="text-sm font-medium text-gray-700 mb-2">Wholesale Rates:</h4>
+                                                <div className="space-y-1">
+                                                    {product.priceBreaks?.length > 0 ? (
+                                                        product.priceBreaks.map((breakItem, index) => {
+                                                            const basePrice = product.product_id.discounted_single_product_price || product.product_id.price || 0;
+                                                            const discountedPrice = Math.max(0, basePrice - breakItem.discount);
+                                                            const minTotal = discountedPrice * breakItem.minQuantity;
+                                                            const maxTotal = breakItem.maxQuantity ? discountedPrice * breakItem.maxQuantity : null;
+                                                            
+                                                            return (
+                                                                <div key={breakItem._id || index} className="bg-gray-50 p-3 rounded-lg">
+                                                                    <div className="flex justify-between items-center mb-1">
+                                                                        <span className="font-medium text-sm">
+                                                                            {breakItem.minQuantity}
+                                                                            {breakItem.maxQuantity ? ` - ${breakItem.maxQuantity}` : `+`} pcs
+                                                                        </span>
+                                                                        <span className="text-blue-600 font-medium text-sm">₹{breakItem.discount} off each</span>
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-600">
+                                                                        <div>Price per unit: ₹{discountedPrice.toLocaleString('en-IN')}</div>
+                                                                        <div className="font-medium text-green-600">
+                                                                            Total: ₹{minTotal.toLocaleString('en-IN')}
+                                                                            {maxTotal && ` - ₹${maxTotal.toLocaleString('en-IN')}`}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    ) : (
+                                                        <p className="text-xs text-gray-500">No price breaks available</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2 mt-4">
+                                            <button
+                                                onClick={() => handleEditClick(product)}
+                                                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
+                                            >
+                                                <IoPencil size={16} />
+                                                Edit Rates
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteClick(product._id)}
+                                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                                                title="Remove Wholesale"
+                                            >
+                                                <IoTrash size={16} />
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="flex gap-2">
+                                </div>
+                                ))}
+                            </div>
+                            
+                            {/* Pagination for Wholesale Products */}
+                            {getTotalPages(filteredWholesaleProducts) > 1 && (
+                                <div className="flex justify-center mt-8">
+                                    <div className="flex items-center space-x-2">
                                         <button
-                                            onClick={() => handleEditClick(product)}
-                                            className="p-2 text-blue-600 hover:text-blue-800"
-                                            title="Edit"
+                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                            disabled={currentPage === 1}
+                                            className={`px-3 py-2 rounded-lg text-sm ${
+                                                currentPage === 1
+                                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                            }`}
                                         >
-                                            <IoPencil size={20} />
+                                            Previous
                                         </button>
+
+                                        {Array.from({ length: getTotalPages(filteredWholesaleProducts) }, (_, i) => i + 1).map(page => (
+                                            <button
+                                                key={page}
+                                                onClick={() => setCurrentPage(page)}
+                                                className={`px-3 py-2 rounded-lg text-sm ${
+                                                    currentPage === page
+                                                        ? 'bg-blue-600 text-white'
+                                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
+
                                         <button
-                                            onClick={() => handleDeleteClick(product._id)}
-                                            className="p-2 text-red-600 hover:text-red-800"
-                                            title="Delete"
+                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, getTotalPages(filteredWholesaleProducts)))}
+                                            disabled={currentPage === getTotalPages(filteredWholesaleProducts)}
+                                            className={`px-3 py-2 rounded-lg text-sm ${
+                                                currentPage === getTotalPages(filteredWholesaleProducts)
+                                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                            }`}
                                         >
-                                            <IoTrash size={20} />
+                                            Next
                                         </button>
                                     </div>
                                 </div>
-
-                                {/* Price Breaks Section */}
-                                <div className="space-y-2">
-                                    {product.priceBreaks?.length > 0 ? (
-                                        product.priceBreaks.map((breakItem, index) => (
-                                            <div key={breakItem._id || index} className="flex gap-2 text-sm bg-gray-100 p-2 rounded">
-                                                <span className="font-medium">
-                                                    {breakItem.minQuantity}
-                                                    {breakItem.maxQuantity ? ` - ${breakItem.maxQuantity}` : `+`} Pieces
-                                                </span>
-                                                <span className="text-blue-600">₹{breakItem.discount} discount</span>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <p className="text-sm text-gray-500">No price breaks available</p>
-                                    )}
-                                </div>
-                            </div>
-                        ))
-
+                            )}
+                        </>
                     )}
                 </div>
             )}
@@ -408,82 +677,118 @@ const WholesaleProductsPage = () => {
                         scrollbarWidth: 'none'
                     }}>
                         <h2 className="text-xl font-bold mb-4">
-                            {editingWholesale ? 'Edit' : 'Configure'} Wholesale for {editingWholesale?.product?.name || selectedProduct?.name}
+                            {editingWholesale ? 'Edit' : 'Configure'} Wholesale for {editingWholesale?.product_id?.product_name || selectedProduct?.product_name}
                         </h2>
 
-                        <div className="space-y-4">
-                            {(editingWholesale?.priceBreaks || selectedProduct?.priceBreaks)?.map((breakItem, index) => (
-                                <div key={index} className="flex gap-4 items-end">
-                                    <div className="flex-1">
-                                        <label className="block text-sm font-medium mb-1">
-                                            Min Quantity
-                                        </label>
-                                        <input
-                                            type="number"
-                                            value={breakItem.minQuantity}
-                                            onChange={(e) => handlePriceBreakChange(
-                                                index,
-                                                'minQuantity',
-                                                parseInt(e.target.value)
-                                            )}
-                                            className="w-full p-2 border rounded"
-                                            min="1"
-                                            step="1"
-                                        />
-                                    </div>
+                        <div className="space-y-6">
+                            {(editingWholesale?.priceBreaks || selectedProduct?.priceBreaks)?.map((breakItem, index) => {
+                                const currentProduct = editingWholesale?.product_id || selectedProduct;
+                                const basePrice = currentProduct?.discounted_single_product_price || currentProduct?.price || 0;
+                                const discountedPrice = Math.max(0, basePrice - (breakItem.discount || 0));
+                                const minTotal = discountedPrice * (breakItem.minQuantity || 0);
+                                const maxTotal = breakItem.maxQuantity ? discountedPrice * breakItem.maxQuantity : null;
+                                
+                                return (
+                                    <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                        <div className="flex gap-4 items-end mb-4">
+                                            <div className="flex-1">
+                                                <label className="block text-sm font-medium mb-1">
+                                                    Min Quantity
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={breakItem.minQuantity}
+                                                    onChange={(e) => handlePriceBreakChange(
+                                                        index,
+                                                        'minQuantity',
+                                                        parseInt(e.target.value)
+                                                    )}
+                                                    className="w-full p-2 border rounded"
+                                                    min="1"
+                                                    step="1"
+                                                />
+                                            </div>
 
-                                    <div className="flex-1">
-                                        <label className="block text-sm font-medium mb-1">
-                                            Max Quantity
-                                        </label>
-                                        <input
-                                            type="number"
-                                            value={breakItem.maxQuantity || ''}
-                                            onChange={(e) => handlePriceBreakChange(
-                                                index,
-                                                'maxQuantity',
-                                                e.target.value ? parseInt(e.target.value) : null
-                                            )}
-                                            className="w-full p-2 border rounded"
-                                            min={breakItem.minQuantity + 1}
-                                            step="1"
-                                        />
-                                    </div>
+                                            <div className="flex-1">
+                                                <label className="block text-sm font-medium mb-1">
+                                                    Max Quantity
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={breakItem.maxQuantity || ''}
+                                                    onChange={(e) => handlePriceBreakChange(
+                                                        index,
+                                                        'maxQuantity',
+                                                        e.target.value ? parseInt(e.target.value) : null
+                                                    )}
+                                                    className="w-full p-2 border rounded"
+                                                    min={breakItem.minQuantity + 1}
+                                                    step="1"
+                                                    placeholder="Leave empty for unlimited"
+                                                />
+                                            </div>
 
-                                    <div className="flex-1">
-                                        <label className="block text-sm font-medium mb-1">
-                                            Discount (₹)
-                                        </label>
-                                        <input
-                                            type="number"
-                                            value={breakItem.discount}
-                                            onChange={(e) => handlePriceBreakChange(
-                                                index,
-                                                'discount',
-                                                parseInt(e.target.value)
-                                            )}
-                                            className="w-full p-2 border rounded"
-                                            min="0"
-                                            step="1"
-                                        />
-                                    </div>
+                                            <div className="flex-1">
+                                                <label className="block text-sm font-medium mb-1">
+                                                    Discount (₹)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={breakItem.discount}
+                                                    onChange={(e) => handlePriceBreakChange(
+                                                        index,
+                                                        'discount',
+                                                        parseInt(e.target.value)
+                                                    )}
+                                                    className="w-full p-2 border rounded"
+                                                    min="0"
+                                                    step="1"
+                                                />
+                                            </div>
 
-                                    {index > 0 && (
-                                        <button
-                                            onClick={() => removePriceBreak(index)}
-                                            className="text-red-600 hover:text-red-800 pb-2"
-                                        >
-                                            <IoClose size={30} />
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
+                                            {index > 0 && (
+                                                <button
+                                                    onClick={() => removePriceBreak(index)}
+                                                    className="text-red-600 hover:text-red-800 pb-2"
+                                                >
+                                                    <IoClose size={30} />
+                                                </button>
+                                            )}
+                                        </div>
+                                        
+                                        {/* Price Calculation Display */}
+                                        <div className="bg-white p-3 rounded border">
+                                            <h4 className="text-sm font-medium text-gray-700 mb-2">Price Calculation:</h4>
+                                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                                <div>
+                                                    <span className="text-gray-600">Base Price: </span>
+                                                    <span className="font-medium">₹{basePrice.toLocaleString('en-IN')}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-600">After Discount: </span>
+                                                    <span className="font-medium text-green-600">₹{discountedPrice.toLocaleString('en-IN')}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-600">Min Total: </span>
+                                                    <span className="font-bold text-blue-600">₹{minTotal.toLocaleString('en-IN')}</span>
+                                                </div>
+                                                {maxTotal && (
+                                                    <div>
+                                                        <span className="text-gray-600">Max Total: </span>
+                                                        <span className="font-bold text-blue-600">₹{maxTotal.toLocaleString('en-IN')}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
 
                             <button
                                 onClick={addPriceBreak}
-                                className="text-sm text-blue-600 hover:text-blue-800"
+                                className="w-full py-2 px-4 border-2 border-dashed border-blue-300 text-blue-600 hover:text-blue-800 hover:border-blue-400 rounded-lg transition-colors"
                             >
-                                + Add Price Break
+                                + Add Another Price Break
                             </button>
                         </div>
 
@@ -512,7 +817,10 @@ const WholesaleProductsPage = () => {
                 <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex z-50 items-center justify-center">
                     <div className="bg-white p-6 rounded-lg w-full max-w-md">
                         <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
-                        <p className="mb-6">Are you sure you want to delete this wholesale product? This action cannot be undone.</p>
+                        <p className="mb-6">
+                            Are you sure you want to delete this {productToDelete ? 'product' : 'wholesale product'}? 
+                            This action cannot be undone.
+                        </p>
 
                         <div className="flex justify-end gap-4">
                             <button
