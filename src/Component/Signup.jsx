@@ -86,7 +86,7 @@ const Signup = () => {
     <>
       <ToastContainer />
       <div className="min-h-screen flex">
-        {/* Left side - Video background */}
+        {/* Left side - Video background   updated*/}
         <div className="w-3/5 lg:flex items-center justify-center hidden relative">
           <div className="absolute inset-0 bg-black/10 z-10"></div>
           <video 
