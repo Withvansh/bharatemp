@@ -229,7 +229,11 @@ const Cart = () => {
                       {!item.isBulkOrder ? (
                         <div className="flex items-center border border-gray-300 rounded-md mr-3">
                           <button
-                            onClick={() => decreaseQuantity(item._id)}
+                            onClick={() => {
+                              if (item.quantity > 1) {
+                                decreaseQuantity(item._id);
+                              }
+                            }}
                             className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 ${
                               item.quantity <= 1
                                 ? "opacity-50 cursor-not-allowed"

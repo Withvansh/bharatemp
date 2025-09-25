@@ -873,7 +873,10 @@ const AddProduct = () => {
             type="number"
             name="no_of_product_instock"
             value={formData.no_of_product_instock}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              const value = Math.max(0, parseInt(e.target.value) || 0);
+              setFormData(prev => ({ ...prev, no_of_product_instock: value }));
+            }}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
             placeholder="0"
             min="0"

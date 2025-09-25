@@ -654,8 +654,12 @@ const EditProduct = ({
                   type="number"
                   name="no_of_product_instock"
                   value={formData.no_of_product_instock}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const value = Math.max(0, parseInt(e.target.value) || 0);
+                    setFormData(prev => ({ ...prev, no_of_product_instock: value }));
+                  }}
                   className="w-full p-2 border rounded-md"
+                  min="0"
                 />
               </div>
             </div>

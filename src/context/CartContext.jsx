@@ -228,6 +228,10 @@ export const CartProvider = ({ children }) => {
 
   // Decrease item quantity
   const decreaseQuantity = (productId) => {
+    const item = state.cartItems.find(item => item._id === productId);
+    if (item && item.quantity <= 1) {
+      return; // Don't decrease if quantity is already 1 or less
+    }
     dispatch({ type: "DECREASE_QUANTITY", payload: productId });
   };
 

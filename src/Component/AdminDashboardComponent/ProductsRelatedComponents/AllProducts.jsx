@@ -141,6 +141,7 @@ const AllProducts = () => {
 
   // Pagination
   const totalPages = Math.ceil(totalProducts / productsPerPage);
+  const paginatedProducts = sortedProducts; // Use all filtered products since we have server pagination
 
   // Bulk actions
   const toggleProductSelection = (productId) => {
@@ -239,19 +240,29 @@ const AllProducts = () => {
   const fetchAllProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.post(`${backend}/product/list`, {
-        pageNum: currentPage,
-        pageSize: productsPerPage,
-        filters: {},
+      const url = `${backend}/product/allProduct?page=${currentPage}&limit=${productsPerPage}`;
+      console.log('🔄 Fetching products from:', url);
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+        },
       });
-      if (response.data.status === "Success") {
+      console.log('📦 API Response:', response.data);
+      if (response.data.status === "Success" || response.data.status === "SUCCESS") {
         setLoading(false);
-        setTotalProducts(response.data.data.productCount);
-        setProducts(response.data.data.productList);
+        const products = response.data.data.products || [];
+        setTotalProducts(response.data.data.totalCount || 0);
+        setProducts(products);
+        console.log('✅ Products loaded:', products.length, 'of', response.data.data.totalCount);
+      } else {
+        console.log('❌ Unexpected response status:', response.data.status);
+        setLoading(false);
       }
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.error("❌ Error fetching products:", error);
+      console.error("❌ Error response:", error.response?.data);
       setLoading(false);
+      toast.error("Failed to fetch products");
     }
   }, [currentPage, productsPerPage]);
 
@@ -323,117 +334,124 @@ const AllProducts = () => {
 
   // Product Card Component
   const ProductCard = ({ product }) => (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100">
       <div className="relative group">
-        <div className="h-48 bg-gray-100 relative overflow-hidden">
+        <div className="h-56 bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
           <img
             src={product.product_image_main}
             alt={product.product_name}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
           />
-          <div className="absolute bottom-2 left-2 flex gap-2">
-            {product.product_image_sub.map((img, index) => (
-              <div
-                key={index}
-                className="w-8 h-8 border-2 border-white rounded-sm overflow-hidden"
-              >
-                <img src={img} alt="" className="w-full h-full object-cover" />
-              </div>
-            ))}
+          <div className="absolute top-3 left-3">
+            <input
+              type="checkbox"
+              checked={selectedProducts.includes(product._id)}
+              onChange={() => toggleProductSelection(product._id)}
+              className="form-checkbox h-4 w-4 text-blue-600 rounded bg-white shadow-sm"
+            />
           </div>
-        </div>
-
-        <div className="absolute top-2 right-2 flex gap-2">
-          <button
-            onClick={() => openModal(product)}
-            className="p-2 bg-white rounded-full shadow-sm hover:bg-blue-100"
-          >
-            <FaEye className="text-gray-600" />
-          </button>
-          <button
-            onClick={() => openEditModal(product)}
-            className="p-2 bg-white rounded-full shadow-sm hover:bg-green-100"
-          >
-            <FaEdit className="text-green-600" />
-          </button>
+          <div className="absolute top-3 right-3 flex gap-2">
+            <button
+              onClick={() => openModal(product)}
+              className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-blue-50 transition-colors"
+            >
+              <FaEye className="text-blue-600 text-sm" />
+            </button>
+            <button
+              onClick={() => openEditModal(product)}
+              className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-green-50 transition-colors"
+            >
+              <FaEdit className="text-green-600 text-sm" />
+            </button>
+          </div>
+          <div className="absolute bottom-3 left-3">
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                getStockStatus(product.no_of_product_instock) === "Out of Stock"
+                  ? "bg-red-500 text-white"
+                  : getStockStatus(product.no_of_product_instock) === "Low Stock"
+                  ? "bg-yellow-500 text-white"
+                  : "bg-green-500 text-white"
+              }`}
+            >
+              {getStockStatus(product.no_of_product_instock)}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold">{product.product_name}</h3>
-          <input
-            type="checkbox"
-            checked={selectedProducts.includes(product._id)}
-            onChange={() => toggleProductSelection(product._id)}
-            className="form-checkbox h-5 w-5 text-blue-600 rounded"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 mb-4">
-          <span
-            className={`px-2 py-1 rounded-full text-xs ${
-              getStockStatus(product.no_of_product_instock) === "Out of Stock"
-                ? "bg-red-100 text-red-800"
-                : getStockStatus(product.no_of_product_instock) === "Low Stock"
-                ? "bg-yellow-100 text-yellow-800"
-                : "bg-green-100 text-green-800"
-            }`}
-          >
-            {getStockStatus(product.no_of_product_instock)}
-          </span>
-          <span className="text-sm text-gray-500">{product.category_name}</span>
-        </div>
-
-        <div className="flex items-center justify-between mb-4">
+      <div className="p-5">
+        <div className="mb-3">
+          <h3 className="text-lg font-bold text-gray-800 mb-1 line-clamp-2 leading-tight">
+            {product.product_name}
+          </h3>
           <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-blue-600">
-              ₹
-              {product.discounted_single_product_price ??
-                product.non_discounted_price}
+            <span className="text-sm text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded">
+              {product.category_name}
+            </span>
+            <span className="text-xs text-gray-500">
+              SKU: {product.SKU}
+            </span>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <div className="flex items-baseline gap-2 mb-2">
+            <span className="text-2xl font-bold text-green-600">
+              ₹{(product.discounted_single_product_price ?? product.non_discounted_price)?.toLocaleString()}
             </span>
             {product.discount > 0 && (
-              <span className="text-sm text-gray-500 line-through">
-                ₹{product.non_discounted_price}
+              <>
+                <span className="text-sm text-gray-400 line-through">
+                  ₹{product.non_discounted_price?.toLocaleString()}
+                </span>
+                <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
+                  {product.discount}% OFF
+                </span>
+              </>
+            )}
+          </div>
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <span>Stock: {product.no_of_product_instock || 0} units</span>
+            {product.product_warranty && (
+              <span className="bg-gray-100 px-2 py-1 rounded text-xs">
+                {product.product_warranty}
               </span>
             )}
           </div>
-          <span className="text-sm text-gray-500">
-            {product.product_warranty}
-          </span>
         </div>
 
         <div className="space-y-2">
-          <button
-            onClick={() => openModal(product)}
-            className="w-full bg-blue-100 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-200 transition-colors"
-          >
-            View Details
-          </button>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => openModal(product)}
+              className="flex items-center justify-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
+            >
+              <FaEye size={12} /> View
+            </button>
             <button
               onClick={() => openEditModal(product)}
-              className="flex items-center justify-center gap-2 bg-green-100 text-green-600 hover:bg-green-200 p-2 rounded-md"
+              className="flex items-center justify-center gap-1 bg-green-50 text-green-600 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
             >
-              <FaEdit /> Edit
+              <FaEdit size={12} /> Edit
             </button>
             <button
               onClick={() => handleDelete(product._id)}
-              className="flex items-center justify-center gap-2 bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded-md"
+              className="flex items-center justify-center gap-1 bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
             >
-              <FaTrash /> Delete
+              <FaTrash size={12} /> Delete
             </button>
           </div>
           
           {/* Quick Stock Update */}
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-xs text-gray-500">Stock:</span>
+          <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+            <span className="text-xs text-gray-500 font-medium">Quick Stock:</span>
             <input
               type="number"
               min="0"
               value={product.no_of_product_instock || 0}
-              onChange={(e) => handleStockUpdate(product._id, parseInt(e.target.value) || 0)}
-              className="w-16 px-2 py-1 text-xs border rounded"
+              onChange={(e) => handleStockUpdate(product._id, Math.max(0, parseInt(e.target.value) || 0))}
+              className="flex-1 px-2 py-1 text-sm border border-gray-200 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -835,19 +853,21 @@ const AllProducts = () => {
         </div>
 
         {/* Products Display */}
-        {sortedProducts.length === 0 ? (
+        {paginatedProducts.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            No products found matching your criteria
+            <div className="text-6xl mb-4">📦</div>
+            <h3 className="text-xl font-semibold mb-2">No products found</h3>
+            <p>No products match your current criteria</p>
           </div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedProducts.map((product) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {paginatedProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
         ) : (
           <div className="space-y-4">
-            {sortedProducts.map((product) => (
+            {paginatedProducts.map((product) => (
               <ListItem key={product._id} product={product} />
             ))}
           </div>
@@ -855,82 +875,80 @@ const AllProducts = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-8 flex flex-wrap justify-center items-center gap-2">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 cursor-pointer"
-            >
-              Previous
-            </button>
-
-            {/* Show first page */}
-            {currentPage > 3 && (
-              <>
+          <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="text-sm text-gray-600">
+                Showing {((currentPage - 1) * productsPerPage) + 1} to {Math.min(currentPage * productsPerPage, totalProducts)} of {totalProducts} products
+              </div>
+              
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCurrentPage(1)}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === 1
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-600 hover:bg-gray-100"
-                  }`}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  1
+                  <FaChevronLeft size={12} /> Previous
                 </button>
-                {currentPage > 4 && <span className="px-2">...</span>}
-              </>
-            )}
 
-            {/* Show pages around current page */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter(
-                (page) =>
-                  page === 1 ||
-                  page === totalPages ||
-                  (page >= currentPage - 2 && page <= currentPage + 2)
-              )
-              .map((page) => (
+                <div className="flex items-center gap-1">
+                  {/* First page */}
+                  {currentPage > 3 && (
+                    <>
+                      <button
+                        onClick={() => setCurrentPage(1)}
+                        className="px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        1
+                      </button>
+                      {currentPage > 4 && <span className="px-2 text-gray-400">...</span>}
+                    </>
+                  )}
+
+                  {/* Pages around current */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(
+                      (page) =>
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                    )
+                    .map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                          currentPage === page
+                            ? "bg-blue-600 text-white border border-blue-600"
+                            : "text-gray-600 bg-white border border-gray-300 hover:bg-gray-50"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                  {/* Last page */}
+                  {currentPage < totalPages - 2 && (
+                    <>
+                      {currentPage < totalPages - 3 && <span className="px-2 text-gray-400">...</span>}
+                      <button
+                        onClick={() => setCurrentPage(totalPages)}
+                        className="px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        {totalPages}
+                      </button>
+                    </>
+                  )}
+                </div>
+
                 <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === page
-                      ? "bg-blue-600 text-white cursor-pointer"
-                      : "bg-white text-gray-600 hover:bg-gray-100 cursor-pointer"
-                  }`}
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {page}
+                  Next <FaChevronRight size={12} />
                 </button>
-              ))}
-
-            {/* Show last page */}
-            {currentPage < totalPages - 2 && (
-              <>
-                {currentPage < totalPages - 3 && (
-                  <span className="px-2">...</span>
-                )}
-                <button
-                  onClick={() => setCurrentPage(totalPages)}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === totalPages
-                      ? "bg-blue-600 text-white "
-                      : "bg-white text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  {totalPages}
-                </button>
-              </>
-            )}
-
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-              }
-              disabled={currentPage === totalPages}
-              className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 cursor-pointer"
-            >
-              Next
-            </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -88,8 +88,15 @@ const SideCart = ({ isOpen, onClose }) => {
                       </div>
                       <div className="flex items-center gap-4 mt-4">
                         <button
-                          onClick={() => decreaseQuantity(item._id)}
-                          className="w-8 h-8 cursor-pointer rounded-full border border-gray-300 flex items-center justify-center text-xl"
+                          onClick={() => {
+                            if (item.quantity > 1) {
+                              decreaseQuantity(item._id);
+                            }
+                          }}
+                          className={`w-8 h-8 cursor-pointer rounded-full border border-gray-300 flex items-center justify-center text-xl ${
+                            item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          disabled={item.quantity <= 1}
                         >
                           −
                         </button>

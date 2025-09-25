@@ -50,16 +50,18 @@ const WholesaleProductsPage = () => {
     async function fetchAllProducts() {
         try {
             setLoading(true);
-            const response = await axios.post(`${backend}/product/list`, {
-                pageNum: currentPage,
-                pageSize: 1000,
-                filters: {}
+            const response = await axios.get(`${backend}/product/allProduct?page=1&limit=1000`, {
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+                },
             });
-            if (response.data.status === "Success") {
-                setAllProducts(response.data.data.productList || []);
+            console.log('🔄 Fetching all products for wholesale:', response.data);
+            if (response.data.status === "Success" || response.data.status === "SUCCESS") {
+                setAllProducts(response.data.data.products || []);
+                console.log('✅ All products loaded:', response.data.data.products?.length);
             }
         } catch (error) {
-            console.error('Error fetching products:', error);
+            console.error('❌ Error fetching products:', error);
             toast.error('Failed to fetch products');
         } finally {
             setLoading(false);
@@ -68,16 +70,18 @@ const WholesaleProductsPage = () => {
 
     async function fetchWholesaleProducts() {
         try {
-            const response = await axios.post(`${backend}/wholesale/list`, {
-                pageNum: currentPage,
-                pageSize: 1000,
-                filters: {},
+            const response = await axios.get(`${backend}/wholesale/allWholesaleProducts?page=1&limit=1000`, {
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+                },
             });
-            if (response.data.status === "Success") {
-                setWholesaleProducts(response.data.data.wholesaleProductsList || []);
+            console.log('🔄 Fetching wholesale products:', response.data);
+            if (response.data.status === "Success" || response.data.status === "SUCCESS") {
+                setWholesaleProducts(response.data.data.products || []);
+                console.log('✅ Wholesale products loaded:', response.data.data.products?.length);
             }
         } catch (error) {
-            console.error('Error fetching wholesale products:', error);
+            console.error('❌ Error fetching wholesale products:', error);
             toast.error('Failed to fetch wholesale products');
         }
     }
@@ -347,13 +351,13 @@ const WholesaleProductsPage = () => {
 
     // Filter products based on search term
     const filteredProducts = allProducts.filter(product =>
-        product.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.product_description?.toLowerCase().includes(searchTerm.toLowerCase())
+        product?.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product?.product_description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const filteredWholesaleProducts = wholesaleProducts.filter(product =>
-        product.product_id.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.product_id.product_description?.toLowerCase().includes(searchTerm.toLowerCase())
+        product?.product_id?.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product?.product_id?.product_description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Pagination logic
@@ -461,7 +465,7 @@ const WholesaleProductsPage = () => {
                                                     }`}>
                                                         {product.product_instock ? 'In Stock' : 'Out of Stock'}
                                                     </span>
-                                                    {wholesaleProducts.some(wp => wp.product_id._id === product._id) && (
+                                                    {wholesaleProducts.some(wp => wp?.product_id?._id === product._id) && (
                                                         <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
                                                             Wholesale Available
                                                         </span>
@@ -469,7 +473,7 @@ const WholesaleProductsPage = () => {
                                                 </div>
                                             </div>
                                             <div className="flex gap-2 mt-4">
-                                                {!wholesaleProducts.some(wp => wp.product_id._id === product._id) ? (
+                                                {!wholesaleProducts.some(wp => wp?.product_id?._id === product._id) ? (
                                                     <button
                                                         onClick={() => handleAddClick(product)}
                                                         className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center justify-center gap-2"
@@ -480,8 +484,8 @@ const WholesaleProductsPage = () => {
                                                 ) : (
                                                     <button
                                                         onClick={() => {
-                                                            const wholesale = wholesaleProducts.find(wp => wp.product_id._id === product._id);
-                                                            handleEditClick(wholesale);
+                                                            const wholesale = wholesaleProducts.find(wp => wp?.product_id?._id === product._id);
+                                                            if (wholesale) handleEditClick(wholesale);
                                                         }}
                                                         className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
                                                     >
@@ -564,18 +568,18 @@ const WholesaleProductsPage = () => {
                                 <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow p-4">
                                     <div className="flex flex-col h-full">
                                         <img
-                                            src={product.product_id.product_image_main || product.product_id.image?.[0] || '/placeholder.webp'}
-                                            alt={product.product_id.product_name}
+                                            src={product?.product_id?.product_image_main || product?.product_id?.image?.[0] || '/placeholder.webp'}
+                                            alt={product?.product_id?.product_name || 'Product'}
                                             className="w-full h-48 object-contain rounded-md mb-4 bg-gray-50"
                                         />
                                         <div className="flex-1">
-                                            <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product.product_id.product_name}</h3>
-                                            <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.product_id.product_description}</p>
+                                            <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product?.product_id?.product_name || 'Unknown Product'}</h3>
+                                            <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product?.product_id?.product_description || 'No description available'}</p>
                                             <div className="flex items-center gap-2 mb-3">
                                                 <span className="text-xl font-bold text-green-600">
-                                                    ₹{product.product_id.discounted_single_product_price?.toLocaleString('en-IN') || product.product_id.price}
+                                                    ₹{product?.product_id?.discounted_single_product_price?.toLocaleString('en-IN') || product?.product_id?.price || 0}
                                                 </span>
-                                                {product.product_id.non_discounted_price && (
+                                                {product?.product_id?.non_discounted_price && (
                                                     <span className="text-sm text-gray-500 line-through">
                                                         ₹{product.product_id.non_discounted_price.toLocaleString('en-IN')}
                                                     </span>
@@ -588,7 +592,7 @@ const WholesaleProductsPage = () => {
                                                 <div className="space-y-1">
                                                     {product.priceBreaks?.length > 0 ? (
                                                         product.priceBreaks.map((breakItem, index) => {
-                                                            const basePrice = product.product_id.discounted_single_product_price || product.product_id.price || 0;
+                                                            const basePrice = product?.product_id?.discounted_single_product_price || product?.product_id?.price || 0;
                                                             const discountedPrice = Math.max(0, basePrice - breakItem.discount);
                                                             const minTotal = discountedPrice * breakItem.minQuantity;
                                                             const maxTotal = breakItem.maxQuantity ? discountedPrice * breakItem.maxQuantity : null;
