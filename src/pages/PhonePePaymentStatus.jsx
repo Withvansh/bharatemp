@@ -13,9 +13,18 @@ const PhonePePaymentStatus = () => {
   const [loading, setLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [orderDetails, setOrderDetails] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
     const verifyPayment = async () => {
+      // PREVENT MULTIPLE CALLS: Check if already verifying
+      if (isVerifying) {
+        console.log('Payment verification already in progress, skipping...');
+        return;
+      }
+      
+      setIsVerifying(true);
+      
       try {
         const token = localStorage.getItem('token');
         const parsedToken = token?.startsWith('"') ? JSON.parse(token) : token;
@@ -26,24 +35,28 @@ const PhonePePaymentStatus = () => {
           return;
         }
 
-        // Get transaction ID from URL params
-        const transactionId = searchParams.get('transactionId') || searchParams.get('transaction_id');
-        const status = searchParams.get('status');
+        // Get transaction details from URL params
+        const code = searchParams.get('code');
+        const transactionId = searchParams.get('transactionId') || searchParams.get('transaction_id') || paymentId;
+        const providerReferenceId = searchParams.get('providerReferenceId');
         
-        // Check if payment was cancelled
-        if (status === 'CANCELLED' || status === 'FAILED') {
-          navigate(`/phonepe-payment-cancel/${paymentId}?${searchParams.toString()}`);
+        console.log('Payment status params:', {
+          code,
+          transactionId,
+          providerReferenceId,
+          paymentId
+        });
+        
+        // Check if payment was cancelled or failed
+        if (code === 'PAYMENT_CANCELLED' || code === 'PAYMENT_ERROR') {
+          setPaymentStatus('FAILED');
+          toast.error('Payment was cancelled or failed');
+          setLoading(false);
           return;
         }
-        
-        if (!transactionId) {
-          throw new Error('Transaction ID not found');
-        }
 
-        // Verify payment with backend
-        const merchantTransactionId = searchParams.get('merchantTransactionId') || 
-                                     searchParams.get('merchant_transaction_id') || 
-                                     paymentId;
+        // Use paymentId as merchantTransactionId
+        const merchantTransactionId = paymentId;
         
         const verificationData = {
           paymentId: paymentId,
@@ -66,13 +79,15 @@ const PhonePePaymentStatus = () => {
         console.log('Payment verification response:', response.data);
         
         if (response.data?.status === 'Success') {
-          const verificationResult = response.data.data;
+          const verificationResult = response.data.data.response;
           
-          if (verificationResult.message?.includes('Successfully') || verificationResult.data?.success) {
+          if (verificationResult?.success === true || verificationResult?.message?.includes('Successfully')) {
             setPaymentStatus('SUCCESS');
             setOrderDetails({
               orderId: verificationResult.orderId,
-              totalAmount: verificationResult.data?.amount || 'N/A'
+              totalAmount: verificationResult.data?.amount || 'Payment Successful',
+              transactionId: verificationResult.data?.transactionId,
+              paymentMethod: verificationResult.data?.paymentInstrument?.type || 'PhonePe'
             });
             toast.success('Payment successful!');
             
@@ -80,7 +95,7 @@ const PhonePePaymentStatus = () => {
             sessionStorage.removeItem('pendingPayment');
           } else {
             setPaymentStatus('FAILED');
-            toast.error('Payment verification failed');
+            toast.error(verificationResult?.message || 'Payment verification failed');
           }
         } else {
           setPaymentStatus('FAILED');
@@ -92,6 +107,7 @@ const PhonePePaymentStatus = () => {
         toast.error('Payment verification failed');
       } finally {
         setLoading(false);
+        setIsVerifying(false);
       }
     };
 
@@ -102,7 +118,7 @@ const PhonePePaymentStatus = () => {
       setPaymentStatus('FAILED');
       toast.error('Invalid payment reference');
     }
-  }, [paymentId, searchParams, navigate]);
+  }, [paymentId, searchParams, navigate, isVerifying]);
 
   const handleContinueShopping = () => {
     navigate('/');
@@ -139,10 +155,14 @@ const PhonePePaymentStatus = () => {
             </p>
             {orderDetails && (
               <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-                <h3 className="font-semibold text-gray-900 mb-2">Order Details:</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">Payment Details:</h3>
                 <p className="text-sm text-gray-600">Order ID: {orderDetails.orderId}</p>
                 <p className="text-sm text-gray-600">Amount: ₹{orderDetails.totalAmount}</p>
-                <p className="text-sm text-gray-600">Payment Method: PhonePe</p>
+                <p className="text-sm text-gray-600">Payment Method: {orderDetails.paymentMethod}</p>
+                {orderDetails.transactionId && (
+                  <p className="text-sm text-gray-600">Transaction ID: {orderDetails.transactionId}</p>
+                )}
+                <p className="text-sm text-green-600 font-medium mt-2">✓ Payment Completed Successfully</p>
               </div>
             )}
             <div className="space-y-3">

@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { FaTimes, FaCopy, FaCheck } from "react-icons/fa";
+import ReturnOrderForm from '../ReturnOrderForm';
 import "react-toastify/dist/ReactToastify.css";
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -259,8 +260,9 @@ const OrderModal = ({ order, onClose, onOrderUpdate }) => {
                     const daysDiff = Math.floor((currentDate - orderDate) / (1000 * 60 * 60 * 24));
                     
                     if (daysDiff <= 15) {
-                      // Navigate to track order page where return functionality is available
-                      window.location.href = '/track-order';
+                      // Open return modal directly
+                      setSelectedOrderForReturn(order);
+                      setShowReturnForm(true);
                     } else {
                       toast.error('Return period has expired. Returns are only available within 15 days of delivery.');
                     }
@@ -335,6 +337,8 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [showReturnForm, setShowReturnForm] = useState(false);
+  const [selectedOrderForReturn, setSelectedOrderForReturn] = useState(null);
   
   const fetchOrders = async () => {
     try {
@@ -489,6 +493,22 @@ const Orders = () => {
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
           onOrderUpdate={handleOrderUpdate}
+        />
+      )}
+      
+      {/* Return Order Form Modal */}
+      {showReturnForm && selectedOrderForReturn && (
+        <ReturnOrderForm
+          order={selectedOrderForReturn}
+          onClose={() => {
+            setShowReturnForm(false);
+            setSelectedOrderForReturn(null);
+          }}
+          onSuccess={() => {
+            fetchOrders(); // Refresh orders
+            setShowReturnForm(false);
+            setSelectedOrderForReturn(null);
+          }}
         />
       )}
     </div>
