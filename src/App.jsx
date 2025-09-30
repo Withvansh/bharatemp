@@ -62,6 +62,8 @@ import PhonePePaymentStatus from "./pages/PhonePePaymentStatus.jsx";
 import PhonePayCancel from "./pages/PhonePayCancel.jsx";
 import PaymentRetry from "./pages/PaymentRetry.jsx";
 import PaymentFallback from "./pages/PaymentFallback.jsx";
+import AuthSuccess from "./pages/AuthSuccess.jsx";
+import AuthError from "./pages/AuthError.jsx";
 
 const AppContent = () => {
   const location = useLocation();
@@ -97,6 +99,8 @@ const AppContent = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/auth/success" element={<AuthSuccess />} />
+        <Route path="/auth/error" element={<AuthError />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/blog/:slug" element={<BlogPost />} />

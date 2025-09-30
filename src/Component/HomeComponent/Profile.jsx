@@ -1294,7 +1294,7 @@ const ProfilePage = () => {
           firstName: data.firstName,
           lastName: data.lastName,
           email: user.email,
-          phone: user.phone,
+          phone: data.phone,
           address: addressArray
         }
       };
@@ -1312,6 +1312,7 @@ const ProfilePage = () => {
           // Update user data locally with the address array
           setUser({
             ...data,
+            phone: data.phone,
             address: addressArray
           });
           setIsEditing(false);
@@ -1468,11 +1469,23 @@ const ProfilePage = () => {
                         <label className="block text-[16px] font-medium text-[#656565]">Phone</label>
                         <input
                           type="tel"
-                          {...register("phone")}
-                          className="mt-1 w-full border border-[#E2E2E2] bg-gray-100 rounded-full px-4 py-2 text-sm outline-none cursor-not-allowed"
-                          disabled
+                          {...register("phone", {
+                            pattern: {
+                              value: /^\d{10}$/,
+                              message: "Please enter a valid 10-digit phone number"
+                            }
+                          })}
+                          className="mt-1 w-full border border-[#E2E2E2] rounded-full px-4 py-2 text-sm outline-none"
+                          placeholder="Enter 10-digit phone number"
+                          maxLength={10}
+                          onInput={(e) => {
+                            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                          }}
                         />
-                        <p className="text-xs text-gray-500 mt-1">Phone number cannot be edited</p>
+                        {errors.phone && (
+                          <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-1">Enter your 10-digit mobile number</p>
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-[16px] font-medium text-[#656565]">Addresses (One per line)</label>

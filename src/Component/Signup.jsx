@@ -77,9 +77,14 @@ const Signup = () => {
   };
 
   const handleGoogleSignUp = async () => {
-    toast.info('Google Sign-Up will be available soon!');
-    // TODO: Backend Google OAuth endpoint needs to be implemented
-    // window.location.href = `${backend}/auth/google`;
+    try {
+      setGoogleLoading(true);
+      window.location.href = `${backend}/auth/google/signup`;
+    } catch (error) {
+      console.error('Google sign-up error:', error);
+      toast.error('Failed to initiate Google sign-up');
+      setGoogleLoading(false);
+    }
   };
 
   return (
