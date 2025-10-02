@@ -7,9 +7,11 @@ import {
   FaTrash,
   FaArrowLeft,
   FaChevronRight,
+  FaTimes,
 } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 const Cart = () => {
   const {
@@ -18,9 +20,16 @@ const Cart = () => {
     increaseQuantity,
     decreaseQuantity,
     clearCart,
+    appliedCoupon,
+    couponDiscount,
+    applyCoupon,
+    removeCoupon,
   } = useCart();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const backend = import.meta.env.VITE_BACKEND;
 
   const navigate = useNavigate();
   const handleBack = () => {
@@ -56,7 +65,51 @@ const Cart = () => {
   // const discountOnMrp = Math.round((totalMRP - totalAmount) * 100) / 100;
 
   // Calculate final total using only discounted priced
-  const finalTotal = Math.max(0, totalAmount);
+  const finalTotal = Math.max(0, totalAmount - couponDiscount);
+
+  // Validate coupon function
+  const validateCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+
+    try {
+      setValidatingCoupon(true);
+      const response = await axios.post(`${backend}/coupon/validate-coupon`, {
+        code: couponCode.toUpperCase()
+      });
+
+      if (response.data.status === "Success") {
+        const coupon = response.data.data.coupon;
+        
+        // Check if coupon is expired
+        const now = new Date();
+        const expiryDate = new Date(coupon.expiryDate);
+        
+        if (now > expiryDate) {
+          toast.error("This coupon has expired");
+          return;
+        }
+
+        const discount = Math.round((totalAmount * coupon.discountPercentage) / 100);
+        applyCoupon(coupon, discount);
+        toast.success(`Coupon applied! ${coupon.discountPercentage}% discount (₹${discount})`);
+        setCouponCode("");
+      }
+    } catch (error) {
+      console.error("Coupon validation error:", error);
+      toast.error(error.response?.data?.data?.message || "Invalid or expired coupon");
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  // Remove applied coupon
+  const handleRemoveCoupon = () => {
+    removeCoupon();
+    toast.info("Coupon removed");
+  };
 
   // Check if user is logged in
   useEffect(() => {
@@ -280,6 +333,45 @@ const Cart = () => {
               </div>
             ))}
 
+            {/* Coupon Section */}
+            <div className="mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">Apply Coupon</h3>
+              
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center">
+                    <span className="text-green-600 font-medium">
+                      ✓ {appliedCoupon.code} - {appliedCoupon.discountPercentage}% off (₹{couponDiscount})
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleRemoveCoupon}
+                    className="text-red-500 hover:text-red-700 p-1"
+                  >
+                    <FaTimes size={14} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter coupon code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f7941d] focus:border-transparent"
+                    onKeyPress={(e) => e.key === 'Enter' && validateCoupon()}
+                  />
+                  <button
+                    onClick={validateCoupon}
+                    disabled={validatingCoupon || !couponCode.trim()}
+                    className="px-4 py-2 bg-[#f7941d] text-white rounded-lg hover:bg-[#e8851a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {validatingCoupon ? "Applying..." : "Apply"}
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="mt-6 flex justify-between items-center">
               <button
                 onClick={() => {
@@ -315,23 +407,20 @@ const Cart = () => {
                   </span>
                 </div>
               )}
+              {couponDiscount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Coupon Discount ({appliedCoupon.code})</span>
+                  <span className="font-medium text-green-600">
+                    -₹{couponDiscount.toFixed(2)}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-600">GST (18% tax)</span>
                 <span className="font-medium">
                   ₹{(finalTotal * 0.18).toFixed(2)}
                 </span>
               </div>
-              {/* <div className="flex justify-between">
-                <div className="flex items-center">
-                  <span className="text-gray-600">Shipping fees</span>
-                  <button className="ml-2 text-blue-700 text-sm font-medium">Know more</button>
-                </div>
-                <span className="font-medium">₹{shippingFee.toFixed(2)}</span>
-              </div> */}
-              {/* <div className="flex justify-between pb-4">
-                <span className="text-gray-600">Discount on MRP</span>
-                <span className="font-medium text-green-600">₹{discountOnMrp.toFixed(2)}</span>
-              </div> */}
             </div>
             <div className="border-t border-b border-gray-200 py-4 my-4">
               <div className="flex justify-between font-bold text-xl text-[#2F294D]">

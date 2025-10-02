@@ -11,6 +11,8 @@ const initialState = {
   totalAmount: 0,
   shipping: 0,
   tax: 0,
+  appliedCoupon: null,
+  couponDiscount: 0,
 };
 
 // Cart reducer
@@ -113,6 +115,20 @@ const cartReducer = (state, action) => {
             ? { ...item, quantity: action.payload.quantity }
             : item
         ),
+      };
+
+    case "APPLY_COUPON":
+      return {
+        ...state,
+        appliedCoupon: action.payload.coupon,
+        couponDiscount: action.payload.discount,
+      };
+
+    case "REMOVE_COUPON":
+      return {
+        ...state,
+        appliedCoupon: null,
+        couponDiscount: 0,
       };
 
     case "CALCULATE_TOTALS": {
@@ -255,6 +271,16 @@ export const CartProvider = ({ children }) => {
     return item ? item.quantity : 0;
   };
 
+  // Apply coupon
+  const applyCoupon = (coupon, discount) => {
+    dispatch({ type: "APPLY_COUPON", payload: { coupon, discount } });
+  };
+
+  // Remove coupon
+  const removeCoupon = () => {
+    dispatch({ type: "REMOVE_COUPON" });
+  };
+
   const value = {
     ...state,
     addToCart,
@@ -265,6 +291,8 @@ export const CartProvider = ({ children }) => {
     updateQuantity,
     isInCart,
     getItemQuantity,
+    applyCoupon,
+    removeCoupon,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

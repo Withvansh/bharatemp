@@ -134,7 +134,7 @@ const AddressForm = ({
 );
 
 const Checkout = () => {
-  const { cartItems } = useCart();
+  const { cartItems, appliedCoupon, couponDiscount } = useCart();
   const backend = import.meta.env.VITE_BACKEND;
   const [userId, setUserId] = useState(null);
   const [token, setToken] = useState(null);
@@ -201,9 +201,10 @@ const Checkout = () => {
   // const discountOnMrp = Math.round((totalMRP - totalAmount) * 100) / 100;
 
   // Calculate final total using only discounted price
+  const subtotalAfterCoupon = Math.max(0, totalAmount - couponDiscount);
   const finalTotal = Math.max(
     0,
-    totalAmount + shippingFee + totalAmount * 0.18
+    subtotalAfterCoupon + shippingFee + subtotalAfterCoupon * 0.18
   );
 
   // Validation functions
@@ -774,6 +775,12 @@ const Checkout = () => {
         expectedDelivery: expectedDelivery,
         hasBulkItems: cartItems.some(item => item.isBulkOrder),
         bulkOrderCount: cartItems.filter(item => item.isBulkOrder).length,
+        appliedCoupon: appliedCoupon ? {
+          code: appliedCoupon.code,
+          discountPercentage: appliedCoupon.discountPercentage,
+          discountAmount: couponDiscount
+        } : null,
+        couponDiscount: couponDiscount || 0,
       };
 
       // Create the order
@@ -1176,28 +1183,27 @@ const Checkout = () => {
                   </span>
                 </div>
               )}
+              {couponDiscount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Coupon Discount ({appliedCoupon.code})</span>
+                  <span className="font-medium text-green-600">
+                    -₹{couponDiscount.toFixed(2)}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-600">GST (18% tax)</span>
                 <span className="font-medium">
-                  ₹{(totalMRP * 0.18).toFixed(2)}
+                  ₹{(subtotalAfterCoupon * 0.18).toFixed(2)}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <div className="flex items-center">
                   <span className="text-gray-600">Shipping fees</span>
-                  {/* <button className="ml-2 text-blue-700 text-sm font-medium">
-                    Know more
-                  </button> */}
                 </div>
                 <span className="font-medium">₹{shippingFee.toFixed(2)}</span>
               </div>
-              {/* <div className="flex justify-between pb-4">
-                <span className="text-gray-600">Discount on MRP</span>
-                <span className="font-medium text-green-600">
-                  ₹{discountOnMrp.toFixed(2)}
-                </span>
-              </div> */}
             </div>
             <div className="border-t border-b border-gray-200 py-4 my-4">
               <div className="flex justify-between font-bold text-xl text-[#2F294D]">
