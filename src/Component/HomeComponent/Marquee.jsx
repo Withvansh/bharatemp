@@ -51,6 +51,10 @@ export default function B2BIndustriesSection() {
             alt={brand.alt}
             className="h-32 w-auto max-w-[140px] object-contain transition-transform duration-300 hover:scale-105"
             loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
           />
         </div>
       ))}

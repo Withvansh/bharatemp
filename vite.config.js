@@ -6,4 +6,16 @@ export default defineConfig({
   server: {
     port: 5174,
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          utils: ['axios', 'jwt-decode']
+        }
+      }
+    }
+  }
 });

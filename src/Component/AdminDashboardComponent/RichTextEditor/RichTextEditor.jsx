@@ -1,43 +1,147 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 
 const RichTextEditor = ({ value, onChange, placeholder = "Enter content..." }) => {
   const editorRef = useRef(null);
   const [content, setContent] = useState(value || '');
+  const timeoutRef = useRef(null);
 
-  // Update content when value prop changes
+  // Initialize editor content
   useEffect(() => {
-    if (value !== content) {
+    if (editorRef.current && !editorRef.current.innerHTML) {
+      editorRef.current.innerHTML = value || '';
       setContent(value || '');
-      if (editorRef.current) {
-        editorRef.current.innerHTML = value || '';
-      }
     }
-  }, [value]);
+  }, []);
+
+  // Update content when value prop changes (only from external source)
+  useEffect(() => {
+    if (value !== content && editorRef.current && document.activeElement !== editorRef.current) {
+      setContent(value || '');
+      editorRef.current.innerHTML = value || '';
+    }
+  }, [value, content]);
 
   const execCommand = (command, value = null) => {
-    document.execCommand(command, false, value);
-    editorRef.current.focus();
-    handleContentChange();
+    try {
+      if (document.queryCommandSupported && document.queryCommandSupported(command)) {
+        document.execCommand(command, false, value);
+      }
+      editorRef.current?.focus();
+      // Immediate update for commands
+      if (editorRef.current) {
+        const newContent = editorRef.current.innerHTML;
+        setContent(newContent);
+        onChange(newContent);
+      }
+    } catch (error) {
+      console.warn('Command not supported:', command);
+    }
   };
 
-  const handleContentChange = () => {
+  // Immediate content change handler for better typing experience
+  const handleContentChange = useCallback(() => {
     if (editorRef.current) {
       const newContent = editorRef.current.innerHTML;
       setContent(newContent);
+      
+      // Debounce only the onChange callback to parent
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      timeoutRef.current = setTimeout(() => {
+        onChange(newContent);
+      }, 300);
+    }
+  }, [onChange]);
+
+  const handleInput = (e) => {
+    // Prevent cursor jumping by not updating innerHTML during typing
+    const newContent = e.target.innerHTML;
+    setContent(newContent);
+    
+    // Debounced parent update
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    timeoutRef.current = setTimeout(() => {
       onChange(newContent);
+    }, 300);
+  };
+
+  // Improved paste handling
+  const handlePaste = (e) => {
+    e.preventDefault();
+    
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const htmlData = clipboardData.getData('text/html');
+    const textData = clipboardData.getData('text/plain');
+    
+    if (htmlData) {
+      // Clean HTML content
+      const cleanHtml = htmlData
+        .replace(/<script[^>]*>.*?<\/script>/gi, '')
+        .replace(/<style[^>]*>.*?<\/style>/gi, '')
+        .replace(/on\w+="[^"]*"/gi, '')
+        .replace(/javascript:/gi, '');
+      
+      document.execCommand('insertHTML', false, cleanHtml);
+    } else {
+      document.execCommand('insertText', false, textData);
+    }
+    
+    // Immediate update for paste
+    setTimeout(() => {
+      if (editorRef.current) {
+        const newContent = editorRef.current.innerHTML;
+        setContent(newContent);
+        onChange(newContent);
+      }
+    }, 0);
+  };
+
+  // Keyboard shortcuts
+  const handleKeyDown = (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case 'z':
+          if (e.shiftKey) {
+            e.preventDefault();
+            execCommand('redo');
+          } else {
+            e.preventDefault();
+            execCommand('undo');
+          }
+          break;
+        case 'y':
+          e.preventDefault();
+          execCommand('redo');
+          break;
+        case 'b':
+          e.preventDefault();
+          execCommand('bold');
+          break;
+        case 'i':
+          e.preventDefault();
+          execCommand('italic');
+          break;
+        case 'u':
+          e.preventDefault();
+          execCommand('underline');
+          break;
+      }
     }
   };
 
-  const handleInput = () => {
-    handleContentChange();
-  };
-
-  const handlePaste = (e) => {
-    e.preventDefault();
-    const text = e.clipboardData.getData('text/plain');
-    document.execCommand('insertText', false, text);
-    handleContentChange();
-  };
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const insertLink = () => {
     const url = prompt('Enter URL:');
@@ -246,6 +350,28 @@ const RichTextEditor = ({ value, onChange, placeholder = "Enter content..." }) =
 
         <button
           style={styles.button}
+          onClick={() => execCommand('undo')}
+          title="Undo (Ctrl+Z)"
+          onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
+          onMouseLeave={(e) => Object.assign(e.target.style, styles.button)}
+        >
+          ↶
+        </button>
+
+        <button
+          style={styles.button}
+          onClick={() => execCommand('redo')}
+          title="Redo (Ctrl+Y)"
+          onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
+          onMouseLeave={(e) => Object.assign(e.target.style, styles.button)}
+        >
+          ↷
+        </button>
+
+        <div style={styles.separator}></div>
+
+        <button
+          style={styles.button}
           onClick={() => execCommand('removeFormat')}
           title="Clear Formatting"
           onMouseEnter={(e) => Object.assign(e.target.style, styles.buttonHover)}
@@ -262,7 +388,7 @@ const RichTextEditor = ({ value, onChange, placeholder = "Enter content..." }) =
         suppressContentEditableWarning={true}
         onInput={handleInput}
         onPaste={handlePaste}
-        dangerouslySetInnerHTML={{ __html: content }}
+        onKeyDown={handleKeyDown}
         data-placeholder={placeholder}
       />
     </div>

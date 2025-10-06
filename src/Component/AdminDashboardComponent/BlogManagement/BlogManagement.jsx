@@ -412,10 +412,33 @@ const BlogManagement = () => {
     fetchStats();
   }, [fetchPosts]);
 
+  const validateForm = () => {
+    const errors = [];
+    
+    if (!formData.title.trim()) {
+      errors.push("Title is required");
+    } else if (formData.title.trim().length < 5) {
+      errors.push("Title must be at least 5 characters long");
+    }
+    
+    if (!formData.content.trim()) {
+      errors.push("Content is required");
+    } else if (formData.content.replace(/<[^>]*>/g, '').trim().length < 50) {
+      errors.push("Content must be at least 50 characters long");
+    }
+    
+    if (formData.excerpt && formData.excerpt.length > 300) {
+      errors.push("Excerpt should not exceed 300 characters");
+    }
+    
+    return errors;
+  };
+
   const handleCreatePost = async () => {
     try {
-      if (!formData.title.trim() || !formData.content.trim()) {
-        showToast("Title and content are required", "error");
+      const validationErrors = validateForm();
+      if (validationErrors.length > 0) {
+        showToast(validationErrors[0], "error");
         return;
       }
 
@@ -467,8 +490,9 @@ const BlogManagement = () => {
     if (!selectedPost) return;
 
     try {
-      if (!formData.title.trim() || !formData.content.trim()) {
-        showToast("Title and content are required", "error");
+      const validationErrors = validateForm();
+      if (validationErrors.length > 0) {
+        showToast(validationErrors[0], "error");
         return;
       }
 
@@ -633,18 +657,33 @@ const BlogManagement = () => {
               }
               placeholder="Enter post excerpt (recommended for SEO)"
               rows={3}
+              maxLength={300}
             />
+            <small style={{ color: "#6b7280", fontSize: "12px" }}>
+              {formData.excerpt.length}/300 characters
+              {formData.excerpt.length > 250 && (
+                <span style={{ color: "#f59e0b", marginLeft: "8px" }}>Almost at limit!</span>
+              )}
+            </small>
           </div>
 
           <div style={styles.formGroup}>
             <label style={styles.label} htmlFor="content">
-              Content *
+              Content * 
+              <small style={{ color: "#6b7280", fontSize: "12px", fontWeight: "normal", marginLeft: "8px" }}>
+                ({formData.content.replace(/<[^>]*>/g, '').length} characters)
+              </small>
             </label>
             <RichTextEditor
               value={formData.content}
               onChange={(content) => setFormData({ ...formData, content })}
               placeholder="Enter post content with rich formatting..."
             />
+            {formData.content.replace(/<[^>]*>/g, '').length < 100 && (
+              <small style={{ color: "#f59e0b", fontSize: "12px", marginTop: "4px", display: "block" }}>
+                Recommended: At least 100 characters for better SEO
+              </small>
+            )}
           </div>
 
           <div style={styles.formGroup}>
