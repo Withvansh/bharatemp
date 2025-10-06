@@ -9,12 +9,17 @@ export default {
       keyframes: {
         shimmer: {
           '100%': { transform: 'translateX(100%)' }
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-100%)' }
         }
       },
       animation: {
-        'shimmer': 'shimmer 1.5s infinite'
+        'shimmer': 'shimmer 1.5s infinite',
+        'marquee': 'marquee 30s linear infinite'
       }
     },
   },
   plugins: [],
-} 
+}

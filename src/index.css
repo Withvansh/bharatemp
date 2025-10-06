@@ -204,6 +204,19 @@ body {
   color: #475569;
 }
 
+/* Marquee Animation Styles */
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.hover\:pause:hover {
+  animation-play-state: paused;
+}
+
 /* Ensure proper spacing in dropdown */
 .categories-dropdown-container .p-6 {
   padding: 1.5rem;

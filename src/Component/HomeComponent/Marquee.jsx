@@ -1,4 +1,4 @@
-import Marquee from "react-fast-marquee";
+import React from "react";
 import img1 from "../../assets/1.png";
 import img2 from "../../assets/2.png";
 import img3 from "../../assets/3.png";
@@ -20,7 +20,7 @@ const brands = [
   { img: img1, alt: "Brand 1" },
   { img: img2, alt: "Brand 2" },
   { img: img3, alt: "Brand 3" },
-   { img: img1, alt: "Brand 1" },
+  { img: img1, alt: "Brand 1" },
   { img: img2, alt: "Brand 2" },
   { img: img3, alt: "Brand 3" },
   { img: img4, alt: "Brand 4" },
@@ -39,24 +39,34 @@ const brands = [
 ];
 
 export default function B2BIndustriesSection() {
+  const renderBrandSet = (keyPrefix = '') => (
+    <div className="flex items-center py-4 whitespace-nowrap">
+      {brands.map((brand, index) => (
+        <div
+          key={`${keyPrefix}${index}`}
+          className="inline-flex items-center justify-center flex-shrink-0 mx-8 w-40"
+        >
+          <img
+            src={brand.img}
+            alt={brand.alt}
+            className="h-32 w-auto max-w-[140px] object-contain transition-transform duration-300 hover:scale-105"
+            loading="lazy"
+          />
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="w-full h-auto bg-white text-center mb-10 overflow-hidden">
-      <Marquee pauseOnHover gradient={false} speed={100}>
-        <div className="flex gap-8 items-center py-4 w-full">
-          {brands.map((brand, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-center mr-14"
-            >
-              <img
-                src={brand.img}
-                alt={brand.alt}
-                className="h-40 w-auto object-contain"
-              />
-            </div>
-          ))}
+      <div className="relative overflow-hidden">
+        <div className="flex animate-marquee hover:pause w-max">
+          {/* First set of brands */}
+          {renderBrandSet()}
+          {/* Duplicate set for seamless loop */}
+          {renderBrandSet('duplicate-')}
         </div>
-      </Marquee>
+      </div>
     </div>
   );
 }
