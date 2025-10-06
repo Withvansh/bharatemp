@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ArrowRight, Play } from "lucide-react";
+import { FaArrowLeft, FaArrowRight, FaPlay } from "react-icons/fa";
 import video1 from '../assets/video1.mp4';
 import video2 from '../assets/video2.mp4';
 import video3 from '../assets/video3.mp4';
@@ -102,7 +102,7 @@ const VideoSection = () => {
                     onClick={handlePrev}
                     disabled={currentPage === 0}
                 >
-                    <ArrowLeft className="w-5 h-5" />
+                    <FaArrowLeft className="w-5 h-5" />
                 </button>
 
                 {/* Video Grid */}
@@ -135,7 +135,7 @@ const VideoSection = () => {
                                         <div className="w-16 h-16 flex items-center justify-center 
                                                       bg-white bg-opacity-90 rounded-full 
                                                       group-hover:bg-opacity-100 transition-all duration-300">
-                                            <Play className="w-8 h-8 text-[#1e3473]" />
+                                            <FaPlay className="w-8 h-8 text-[#1e3473]" />
                                         </div>
                                     </div>
                                 )}
@@ -150,7 +150,7 @@ const VideoSection = () => {
                     onClick={handleNext}
                     disabled={currentPage >= totalPages - 1}
                 >
-                    <ArrowRight className="w-5 h-5" />
+                    <FaArrowRight className="w-5 h-5" />
                 </button>
             </div>
 
