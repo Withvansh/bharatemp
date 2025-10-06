@@ -21,7 +21,7 @@ import { toast } from "react-toastify";
 import Customers from "../B2bComponent/Customers";
 import LoadingSpinner from "../../utils/LoadingSpinner";
 import { jwtDecode } from "jwt-decode";
-import { load } from "@cashfreepayments/cashfree-js";
+// Cashfree import removed - using backend payment integration
 import secure from "../../assets/secure.gif";
 import shield from "../../assets/shield.gif";
 import wallet from "../../assets/wallet.gif";
