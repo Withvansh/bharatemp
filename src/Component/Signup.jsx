@@ -102,8 +102,17 @@ const Signup = () => {
     
     try {
       setGoogleLoading(true);
-      // Redirect to Google auth with mobile parameter
-      window.location.href = `${backend}/auth/google/signup?mobile=${mobileForGoogle}`;
+      
+      // Encode mobile in state parameter for better reliability
+      const stateData = {
+        mobile: mobileForGoogle,
+        type: 'signup',
+        timestamp: Date.now()
+      };
+      const encodedState = btoa(JSON.stringify(stateData));
+      
+      // Redirect to Google auth with encoded state
+      window.location.href = `${backend}/auth/google?state=${encodedState}`;
     } catch (error) {
       console.error('Google sign-up error:', error);
       toast.error('Failed to initiate Google sign-up');
