@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -13,24 +13,25 @@ const PhonePePaymentStatus = () => {
   const [loading, setLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [orderDetails, setOrderDetails] = useState(null);
-  const [isVerifying, setIsVerifying] = useState(false);
+  const hasVerified = useRef(false);
+  const isVerifying = useRef(false);
 
   useEffect(() => {
     const verifyPayment = async () => {
-      // PREVENT MULTIPLE CALLS: Check if already verifying
-      if (isVerifying) {
-        console.log('Payment verification already in progress, skipping...');
+      // PREVENT MULTIPLE CALLS
+      if (isVerifying.current || hasVerified.current) {
         return;
       }
       
-      setIsVerifying(true);
+      isVerifying.current = true;
+      hasVerified.current = true;
       
       try {
         const token = localStorage.getItem('token');
         const parsedToken = token?.startsWith('"') ? JSON.parse(token) : token;
 
         if (!parsedToken) {
-          toast.error('Authentication required');
+          toast.error('Authentication required', { toastId: 'auth-error' });
           navigate('/login');
           return;
         }
@@ -50,7 +51,7 @@ const PhonePePaymentStatus = () => {
         // Check if payment was cancelled or failed
         if (code === 'PAYMENT_CANCELLED' || code === 'PAYMENT_ERROR') {
           setPaymentStatus('FAILED');
-          toast.error('Payment was cancelled or failed');
+          toast.error('Payment was cancelled or failed', { toastId: 'payment-cancelled' });
           setLoading(false);
           return;
         }
@@ -89,36 +90,37 @@ const PhonePePaymentStatus = () => {
               transactionId: verificationResult.data?.transactionId,
               paymentMethod: verificationResult.data?.paymentInstrument?.type || 'PhonePe'
             });
-            toast.success('Payment successful!');
+            toast.success('Payment successful!', { toastId: 'payment-success' });
             
             // Clear any pending payment data
             sessionStorage.removeItem('pendingPayment');
           } else {
             setPaymentStatus('FAILED');
-            toast.error(verificationResult?.message || 'Payment verification failed');
+            toast.error(verificationResult?.message || 'Payment verification failed', { toastId: 'payment-error' });
           }
         } else {
           setPaymentStatus('FAILED');
-          toast.error('Payment verification failed');
+          toast.error('Payment verification failed', { toastId: 'payment-error' });
         }
       } catch (error) {
         console.error('Payment verification error:', error);
         setPaymentStatus('FAILED');
-        toast.error('Payment verification failed');
+        toast.error('Payment verification failed', { toastId: 'payment-error' });
       } finally {
         setLoading(false);
-        setIsVerifying(false);
+        isVerifying.current = false;
       }
     };
 
-    if (paymentId) {
+    if (paymentId && !hasVerified.current) {
       verifyPayment();
-    } else {
+    } else if (!paymentId && !hasVerified.current) {
       setLoading(false);
       setPaymentStatus('FAILED');
-      toast.error('Invalid payment reference');
+      toast.error('Invalid payment reference', { toastId: 'invalid-payment' });
+      hasVerified.current = true;
     }
-  }, [paymentId, searchParams, navigate, isVerifying]);
+  }, [paymentId]);
 
   const handleContinueShopping = () => {
     navigate('/');

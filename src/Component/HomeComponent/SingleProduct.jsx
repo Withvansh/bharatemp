@@ -296,22 +296,21 @@ export default function ProductCard() {
       return;
     }
 
-    // Check if requested quantity is available
-    if (product.no_of_product_instock && quantity > product.no_of_product_instock) {
-      toast.error(`Only ${product.no_of_product_instock} items available in stock`);
+    // Check if product is available (Buy Now always uses quantity 1)
+    if (product.no_of_product_instock && product.no_of_product_instock < 1) {
+      toast.error("Product is out of stock");
       return;
     }
 
     const regularItem = {
       ...product,
-      quantity: quantity,
+      quantity: 1,
       price: product.discounted_single_product_price,
-      total: product.discounted_single_product_price * quantity,
+      total: product.discounted_single_product_price * 1,
       isBulkOrder: false,
     };
     addToCart(regularItem);
-    setQuantity(1);
-    toast.success(`Added ${quantity} item${quantity > 1 ? "s" : ""} to cart`);
+    toast.success("Added 1 item to cart");
     
     // Navigate to checkout page
     navigate('/checkout');
@@ -1057,7 +1056,7 @@ export default function ProductCard() {
                 {loadingBuyNow ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-[#F7941D]"></div>
                 ) : (
-                  "Buy Now"
+                  "Buy Now (1 item)"
                 )}
               </button>
 
@@ -1600,7 +1599,7 @@ export default function ProductCard() {
                 {loadingBuyNow ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
                 ) : (
-                  "Buy Now"
+                  "Buy Now (1 item)"
                 )}
               </button>
             </div>
