@@ -445,6 +445,9 @@ const EditProduct = ({
       if (response.data.status === "Success") {
         toast.success("Product updated successfully!");
         
+        // Show success popup
+        alert("✅ Product images uploaded successfully!\n\nProduct: " + formData.product_name + "\nImages updated successfully.");
+        
         // Trigger refresh in products page
         localStorage.setItem('refreshProducts', 'true');
         
@@ -1110,54 +1113,112 @@ const EditProduct = ({
               </div>
             </div>
 
-            {/* Images Upload */}
-            <div className="mb-6 flex flex-col gap-2">
-              <label className="flex flex-col items-center justify-center w-full px-4 py-6 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition">
-                <svg
-                  className="w-10 h-10 text-gray-500 mb-2"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 4v16m8-8H4"
-                  ></path>
-                </svg>
-                <span className="text-sm text-gray-600">
-                  Click to upload images
-                </span>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </label>
-
-              <div className="flex gap-2 flex-wrap">
-                {previewImages.map((img, index) => (
-                  <div key={index} className="relative">
+            {/* Main Image Upload */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2">Main Product Image</label>
+              <div className="flex flex-col gap-4">
+                <label className="flex flex-col items-center justify-center w-full px-4 py-6 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition">
+                  <svg
+                    className="w-8 h-8 text-gray-500 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  <span className="text-sm text-gray-600">
+                    Click to upload main image
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleMainImageChange}
+                    className="hidden"
+                  />
+                </label>
+                
+                {previewMainImage && (
+                  <div className="relative w-40 h-40">
                     <img
-                      src={
-                        typeof img === "string" ? img : URL.createObjectURL(img)
-                      }
-                      alt="Preview"
-                      className="w-32 h-32 object-cover rounded-md"
+                      src={previewMainImage}
+                      alt="Main Preview"
+                      className="w-full h-full object-cover rounded-md border-2 border-blue-500"
                     />
+                    <span className="absolute top-1 left-1 bg-blue-500 text-white px-2 py-1 text-xs rounded">
+                      Main
+                    </span>
                     <button
                       type="button"
-                      onClick={() => removeImage(index)}
+                      onClick={() => {
+                        setNewMainImage(null);
+                        setPreviewMainImage(existingMainImage);
+                      }}
                       className="absolute top-1 right-1 bg-red-500 text-white h-7 w-7 flex justify-center items-center rounded-full"
                     >
                       <IoClose size={16} />
                     </button>
                   </div>
-                ))}
+                )}
+              </div>
+            </div>
+
+            {/* Sub Images Upload */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2">Additional Product Images</label>
+              <div className="flex flex-col gap-4">
+                <label className="flex flex-col items-center justify-center w-full px-4 py-6 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition">
+                  <svg
+                    className="w-8 h-8 text-gray-500 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  <span className="text-sm text-gray-600">
+                    Click to upload additional images
+                  </span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+
+                <div className="flex gap-2 flex-wrap">
+                  {previewImages.map((img, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={
+                          typeof img === "string" ? img : URL.createObjectURL(img)
+                        }
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-md"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white h-7 w-7 flex justify-center items-center rounded-full"
+                      >
+                        <IoClose size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
