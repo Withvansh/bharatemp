@@ -1035,10 +1035,10 @@ export default function ProductCard() {
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-4" ref={actionButtonsRef}>
-            <div className="flex gap-5 items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 items-stretch sm:items-center">
               <button
                 onClick={handleBuyNowClick}
-                className="w-[200px] bg-[#1e3473] text-white py-3 rounded-2xl cursor-pointer font-medium hover:bg-[#162554] transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-[200px] bg-[#1e3473] text-white py-3 rounded-2xl cursor-pointer font-medium hover:bg-[#162554] transition-colors flex items-center justify-center gap-2"
               >
                 <svg
                   className="w-6 h-6"
@@ -1061,8 +1061,8 @@ export default function ProductCard() {
               </button>
 
               {/* Add Zipcode Check Section */}
-              <div className="flex items-center gap-2">
-                <div className="relative">
+              <div className="flex items-center gap-2 flex-1 sm:flex-none">
+                <div className="relative flex-1 sm:flex-none">
                   <input
                     type="text"
                     value={zipcode}
@@ -1076,7 +1076,7 @@ export default function ProductCard() {
                       }
                     }}
                     placeholder="Enter ZIP code"
-                    className="w-[150px] px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none focus:border-[#1e3473] text-sm"
+                    className="w-full sm:w-[150px] px-3 sm:px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none focus:border-[#1e3473] text-sm"
                   />
                   {deliveryStatus !== null && (
                     <div className="absolute -bottom-6 left-0 text-xs">
@@ -1117,7 +1117,7 @@ export default function ProductCard() {
                 <button
                   onClick={checkDeliveryAvailability}
                   disabled={zipcode.length !== 6 || checkingDelivery}
-                  className={`px-4 py-3 rounded-2xl font-medium flex items-center gap-2 ${zipcode.length === 6 && !checkingDelivery
+                  className={`px-3 sm:px-4 py-3 rounded-2xl font-medium flex items-center justify-center gap-2 flex-1 sm:flex-none whitespace-nowrap ${zipcode.length === 6 && !checkingDelivery
                     ? "bg-[#f7941d] text-white hover:bg-[#e88a1a]"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                     } transition-colors`}
@@ -1125,10 +1125,14 @@ export default function ProductCard() {
                   {checkingDelivery ? (
                     <>
                       <FaSpinner className="animate-spin" />
-                      Checking...
+                      <span className="hidden sm:inline">Checking...</span>
+                      <span className="sm:hidden">...</span>
                     </>
                   ) : (
-                    "Check Delivery"
+                    <>
+                      <span className="hidden sm:inline">Check Delivery</span>
+                      <span className="sm:hidden">Check</span>
+                    </>
                   )}
                 </button>
               </div>
@@ -1496,112 +1500,186 @@ export default function ProductCard() {
 
       {/* Add Floating Cart with smooth transition */}
       {product && showFloatingCart && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_12px_rgba(0,0,0,0.1)] p-4 z-50 transition-transform duration-300 transform translate-y-0">
-          <div className="container mx-auto max-w-7xl flex items-center justify-between">
-            {/* Product Info */}
-            <div className="flex items-center gap-4">
-              <img
-                src={product.product_image_main}
-                alt={product.product_name}
-                className="w-16 h-16 object-contain rounded-lg border border-gray-200"
-              />
-              <div>
-                <h3 className="text-[#2F294D] font-semibold text-lg line-clamp-1">
-                  {product.product_name}
-                </h3>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-[#162554]">
-                    ₹
-                    {product.discounted_single_product_price?.toLocaleString(
-                      "en-IN"
-                    )}
-                  </span>
-                  <span className="text-sm text-gray-500 line-through">
-                    ₹{product.non_discounted_price?.toLocaleString("en-IN")}
-                  </span>
+        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_12px_rgba(0,0,0,0.1)] p-3 sm:p-4 z-50 transition-transform duration-300 transform translate-y-0">
+          <div className="container mx-auto max-w-7xl">
+            {/* Mobile Layout */}
+            <div className="flex flex-col sm:hidden gap-3">
+              {/* Row 1: Product Info */}
+              <div className="flex items-center gap-3">
+                <img
+                  src={product.product_image_main}
+                  alt={product.product_name}
+                  className="w-12 h-12 object-contain rounded-lg border border-gray-200 flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-[#2F294D] font-semibold text-sm truncate">
+                    {product.product_name}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-[#162554]">
+                      ₹{product.discounted_single_product_price?.toLocaleString("en-IN")}
+                    </span>
+                    <span className="text-xs text-gray-500 line-through">
+                      ₹{product.non_discounted_price?.toLocaleString("en-IN")}
+                    </span>
+                  </div>
                 </div>
+              </div>
+              
+              {/* Row 2: Controls and Buttons */}
+              <div className="flex items-center gap-2">
+                {/* Quantity Controls */}
+                <div className="flex items-center bg-gray-50 rounded-lg border border-gray-200">
+                  <button
+                    onClick={decrementQuantity}
+                    disabled={quantity <= 1}
+                    className={`w-8 h-8 flex items-center justify-center text-lg font-bold transition-colors ${quantity <= 1
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-[#1e3473] hover:bg-gray-100 cursor-pointer"
+                      }`}
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value);
+                      if (value > 0) {
+                        setQuantity(value);
+                      }
+                    }}
+                    className="w-10 text-center py-1 text-sm font-bold bg-transparent border-none focus:outline-none [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <button
+                    onClick={incrementQuantity}
+                    className="w-8 h-8 flex items-center justify-center text-lg font-bold text-[#1e3473] hover:bg-gray-100 cursor-pointer transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+
+                {/* Add to Cart Button */}
+                <button
+                  onClick={handleAddToCart}
+                  className="flex-1 px-3 py-2 bg-[#F7941D] text-white rounded-lg hover:bg-[#e88a1a] transition-colors flex items-center justify-center gap-1 text-sm font-medium"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 20a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2zm-7-3h7a2 2 0 002-2V9a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" strokeWidth="2" />
+                  </svg>
+                  Add
+                </button>
+
+                {/* Buy Now Button */}
+                <button
+                  onClick={handleBuyNowClick}
+                  className="flex-1 px-3 py-2 bg-[#1e3473] text-white rounded-lg hover:bg-[#162554] transition-colors flex items-center justify-center gap-1 text-sm font-medium"
+                  disabled={loadingBuyNow}
+                >
+                  {!loadingBuyNow && (
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M4 11h16M4 11a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7z" strokeWidth="2" />
+                      <path d="M8 11V7a4 4 0 018 0v4" strokeWidth="2" />
+                    </svg>
+                  )}
+                  {loadingBuyNow ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                  ) : (
+                    "Buy"
+                  )}
+                </button>
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-4">
-              {/* Quantity Controls */}
-              <div className="flex items-center bg-gray-50 rounded-lg border border-gray-200">
-                <button
-                  onClick={decrementQuantity}
-                  disabled={quantity <= 1}
-                  className={`w-10 h-10 flex items-center justify-center text-xl font-bold transition-colors ${quantity <= 1
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-[#1e3473] hover:bg-gray-100 cursor-pointer"
-                    }`}
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    if (value > 0) {
-                      setQuantity(value);
-                    }
-                  }}
-                  className="w-12 text-center py-1 text-lg font-bold bg-transparent border-none focus:outline-none [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            {/* Desktop Layout */}
+            <div className="hidden sm:flex items-center justify-between">
+              {/* Product Info */}
+              <div className="flex items-center gap-4">
+                <img
+                  src={product.product_image_main}
+                  alt={product.product_name}
+                  className="w-16 h-16 object-contain rounded-lg border border-gray-200"
                 />
-                <button
-                  onClick={incrementQuantity}
-                  className="w-10 h-10 flex items-center justify-center text-xl font-bold text-[#1e3473] hover:bg-gray-100 cursor-pointer transition-colors"
-                >
-                  +
-                </button>
+                <div>
+                  <h3 className="text-[#2F294D] font-semibold text-lg line-clamp-1">
+                    {product.product_name}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-bold text-[#162554]">
+                      ₹{product.discounted_single_product_price?.toLocaleString("en-IN")}
+                    </span>
+                    <span className="text-sm text-gray-500 line-through">
+                      ₹{product.non_discounted_price?.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              {/* Add to Cart Button */}
-              <button
-                onClick={handleAddToCart}
-                className="px-6 py-2 bg-[#F7941D] text-white rounded-lg hover:bg-[#e88a1a] transition-colors flex items-center gap-2"
-              >
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M9 20a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2zm-7-3h7a2 2 0 002-2V9a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"
-                    strokeWidth="2"
-                  />
-                </svg>
-                Add to Cart
-              </button>
-
-              {/* Buy Now Button */}
-              <button
-                onClick={handleBuyNowClick}
-                className="px-6 py-2 bg-[#1e3473] text-white rounded-lg hover:bg-[#162554] transition-colors flex items-center gap-2"
-                disabled={loadingBuyNow}
-              >
-                {!loadingBuyNow && (
-                  <svg
-                    className="w-5 h-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
+              {/* Actions */}
+              <div className="flex items-center gap-4">
+                {/* Quantity Controls */}
+                <div className="flex items-center bg-gray-50 rounded-lg border border-gray-200">
+                  <button
+                    onClick={decrementQuantity}
+                    disabled={quantity <= 1}
+                    className={`w-10 h-10 flex items-center justify-center text-xl font-bold transition-colors ${quantity <= 1
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-[#1e3473] hover:bg-gray-100 cursor-pointer"
+                      }`}
                   >
-                    <path
-                      d="M4 11h16M4 11a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7z"
-                      strokeWidth="2"
-                    />
-                    <path d="M8 11V7a4 4 0 018 0v4" strokeWidth="2" />
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value);
+                      if (value > 0) {
+                        setQuantity(value);
+                      }
+                    }}
+                    className="w-12 text-center py-1 text-lg font-bold bg-transparent border-none focus:outline-none [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <button
+                    onClick={incrementQuantity}
+                    className="w-10 h-10 flex items-center justify-center text-xl font-bold text-[#1e3473] hover:bg-gray-100 cursor-pointer transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+
+                {/* Add to Cart Button */}
+                <button
+                  onClick={handleAddToCart}
+                  className="px-6 py-2 bg-[#F7941D] text-white rounded-lg hover:bg-[#e88a1a] transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 20a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2zm-7-3h7a2 2 0 002-2V9a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" strokeWidth="2" />
                   </svg>
-                )}
-                {loadingBuyNow ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-                ) : (
-                  "Buy Now (1 item)"
-                )}
-              </button>
+                  Add to Cart
+                </button>
+
+                {/* Buy Now Button */}
+                <button
+                  onClick={handleBuyNowClick}
+                  className="px-6 py-2 bg-[#1e3473] text-white rounded-lg hover:bg-[#162554] transition-colors flex items-center gap-2"
+                  disabled={loadingBuyNow}
+                >
+                  {!loadingBuyNow && (
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M4 11h16M4 11a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7z" strokeWidth="2" />
+                      <path d="M8 11V7a4 4 0 018 0v4" strokeWidth="2" />
+                    </svg>
+                  )}
+                  {loadingBuyNow ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                  ) : (
+                    "Buy Now (1 item)"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

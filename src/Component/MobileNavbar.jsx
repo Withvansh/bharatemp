@@ -134,7 +134,7 @@ const MobileNavbar = () => {
 
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Bharatronix" className="h-8 w-auto" />
+            <img src={logo} alt="Bharatronix" className="h-10 w-auto" />
           </Link>
 
           {/* Cart Icon */}
@@ -204,78 +204,84 @@ const MobileNavbar = () => {
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50">
-          <div className="bg-white w-80 h-full shadow-lg">
+        <div className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)}>
+          <div className="bg-white w-full max-w-sm h-full shadow-xl" onClick={(e) => e.stopPropagation()}>
             {/* Menu Header */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold">Menu</h2>
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <img src={logo} alt="Bharatronix" className="h-8 w-auto" />
+                <span className="text-lg font-bold text-[#1E3473]">BharatroniX</span>
+              </div>
               <button 
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded-lg hover:bg-gray-100"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               >
-                <FaTimes size={20} />
+                <FaTimes size={18} className="text-gray-600" />
               </button>
             </div>
 
             {/* Menu Items */}
-            <div className="p-4 space-y-2">
-              <Link
-                to="/"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <FaHome className="text-[#F7941D]" />
-                <span>Home</span>
-              </Link>
+            <div className="flex-1 overflow-y-auto py-4">
+              <div className="px-4 space-y-1 mt-12">
+                <Link
+                  to="/product"
+                  className="flex items-center gap-4 p-4 rounded-xl hover:bg-orange-50 transition-colors group"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                    <span className="text-xl">🛍️</span>
+                  </div>
+                  <span className="text-gray-800 font-medium">All Products</span>
+                </Link>
 
-              <Link
-                to="/product"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <FaShoppingBag className="text-[#F7941D]" />
-                <span>All Products</span>
-              </Link>
+                <Link
+                  to="/shopbybrand"
+                  className="flex items-center gap-4 p-4 rounded-xl hover:bg-orange-50 transition-colors group"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
+                    <span className="text-xl">🏷️</span>
+                  </div>
+                  <span className="text-gray-800 font-medium">Shop by Brands</span>
+                </Link>
 
-              <Link
-                to="/shopbybrand"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span className="text-[#F7941D]">🏷️</span>
-                <span>Shop by Brands</span>
-              </Link>
+                <Link
+                  to="/b2bpage"
+                  className="flex items-center gap-4 p-4 rounded-xl hover:bg-blue-50 transition-colors group"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <span className="text-xl">🏢</span>
+                  </div>
+                  <span className="text-gray-800 font-medium">B2B Enquiry</span>
+                </Link>
 
-              <Link
-                to="/b2bpage"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span className="text-[#F7941D]">🏢</span>
-                <span>B2B Enquiry</span>
-              </Link>
-
-              <Link
-                to="/track-order"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span className="text-[#F7941D]">📦</span>
-                <span>Track Order</span>
-              </Link>
+                <Link
+                  to="/track-order"
+                  className="flex items-center gap-4 p-4 rounded-xl hover:bg-green-50 transition-colors group"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                    <span className="text-xl">📦</span>
+                  </div>
+                  <span className="text-gray-800 font-medium">Track Order</span>
+                </Link>
+              </div>
             </div>
 
             {/* User Section */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-gray-50">
+            <div className="border-t border-gray-100 p-4 bg-gray-50">
               {user ? (
                 <div className="space-y-2">
                   <Link
                     to="/profile"
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-white transition-colors"
+                    className="flex items-center gap-4 p-4 rounded-xl hover:bg-white transition-colors group"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <FaUser className="text-[#F7941D]" />
-                    <span>Profile</span>
+                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                      <FaUser className="text-purple-600" size={16} />
+                    </div>
+                    <span className="text-gray-800 font-medium">Profile</span>
                   </Link>
                   <button
                     onClick={() => {
@@ -284,20 +290,22 @@ const MobileNavbar = () => {
                       setMobileMenuOpen(false);
                       window.location.href = "/";
                     }}
-                    className="flex items-center gap-3 w-full p-3 text-left text-red-600 rounded-lg hover:bg-white transition-colors"
+                    className="flex items-center gap-4 w-full p-4 text-left rounded-xl hover:bg-red-50 transition-colors group"
                   >
-                    <span>🚪</span>
-                    <span>Logout</span>
+                    <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-red-200 transition-colors">
+                      <span className="text-xl">🚪</span>
+                    </div>
+                    <span className="text-red-600 font-medium">Logout</span>
                   </button>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <button
                     onClick={() => {
                       navigate("/login");
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full px-4 py-3 bg-[#1E3473] text-white rounded-lg hover:bg-[#F7941D] transition-colors"
+                    className="w-full px-6 py-3 bg-[#1E3473] text-white rounded-xl hover:bg-[#F7941D] transition-colors font-medium"
                   >
                     Login
                   </button>
@@ -306,7 +314,7 @@ const MobileNavbar = () => {
                       navigate("/signup");
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full px-4 py-3 border border-[#1E3473] text-[#1E3473] rounded-lg hover:bg-[#1E3473] hover:text-white transition-colors"
+                    className="w-full px-6 py-3 border-2 border-[#1E3473] text-[#1E3473] rounded-xl hover:bg-[#1E3473] hover:text-white transition-colors font-medium"
                   >
                     Sign Up
                   </button>

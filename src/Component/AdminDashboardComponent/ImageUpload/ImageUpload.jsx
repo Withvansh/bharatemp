@@ -6,12 +6,32 @@ import { toast } from 'react-toastify';
 const ImageUpload = ({ onUploadSuccess, uploadType = 'product', multiple = false, maxFiles = 10 }) => {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
   const fileInputRef = useRef(null);
 
   const backend = import.meta.env.VITE_BACKEND;
 
+  const createPreviewUrls = (files) => {
+    const urls = [];
+    const fileArray = Array.from(files).slice(0, multiple ? maxFiles : 1);
+    
+    fileArray.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        urls.push(URL.createObjectURL(file));
+      }
+    });
+    
+    return { urls, files: fileArray };
+  };
+
   const handleFiles = async (files) => {
     if (!files || files.length === 0) return;
+
+    // Create preview URLs first
+    const { urls, files: validFiles } = createPreviewUrls(files);
+    setSelectedFiles(validFiles);
+    setPreviewUrls(urls);
 
     setUploading(true);
     const formData = new FormData();
@@ -25,11 +45,11 @@ const ImageUpload = ({ onUploadSuccess, uploadType = 'product', multiple = false
       };
 
       if (uploadType === 'blog') {
-        formData.append('image', files[0]);
+        formData.append('image', validFiles[0]);
         endpoint = `${backend}/blog/upload-image`;
       } else if (uploadType === 'product') {
         // Use same endpoint for both single and multiple
-        Array.from(files).slice(0, maxFiles).forEach(file => {
+        validFiles.forEach(file => {
           formData.append('img', file);
         });
         endpoint = `${backend}/product/upload-image`;
@@ -55,6 +75,8 @@ const ImageUpload = ({ onUploadSuccess, uploadType = 'product', multiple = false
         }
         
         onUploadSuccess && onUploadSuccess(uploadData);
+        // Clear previews after successful upload
+        clearPreviews();
       } else {
         console.error('Upload failed:', response.data);
         toast.error('Upload failed');
@@ -65,6 +87,24 @@ const ImageUpload = ({ onUploadSuccess, uploadType = 'product', multiple = false
     } finally {
       setUploading(false);
     }
+  };
+
+  const clearPreviews = () => {
+    // Clean up object URLs to prevent memory leaks
+    previewUrls.forEach(url => URL.revokeObjectURL(url));
+    setSelectedFiles([]);
+    setPreviewUrls([]);
+  };
+
+  const removePreview = (index) => {
+    const newFiles = selectedFiles.filter((_, i) => i !== index);
+    const newUrls = previewUrls.filter((_, i) => i !== index);
+    
+    // Revoke the removed URL
+    URL.revokeObjectURL(previewUrls[index]);
+    
+    setSelectedFiles(newFiles);
+    setPreviewUrls(newUrls);
   };
 
   const handleDrag = (e) => {
@@ -94,12 +134,20 @@ const ImageUpload = ({ onUploadSuccess, uploadType = 'product', multiple = false
     }
   };
 
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [previewUrls]);
+
   const openFileSelector = () => {
     fileInputRef.current?.click();
   };
 
   return (
     <div className="w-full">
+      {/* Upload Area */}
       <div
         className={`relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
           ${dragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
@@ -138,6 +186,57 @@ const ImageUpload = ({ onUploadSuccess, uploadType = 'product', multiple = false
           </div>
         </div>
       </div>
+
+      {/* Preview Section */}
+      {previewUrls.length > 0 && (
+        <div className="mt-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">
+            Selected Images ({previewUrls.length})
+          </h4>
+          <div className={`grid gap-3 ${multiple ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1 max-w-xs'}`}>
+            {previewUrls.map((url, index) => (
+              <div key={index} className="relative group">
+                <img
+                  src={url}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => removePreview(index)}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                  title="Remove image"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+                <div className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
+                  {selectedFiles[index]?.name?.substring(0, 10)}...
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Upload Button */}
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => handleFiles(selectedFiles)}
+              disabled={uploading || selectedFiles.length === 0}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+            >
+              {uploading ? 'Uploading...' : `Upload ${selectedFiles.length} Image${selectedFiles.length > 1 ? 's' : ''}`}
+            </button>
+            <button
+              type="button"
+              onClick={clearPreviews}
+              disabled={uploading}
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

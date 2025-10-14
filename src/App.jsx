@@ -4,6 +4,8 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { getNetworkInfo, addNetworkListeners } from './utils/networkDetector';
 import Home from "./pages/Home";
 import Navbar from "./Component/Navbar";
 import MobileNavbar from "./Component/MobileNavbar";
@@ -73,9 +75,41 @@ import AuthError from "./pages/AuthError.jsx";
 const AppContent = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+  const [networkInfo, setNetworkInfo] = useState(getNetworkInfo());
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      setNetworkInfo(getNetworkInfo());
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      setNetworkInfo(getNetworkInfo());
+    };
+
+    const cleanup = addNetworkListeners(handleOnline, handleOffline);
+    
+    // Log network info for debugging
+    console.log('Network Info:', networkInfo);
+    
+    return cleanup;
+  }, []);
 
   return (
     <div className="overflow-hidden">
+      {/* Network Status Indicator */}
+      {!isOnline && (
+        <div className="bg-red-500 text-white text-center py-2 px-4 text-sm">
+          ⚠️ You are offline. Some features may not work properly.
+        </div>
+      )}
+      {networkInfo.mobile && networkInfo.localNetwork && (
+        <div className="bg-blue-500 text-white text-center py-1 px-4 text-xs">
+          📱 Mobile view - Local network detected
+        </div>
+      )}
       {!isAdmin && (
         <>
           <div className="hidden md:block">

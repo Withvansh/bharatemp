@@ -274,6 +274,20 @@ body {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+/* Mobile dropdown menu styling */
+.mobile-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 1024px) {
   .categories-dropdown-container .grid.grid-cols-4.gap-6 {
@@ -306,5 +320,12 @@ body {
 
   .categories-dropdown-container .grid.grid-cols-4.gap-6 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  /* Mobile navbar logo size */
+  .mobile-logo {
+    height: 2.5rem !important; /* 40px */
+    width: auto;
+    max-width: 140px;
   }
 }

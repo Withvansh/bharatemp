@@ -530,13 +530,13 @@ const Navbar = () => {
       </div>
 
       {/* Main Navbar */}
-      <div className="bg-white border-b shadow-sm font-inter">
+      <div className="bg-white border-b shadow-sm font-inter relative">
         <div className="flex items-center justify-between px-2 sm:px-4 py-2 lg:px-16 md:px-12">
           {/* Logo and Location Section */}
           <div className="flex items-center gap-2 sm:gap-4 lg:gap-6">
             {/* Logo */}
             <Link to="/" className="flex items-center">
-              <img src={logo} alt="Logo" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto max-w-[120px] sm:max-w-[160px] md:max-w-[200px] lg:max-w-[280px]" />
+              <img src={logo} alt="Logo" className="h-12 sm:h-12 md:h-14 lg:h-16 w-auto max-w-[140px] sm:max-w-[160px] md:max-w-[200px] lg:max-w-[280px]" />
             </Link>
 
             {/* Location Selector - Hidden on mobile, show on tablet+ */}
@@ -634,7 +634,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Search Bar Section */}
+          {/* Search Bar Section - Hidden on mobile and tablet */}
           <div className="hidden lg:flex flex-1 items-center justify-center max-w-[650px] w-full mx-4">
             {/* Search Bar and Voice Button Container */}
             <div className="flex items-center w-full gap-2">
@@ -984,249 +984,117 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
-          <div className="px-4 py-4 space-y-4 text-sm bg-white shadow-lg border-t md:hidden">
-            {/* Mobile Search Bar Section */}
-            <div className="flex items-center w-full gap-2">
-              {/* Search Bar with Suggestions */}
-              <div className="relative flex-1 search-container">
-                <form
-                  onSubmit={handleSearch}
-                  className="flex items-center justify-between flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-full focus-within:border-[#F7941D] transition-colors"
-                >
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    className="flex-1 text-sm bg-transparent outline-none placeholder-gray-500"
-                    value={searchQuery}
-                    onChange={handleSearchInputChange}
-                    onKeyPress={handleKeyPress}
-                  />
-                  <button
-                    type="submit"
-                    className="bg-[#F7941D] w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#e6851a] transition-colors"
-                  >
-                    <FaSearch size={14} className="text-white" />
-                  </button>
-                </form>
-
-                {/* Suggestions Dropdown */}
-                {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute left-0 right-0 z-50 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg top-full">
-                    {suggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className="px-4 py-2 cursor-pointer hover:bg-gray-50"
-                        onClick={() => handleSuggestionClick(suggestion)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{suggestion.icon}</span>
-                          <div className="flex flex-col">
-                            {suggestion.type === "product" ? (
-                              <>
-                                <span className="font-medium text-gray-900">
-                                  {suggestion.name}
-                                </span>
-                                <div className="flex items-center gap-2 text-xs text-gray-500">
-                                  {suggestion.category && (
-                                    <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                                      {suggestion.category}
-                                    </span>
-                                  )}
-                                  {suggestion.brand && (
-                                    <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                                      {suggestion.brand}
-                                    </span>
-                                  )}
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <span className="font-medium text-gray-900">
-                                  {suggestion.displayText}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  {suggestion.type === "category"
-                                    ? "Category"
-                                    : "Brand"}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Voice Search Button */}
-              <button
-                type="button"
-                className={`relative bg-gray-50 border border-gray-200 w-12 h-12 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors ${
-                  isListening ? "ring-2 ring-[#F7941D] bg-orange-50" : ""
-                }`}
-                onClick={startVoiceSearch}
-              >
-                <img src={mic} alt="Voice Search" className="w-6 h-6" />
-                {isListening && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="absolute w-full h-full rounded-full animate-ping bg-[#F7941D] opacity-20"></div>
-                    <div className="absolute w-3/4 h-3/4 rounded-full animate-ping bg-[#F7941D] opacity-10 delay-150"></div>
-                    <div className="absolute w-1/2 h-1/2 rounded-full animate-ping bg-[#F7941D] opacity-5 delay-300"></div>
-                  </div>
-                )}
-              </button>
-            </div>
+          <>
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-30 z-40 md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
             
-            {/* Mobile Location Selector */}
-            <div className="relative location-dropdown-container">
-              <div
-                onClick={() => setShowLocationDropdown((prev) => !prev)}
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer border border-gray-200 hover:border-[#F7941D] transition-colors"
-              >
-                <img src={location1} className="w-5 h-5" alt="Location" />
-                <div className="flex-1">
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm font-medium text-[#F7941D] truncate">
-                      {isGettingLocation ? "Getting location..." : location}
-                    </span>
-                    <FaChevronDown className="text-xs text-blue-900 flex-shrink-0" />
-                  </div>
-                  <span className="text-xs text-[#1E3473] truncate">
-                    {stringForDelivery}
-                  </span>
-                </div>
+            {/* Compact Dropdown Menu */}
+            <div className={`fixed top-20 left-6 right-6 bg-white rounded-xl shadow-xl z-50 transform transition-all duration-200 ease-out md:hidden ${
+              mobileMenuOpen ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95'
+            }`}>
+              {/* Menu Items */}
+              <div className="p-2">
+                <Link
+                  to="/"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="text-base">🏠</span>
+                  <span className="text-gray-800 text-sm font-medium">Home</span>
+                </Link>
+                
+                <Link
+                  to="/product"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="text-base">📦</span>
+                  <span className="text-gray-800 text-sm font-medium">All Products</span>
+                </Link>
+                
+                <Link
+                  to="/shopbybrand"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="text-base">🏷️</span>
+                  <span className="text-gray-800 text-sm font-medium">Shop by Brands</span>
+                </Link>
+                
+                <Link
+                  to="/b2bpage"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="text-base">🏢</span>
+                  <span className="text-gray-800 text-sm font-medium">B2B Enquiry</span>
+                </Link>
+                
+                <Link
+                  to="/track-order"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <img src={truck} alt="Track" className="w-4 h-4" />
+                  <span className="text-gray-800 text-sm font-medium">Track Order</span>
+                </Link>
               </div>
-              
-              {/* Mobile Location Dropdown */}
-              {showLocationDropdown && (
-                <div className="absolute z-40 mt-2 w-full bg-white border border-gray-200 shadow-lg rounded-lg max-h-[300px] overflow-y-auto">
-                  {/* Current Location Button */}
-                  <div className="p-3 border-b border-gray-200">
+
+              {/* User Section */}
+              {user ? (
+                <div className="p-1.5 border-t border-gray-100">
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <img src={avatar} className="w-4 h-4" alt="Profile" />
+                    <span className="text-gray-800 text-sm font-medium">Profile</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem("token");
+                      setUser(null);
+                      setMobileMenuOpen(false);
+                      window.location.href = "/";
+                    }}
+                    className="flex items-center gap-2.5 w-full px-3 py-2 text-left rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    <span className="text-base">🚪</span>
+                    <span className="text-red-600 text-sm font-medium">Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="p-2 border-t border-gray-100">
+                  <div className="flex gap-2">
                     <button
-                      onClick={getCurrentLocation}
-                      disabled={isGettingLocation}
-                      className="flex items-center w-full gap-2 px-3 py-2 font-medium text-blue-700 transition-colors rounded-lg bg-blue-50 hover:bg-blue-100 disabled:opacity-50"
+                      onClick={() => {
+                        navigate("/login");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="flex-1 px-3 py-1.5 bg-[#1E3473] text-white rounded-lg text-xs font-medium"
                     >
-                      <FaCrosshairs className="w-4 h-4" />
-                      {isGettingLocation
-                        ? "Getting location..."
-                        : "Use my current location"}
+                      Login
                     </button>
-                  </div>
-                  
-                  {/* Popular Locations */}
-                  <div className="p-3">
-                    <div className="mb-2 text-sm font-medium text-gray-700">
-                      Popular Locations:
-                    </div>
-                    {locations.slice(0, 5).map((loc) => (
-                      <div
-                        key={loc}
-                        onClick={() => handleLocationSelect(loc)}
-                        className="px-3 py-2 text-sm text-gray-700 rounded-lg cursor-pointer hover:bg-gray-100"
-                      >
-                        {loc}
-                      </div>
-                    ))}
+                    <button
+                      onClick={() => {
+                        navigate("/signup");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="flex-1 px-3 py-1.5 border border-[#1E3473] text-[#1E3473] rounded-lg text-xs font-medium"
+                    >
+                      Sign Up
+                    </button>
                   </div>
                 </div>
               )}
             </div>
-
-            {/* Mobile Navigation Links */}
-            <div className="space-y-1">
-              <Link
-                to="/"
-                className="flex items-center gap-3 px-4 py-3 font-semibold text-gray-800 rounded-lg hover:bg-gray-50 hover:text-[#F7941D] transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                🏠 HOME
-              </Link>
-              
-              <Link
-                to="/product"
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50 hover:text-[#F7941D] transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                📦 All Categories
-              </Link>
-              
-              <Link
-                to="/shopbybrand"
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50 hover:text-[#F7941D] transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                🏷️ Shop By Brands
-              </Link>
-              
-              <Link
-                to="/b2bpage"
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50 hover:text-[#F7941D] transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                🏢 B2B Enquiry
-              </Link>
-              
-              <Link
-                to="/track-order"
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50 hover:text-[#F7941D] transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <img src={truck} alt="Track" className="w-5 h-5" /> Track Order
-              </Link>
-            </div>
-            
-            {/* Mobile Auth Buttons */}
-            {!user && (
-              <div className="flex gap-2 pt-4 border-t border-gray-200">
-                <button
-                  onClick={() => {
-                    navigate("/login");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="flex-1 px-4 py-3 text-sm font-medium bg-[#1E3473] text-white rounded-lg hover:bg-[#F7941D] transition-colors"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={() => {
-                    navigate("/signup");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="flex-1 px-4 py-3 text-sm font-medium border border-[#1E3473] text-[#1E3473] rounded-lg hover:bg-[#1E3473] hover:text-white transition-colors"
-                >
-                  Sign Up
-                </button>
-              </div>
-            )}
-            
-            {/* Mobile User Menu */}
-            {user && (
-              <div className="pt-4 border-t border-gray-200 space-y-1">
-                <Link
-                  to="/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-50 hover:text-[#F7941D] transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <img src={avatar} className="w-5 h-5" alt="Profile" /> Profile
-                </Link>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem("token");
-                    setUser(null);
-                    setMobileMenuOpen(false);
-                    window.location.href = "/";
-                  }}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-left text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-                >
-                  🚪 Logout
-                </button>
-              </div>
-            )}
-          </div>
+          </>
         )}
       </div>
     </>

@@ -584,6 +584,10 @@ const BlogManagement = () => {
       meta_keywords: "",
     });
     setActiveTab("content");
+    // Force re-render by updating state
+    setTimeout(() => {
+      setFormData(prev => ({ ...prev }));
+    }, 100);
   };
 
   const openEditModal = (post) => {
@@ -697,31 +701,63 @@ const BlogManagement = () => {
                 console.log('Blog image upload success:', uploadedData);
                 const imageUrl = uploadedData?.url || (Array.isArray(uploadedData) ? uploadedData[0]?.url : uploadedData);
                 console.log('Setting featured_image_url to:', imageUrl);
-                setFormData({ ...formData, featured_image_url: imageUrl });
+                setFormData(prevData => ({ ...prevData, featured_image_url: imageUrl }));
               }}
             />
-            {formData.featured_image_url && (
-              <div style={{ marginTop: '10px' }}>
-                <img 
-                  src={formData.featured_image_url} 
-                  alt="Featured" 
-                  style={{ width: '200px', height: '120px', objectFit: 'cover', borderRadius: '6px' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, featured_image_url: '' })}
-                  style={{ 
-                    marginLeft: '10px', 
-                    padding: '4px 8px', 
-                    backgroundColor: '#ef4444', 
-                    color: 'white', 
-                    border: 'none', 
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Remove
-                </button>
+            {formData.featured_image_url && formData.featured_image_url.trim() !== '' && (
+              <div style={{ 
+                marginTop: '12px', 
+                padding: '12px', 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '8px', 
+                backgroundColor: '#f9fafb' 
+              }}>
+                <div style={{ 
+                  fontSize: '14px', 
+                  fontWeight: '500', 
+                  color: '#374151', 
+                  marginBottom: '8px' 
+                }}>
+                  Featured Image Preview:
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <img 
+                    src={formData.featured_image_url} 
+                    alt="Featured Image Preview" 
+                    style={{ 
+                      width: '120px', 
+                      height: '80px', 
+                      objectFit: 'cover', 
+                      borderRadius: '6px',
+                      border: '1px solid #d1d5db'
+                    }}
+                    onError={(e) => {
+                      console.error('Image load error:', e);
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
+                      URL: {formData.featured_image_url.substring(0, 50)}...
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prevData => ({ ...prevData, featured_image_url: '' }))}
+                      style={{ 
+                        padding: '6px 12px', 
+                        backgroundColor: '#ef4444', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
