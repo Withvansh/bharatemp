@@ -1,4 +1,4 @@
-Bharatronix any.
+Bharatronix
 
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules ON A Bhartaronix project.
