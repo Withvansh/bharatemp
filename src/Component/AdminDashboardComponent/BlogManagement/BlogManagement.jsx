@@ -779,24 +779,48 @@ const BlogManagement = () => {
                   Featured Image Preview:
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <img 
-                    src={formData.featured_image_url} 
-                    alt="Featured Image Preview" 
-                    style={{ 
-                      width: '120px', 
-                      height: '80px', 
-                      objectFit: 'cover', 
+                  <div style={{ position: 'relative' }}>
+                    <img 
+                      src={formData.featured_image_url} 
+                      alt="Featured Image Preview" 
+                      style={{ 
+                        width: '120px', 
+                        height: '80px', 
+                        objectFit: 'cover', 
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db'
+                      }}
+                      onLoad={() => console.log('Image loaded successfully:', formData.featured_image_url)}
+                      onError={(e) => {
+                        console.error('Image load error for URL:', formData.featured_image_url);
+                        e.target.style.display = 'none';
+                        // Show fallback
+                        const fallback = e.target.nextElementSibling;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                    <div style={{
+                      display: 'none',
+                      width: '120px',
+                      height: '80px',
+                      backgroundColor: '#f3f4f6',
+                      border: '1px solid #d1d5db',
                       borderRadius: '6px',
-                      border: '1px solid #d1d5db'
-                    }}
-                    onError={(e) => {
-                      console.error('Image load error:', e);
-                      e.target.style.display = 'none';
-                    }}
-                  />
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      color: '#6b7280',
+                      textAlign: 'center'
+                    }}>
+                      Image Preview\nNot Available
+                    </div>
+                  </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
                       URL: {formData.featured_image_url.substring(0, 50)}...
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#10b981', marginBottom: '8px' }}>
+                      ✅ Image uploaded successfully
                     </div>
                     <button
                       type="button"

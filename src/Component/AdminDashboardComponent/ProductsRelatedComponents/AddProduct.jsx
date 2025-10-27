@@ -603,10 +603,25 @@ const AddProduct = () => {
           detail: { action: 'added', product: response.data.data }
         }));
 
-        toast.success("Product added successfully", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        // Enhanced success notification
+        toast.success(
+          `🎉 Product "${formData.product_name}" added successfully!`,
+          {
+            position: "top-center",
+            autoClose: 4000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            style: {
+              background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+              color: "white",
+              fontWeight: "500",
+              borderRadius: "12px",
+              boxShadow: "0 10px 25px rgba(16, 185, 129, 0.3)"
+            }
+          }
+        );
         // Reset form to initial state
         setFormData({
           category_id: "",
@@ -1301,45 +1316,60 @@ const AddProduct = () => {
           multiple={true}
           maxFiles={10}
           onUploadSuccess={(uploadedData) => {
-            // console.log('Frontend received uploadedData:', uploadedData);
-            if (uploadedData && Array.isArray(uploadedData)) {
-              // Handle array of images
-              const newImages = uploadedData.map((item) => {
-                const imageUrl = item?.url || item;
-                // console.log('Processing array image URL:', imageUrl);
-                // Fix URL path separators
+            console.log('Product image upload success:', uploadedData);
+            
+            try {
+              if (uploadedData && Array.isArray(uploadedData)) {
+                // Handle array of images
+                const newImages = uploadedData.map((item) => {
+                  const imageUrl = item?.url || item;
+                  const fixedUrl = imageUrl.replace(/\\/g, '/');
+                  return {
+                    url: fixedUrl,
+                    cloudinary_url: fixedUrl,
+                  };
+                });
+                
+                setPreviewImages((prev) => [...prev, ...newImages]);
+                setFormData((prev) => ({
+                  ...prev,
+                  product_image_urls: [
+                    ...(prev.product_image_urls || []),
+                    ...uploadedData.map((item) => (item?.url || item).replace(/\\/g, '/')),
+                  ],
+                }));
+                
+                toast.success(`${uploadedData.length} image(s) uploaded successfully!`, {
+                  position: "bottom-right",
+                  autoClose: 2000
+                });
+                
+              } else if (uploadedData) {
+                // Handle single image
+                const imageUrl = uploadedData.url || uploadedData;
                 const fixedUrl = imageUrl.replace(/\\/g, '/');
-                return {
+                const newImage = {
                   url: fixedUrl,
                   cloudinary_url: fixedUrl,
                 };
-              });
-              setPreviewImages((prev) => [...prev, ...newImages]);
-              setFormData((prev) => ({
-                ...prev,
-                product_image_urls: [
-                  ...(prev.product_image_urls || []),
-                  ...uploadedData.map((item) => (item?.url || item).replace(/\\/g, '/')),
-                ],
-              }));
-            } else if (uploadedData) {
-              // Handle single image or fallback
-              const imageUrl = uploadedData.url || uploadedData;
-              // console.log('Processing single image URL:', imageUrl);
-              // Fix URL path separators
-              const fixedUrl = imageUrl.replace(/\\/g, '/');
-              const newImage = {
-                url: fixedUrl,
-                cloudinary_url: fixedUrl,
-              };
-              setPreviewImages((prev) => [...prev, newImage]);
-              setFormData((prev) => ({
-                ...prev,
-                product_image_urls: [
-                  ...(prev.product_image_urls || []),
-                  fixedUrl,
-                ],
-              }));
+                
+                setPreviewImages((prev) => [...prev, newImage]);
+                setFormData((prev) => ({
+                  ...prev,
+                  product_image_urls: [
+                    ...(prev.product_image_urls || []),
+                    fixedUrl,
+                  ],
+                }));
+                
+                toast.success("Image uploaded successfully!", {
+                  position: "bottom-right",
+                  autoClose: 2000
+                });
+              }
+            } catch (error) {
+              console.error('Error processing uploaded images:', error);
+              toast.error("Error processing uploaded images");
             }
           }}
         />

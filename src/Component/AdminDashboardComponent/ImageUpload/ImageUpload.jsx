@@ -83,7 +83,24 @@ const ImageUpload = ({ onUploadSuccess, uploadType = 'product', multiple = false
       }
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error(error.response?.data?.message || 'Upload failed. Please try again.');
+      
+      // Show user-friendly error message
+      let errorMessage = 'Upload failed. Please try again.';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // Handle specific S3 errors
+      if (errorMessage.includes('ACL')) {
+        errorMessage = 'Image upload failed due to server configuration. Please contact support.';
+      } else if (errorMessage.includes('bucket')) {
+        errorMessage = 'Storage service temporarily unavailable. Please try again later.';
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setUploading(false);
     }
