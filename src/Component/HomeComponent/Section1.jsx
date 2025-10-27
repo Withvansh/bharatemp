@@ -4,6 +4,7 @@ import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
 import { Link, useNavigate, useLocation } from "react-router-dom"; // Added useLocation
 import { useCart } from "../../context/CartContext";
 import { handleBuyNow } from "../../utils/paymentUtils";
+import "../../styles/mobile-responsive.css";
 
 import fallbackImage1 from "../../assets/homepage1.webp";
 import fallbackImage2 from "../../assets/homepage2.webp";
@@ -256,8 +257,8 @@ const ProductSlider = ({ products = [] }) => {
         </Link> */}
       </div>
 
-      {/* Products Grid */}
-      <div className=" w-full grid  grid-cols-1 md:grid-cols-2  lg:grid-cols-3  xl:grid-cols-5 gap-8 pb-4 scrollbar-hide">
+      {/* Desktop Products Grid */}
+      <div className="hidden md:grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 pb-4 scrollbar-hide">
         {filteredProducts.slice(0, 5).map((product, index) => (
           <div
             key={product._id || index}
@@ -352,6 +353,61 @@ const ProductSlider = ({ products = [] }) => {
                 </div>
               </div>
             </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile Products Horizontal Scroll */}
+      <div className="md:hidden mobile-product-container mobile-scroll">
+        {filteredProducts.slice(0, 8).map((product, index) => (
+          <div
+            key={product._id || index}
+            onClick={() => handleProductClick(product)}
+            className="mobile-product-card mobile-touch-feedback"
+          >
+            <img
+              src={product.product_image_main}
+              alt={product.product_name}
+              className="mobile-product-image"
+              onError={(e) => {
+                e.target.src = fallbackImages[index % fallbackImages.length];
+              }}
+            />
+            
+            <h2 className="mobile-product-title">
+              {product.product_name}
+            </h2>
+            
+            <p className="mobile-product-category">
+              {product.brand_name || product.brand}
+            </p>
+            
+            <div className="mobile-product-price">
+              ₹{product.discounted_single_product_price?.toLocaleString()}
+            </div>
+            
+            {product.product_instock === false || product.no_of_product_instock === 0 ? (
+              <div className="text-center text-red-500 text-xs font-medium mt-auto">
+                Out of Stock
+              </div>
+            ) : (
+              <div className="mobile-product-buttons">
+                <button 
+                  className="mobile-btn-buy"
+                  onClick={(e) => handleBuyNow2(e, product)}
+                >
+                  {loadingBuyNow[product._id] ? "Buying..." : "Buy"}
+                </button>
+                <button 
+                  className="mobile-btn-cart"
+                  onClick={(e) => {
+                    handleAddToCart(e, product);
+                  }}
+                >
+                  {isInCart(product._id) ? `In Cart (${getItemQuantity(product._id)})` : "Cart"}
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>

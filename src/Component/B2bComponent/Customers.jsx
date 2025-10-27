@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "../../styles/mobile-responsive.css";
 
 import cust1 from "../../assets/cust1.webp";
 import cust2 from "../../assets/cust2.webp";
@@ -110,7 +111,8 @@ const Section4 = () => {
         Don’t take our word for it. Trust our customers
       </p>
 
-      <div className="flex items-center justify-center">
+      {/* Desktop Testimonials */}
+      <div className="hidden md:flex items-center justify-center">
         <div className="overflow-hidden w-full  px-4">
           <div
             className="flex transition-transform duration-700 ease-in-out"
@@ -164,8 +166,8 @@ const Section4 = () => {
         </div>
       </div>
 
-      {/* Dots */}
-      <div className="flex justify-center gap-2 mt-6">
+      {/* Desktop Dots */}
+      <div className="hidden md:flex justify-center gap-2 mt-6">
         {groupedTestimonials.map((_, index) => (
           <button
             key={index}
@@ -177,6 +179,97 @@ const Section4 = () => {
             }`}
           ></button>
         ))}
+      </div>
+
+      {/* Mobile Horizontal Scroll - Blog Style */}
+      <div className="md:hidden">
+        <div className="mobile-blog-container mobile-scroll">
+          {testimonials.map((testimonial, index) => (
+            <div
+              key={index}
+              className="mobile-blog-card mobile-touch-feedback"
+              style={{ 
+                textAlign: 'center', 
+                padding: '16px 12px',
+                minWidth: 'calc(50% - 8px)',
+                maxWidth: 'calc(50% - 8px)',
+                aspectRatio: '0.8',
+                height: 'auto'
+              }}
+            >
+              <img
+                src={testimonial.image}
+                alt={testimonial.name}
+                style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  margin: '0 auto 10px',
+                  display: 'block'
+                }}
+              />
+              <h3 style={{
+                fontSize: '12px',
+                fontWeight: '700',
+                color: '#133240',
+                marginBottom: '6px',
+                lineHeight: '1.3'
+              }}>
+                {testimonial.name}
+              </h3>
+              <p style={{
+                fontSize: '10px',
+                color: '#6b7280',
+                marginBottom: '8px',
+                lineHeight: '1.3'
+              }}>
+                {testimonial.title}
+              </p>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '3px',
+                marginBottom: '8px'
+              }}>
+                {[...Array(5)].map((_, i) => (
+                  <svg
+                    key={i}
+                    className={`w-3 h-3 fill-current ${
+                      i < testimonial.rating
+                        ? "text-yellow-500"
+                        : "text-gray-300"
+                    }`}
+                    viewBox="0 0 20 20"
+                    style={{ width: '12px', height: '12px' }}
+                  >
+                    <path d="M10 15l-5.878 3.09L5.64 12.18 1.28 8.41l6.162-.89L10 2l2.558 5.52 6.162.89-4.36 3.77 1.518 5.91z" />
+                  </svg>
+                ))}
+              </div>
+              <p style={{
+                fontSize: '9px',
+                color: '#4b5563',
+                lineHeight: '1.4',
+                marginBottom: '8px',
+                overflow: 'hidden',
+                display: '-webkit-box',
+                WebkitLineClamp: 4,
+                WebkitBoxOrient: 'vertical'
+              }}>
+                "{testimonial.text.length > 100 ? testimonial.text.substring(0, 100) + '...' : testimonial.text}"
+              </p>
+              <div style={{
+                fontSize: '10px',
+                color: '#f59e0b',
+                fontWeight: '600',
+                marginTop: 'auto'
+              }}>
+                ⭐ {testimonial.rating}/5
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

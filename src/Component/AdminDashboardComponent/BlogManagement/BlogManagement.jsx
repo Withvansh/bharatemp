@@ -319,6 +319,12 @@ const BlogManagement = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [stats, setStats] = useState({ total: 0, published: 0, draft: 0 });
   const [activeTab, setActiveTab] = useState("content");
+  const [duplicateFieldPopup, setDuplicateFieldPopup] = useState({
+    isOpen: false,
+    field: '',
+    value: '',
+    message: ''
+  });
 
   const [formData, setFormData] = useState({
     title: "",
@@ -479,6 +485,32 @@ const BlogManagement = () => {
       }
     } catch (error) {
       console.error("Error creating post:", error);
+      
+      // Handle duplicate field response
+      if (error.response?.data?.status === "DUPLICATE_FIELD") {
+        const { message, field, value } = error.response.data.data;
+        
+        setDuplicateFieldPopup({
+          isOpen: true,
+          field: field || 'Unknown',
+          value: value || 'Unknown',
+          message: message || 'This field already exists in the database.'
+        });
+        
+        // Focus on title field if slug is duplicate
+        if (field === 'slug') {
+          setTimeout(() => {
+            const titleInput = document.querySelector('input[id="title"]');
+            if (titleInput) {
+              titleInput.focus();
+              titleInput.select();
+            }
+          }, 100);
+        }
+        
+        return;
+      }
+      
       showToast(
         error.response?.data?.message || "Failed to create blog post",
         "error"
@@ -540,6 +572,32 @@ const BlogManagement = () => {
       }
     } catch (error) {
       console.error("Error updating post:", error);
+      
+      // Handle duplicate field response
+      if (error.response?.data?.status === "DUPLICATE_FIELD") {
+        const { message, field, value } = error.response.data.data;
+        
+        setDuplicateFieldPopup({
+          isOpen: true,
+          field: field || 'Unknown',
+          value: value || 'Unknown',
+          message: message || 'This field already exists in the database.'
+        });
+        
+        // Focus on title field if slug is duplicate
+        if (field === 'slug') {
+          setTimeout(() => {
+            const titleInput = document.querySelector('input[id="title"]');
+            if (titleInput) {
+              titleInput.focus();
+              titleInput.select();
+            }
+          }, 100);
+        }
+        
+        return;
+      }
+      
       showToast(
         error.response?.data?.message || "Failed to update blog post",
         "error"
@@ -1181,6 +1239,82 @@ const BlogManagement = () => {
                 </button>
                 <button style={styles.button} onClick={handleEditPost}>
                   Update Post
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Duplicate Field Popup */}
+      {duplicateFieldPopup.isOpen && (
+        <div style={styles.modal} onClick={() => setDuplicateFieldPopup({ ...duplicateFieldPopup, isOpen: false })}>
+          <div style={{
+            ...styles.modalContent,
+            maxWidth: '500px'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ fontSize: '24px', marginRight: '8px' }}>⚠️</span>
+                <h3 style={{
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  color: '#1f2937',
+                  margin: 0
+                }}>
+                  Duplicate Field Detected
+                </h3>
+              </div>
+              <button
+                onClick={() => setDuplicateFieldPopup({ ...duplicateFieldPopup, isOpen: false })}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  padding: '4px',
+                  borderRadius: '4px'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={styles.modalBody}>
+              <div style={{
+                backgroundColor: '#fef3c7',
+                border: '1px solid #f59e0b',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '16px'
+              }}>
+                <p style={{
+                  color: '#92400e',
+                  fontSize: '14px',
+                  margin: 0
+                }}>
+                  {duplicateFieldPopup.message}
+                </p>
+              </div>
+              
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ color: '#6b7280', fontSize: '14px', margin: '8px 0' }}>
+                  <span style={{ fontWeight: '500' }}>Field:</span> {duplicateFieldPopup.field?.toUpperCase()}
+                </p>
+                <p style={{ color: '#6b7280', fontSize: '14px', margin: '8px 0' }}>
+                  <span style={{ fontWeight: '500' }}>Value:</span> "{duplicateFieldPopup.value}"
+                </p>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setDuplicateFieldPopup({ ...duplicateFieldPopup, isOpen: false })}
+                  style={{
+                    ...styles.button,
+                    backgroundColor: '#3b82f6'
+                  }}
+                >
+                  OK, I'll Change It
                 </button>
               </div>
             </div>

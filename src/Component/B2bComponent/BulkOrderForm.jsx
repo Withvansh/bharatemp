@@ -66,18 +66,20 @@ const BulkOrderForm = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-[#1E3473] mb-4">
-          Request Bulk Order Quote
-        </h2>
-        <p className="text-gray-600">
-          Get customized pricing for bulk orders. Fill out the form below and our team will contact you within 24 hours.
-        </p>
-      </div>
+    <>
+      {/* Desktop Form */}
+      <div className="hidden md:block bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-[#1E3473] mb-4">
+            Request Bulk Order Quote
+          </h2>
+          <p className="text-gray-600">
+            Get customized pricing for bulk orders. Fill out the form below and our team will contact you within 24 hours.
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-gray-700 font-medium mb-2">
               Company Name *
@@ -214,69 +216,240 @@ const BulkOrderForm = () => {
               placeholder="Enter GST number (optional)"
             />
           </div>
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Delivery Address *
+            </label>
+            <textarea
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
+              required
+              rows="3"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f7941d] focus:border-transparent resize-none"
+              placeholder="Enter complete delivery address"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Additional Requirements/Description
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              rows="4"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f7941d] focus:border-transparent resize-none"
+              placeholder="Describe your specific requirements, technical specifications, or any other details..."
+            />
+          </div>
+
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-[#1E3473] mb-2">What happens next?</h3>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Our team will review your request within 24 hours</li>
+              <li>• We'll contact you with a customized quote</li>
+              <li>• Negotiate terms and finalize the order</li>
+              <li>• Fast delivery with dedicated support</li>
+            </ul>
+          </div>
+
+          <div className="text-center">
+            <button
+              type="submit"
+              disabled={loading}
+              className={`px-8 py-3 rounded-lg font-medium text-white transition-colors ${
+                loading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-[#f7941d] hover:bg-[#e88a1a] cursor-pointer'
+              }`}
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
+                  Submitting...
+                </div>
+              ) : (
+                'Submit Bulk Order Request'
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Mobile Form */}
+      <div className="md:hidden">
+        <div className="mobile-b2b-form-header">
+          <h2>Request Bulk Order Quote</h2>
+          <p>Get customized pricing for bulk orders. Fill out the form below and our team will contact you within 24 hours.</p>
         </div>
 
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">
-            Delivery Address *
-          </label>
-          <textarea
-            name="address"
-            value={formData.address}
-            onChange={handleInputChange}
-            required
-            rows="3"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f7941d] focus:border-transparent resize-none"
-            placeholder="Enter complete delivery address"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="mobile-b2b-form-grid">
+          <div className="mobile-b2b-form-field">
+            <label>Company Name *</label>
+            <input
+              type="text"
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter your company name"
+            />
+          </div>
 
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">
-            Additional Requirements/Description
-          </label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            rows="4"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f7941d] focus:border-transparent resize-none"
-            placeholder="Describe your specific requirements, technical specifications, or any other details..."
-          />
-        </div>
+          <div className="mobile-b2b-form-field">
+            <label>Contact Person *</label>
+            <input
+              type="text"
+              name="contactPerson"
+              value={formData.contactPerson}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter contact person name"
+            />
+          </div>
 
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h3 className="font-semibold text-[#1E3473] mb-2">What happens next?</h3>
-          <ul className="text-sm text-gray-600 space-y-1">
-            <li>• Our team will review your request within 24 hours</li>
-            <li>• We'll contact you with a customized quote</li>
-            <li>• Negotiate terms and finalize the order</li>
-            <li>• Fast delivery with dedicated support</li>
-          </ul>
-        </div>
+          <div className="mobile-b2b-form-field">
+            <label>Email Address *</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter email address"
+            />
+          </div>
 
-        <div className="text-center">
-          <button
-            type="submit"
-            disabled={loading}
-            className={`px-8 py-3 rounded-lg font-medium text-white transition-colors ${
-              loading 
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-[#f7941d] hover:bg-[#e88a1a] cursor-pointer'
-            }`}
-          >
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
-                Submitting...
-              </div>
-            ) : (
-              'Submit Bulk Order Request'
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
+          <div className="mobile-b2b-form-field">
+            <label>Phone Number *</label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div className="mobile-b2b-form-field">
+            <label>Product Name/Category *</label>
+            <input
+              type="text"
+              name="productName"
+              value={formData.productName}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter product name or category"
+            />
+          </div>
+
+          <div className="mobile-b2b-form-field">
+            <label>Quantity Required *</label>
+            <input
+              type="number"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleInputChange}
+              required
+              min="1"
+              placeholder="Enter quantity"
+            />
+          </div>
+
+          <div className="mobile-b2b-form-field">
+            <label>Expected Price Range</label>
+            <input
+              type="text"
+              name="expectedPrice"
+              value={formData.expectedPrice}
+              onChange={handleInputChange}
+              placeholder="e.g., ₹100-200 per unit"
+            />
+          </div>
+
+          <div className="mobile-b2b-form-field">
+            <label>Delivery Timeline</label>
+            <select
+              name="deliveryTimeline"
+              value={formData.deliveryTimeline}
+              onChange={handleInputChange}
+            >
+              <option value="">Select timeline</option>
+              <option value="1-2 weeks">1-2 weeks</option>
+              <option value="2-4 weeks">2-4 weeks</option>
+              <option value="1-2 months">1-2 months</option>
+              <option value="Flexible">Flexible</option>
+            </select>
+          </div>
+
+          <div className="mobile-b2b-form-field">
+            <label>GST Number</label>
+            <input
+              type="text"
+              name="gstNumber"
+              value={formData.gstNumber}
+              onChange={handleInputChange}
+              placeholder="Enter GST number (optional)"
+            />
+          </div>
+
+          <div className="mobile-b2b-form-field">
+            <label>Delivery Address *</label>
+            <textarea
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
+              required
+              className="mobile-b2b-form-textarea"
+              placeholder="Enter complete delivery address"
+            />
+          </div>
+
+          <div className="mobile-b2b-form-field">
+            <label>Additional Requirements/Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              className="mobile-b2b-form-textarea"
+              placeholder="Describe your specific requirements, technical specifications, or any other details..."
+            />
+          </div>
+
+          <div className="mobile-b2b-form-info">
+            <h3>What happens next?</h3>
+            <ul>
+              <li>Our team will review your request within 24 hours</li>
+              <li>We'll contact you with a customized quote</li>
+              <li>Negotiate terms and finalize the order</li>
+              <li>Fast delivery with dedicated support</li>
+            </ul>
+          </div>
+
+          <div className="mobile-b2b-form-submit">
+            <button
+              type="submit"
+              disabled={loading}
+              className="mobile-b2b-form-button"
+            >
+              {loading ? (
+                <div className="mobile-b2b-loading">
+                  <div className="mobile-b2b-spinner"></div>
+                  Submitting...
+                </div>
+              ) : (
+                'Submit Bulk Order Request'
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </>
   );
 };
 

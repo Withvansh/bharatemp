@@ -8,6 +8,7 @@ import UnauthorizedPopup from "../../../utils/UnAuthorizedPopup";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import ImageUpload from "../ImageUpload/ImageUpload.jsx";
+import DuplicateFieldPopup from "./DuplicateFieldPopup.jsx";
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -77,6 +78,12 @@ const AddProduct = () => {
   ]);
   const [loading, setLoading] = useState(false);
   const [isBulkMode, setIsBulkMode] = useState(false);
+  const [duplicateFieldPopup, setDuplicateFieldPopup] = useState({
+    isOpen: false,
+    field: '',
+    value: '',
+    message: ''
+  });
 
   // Define form steps
   const steps = [
@@ -650,21 +657,38 @@ const AddProduct = () => {
         setCurrentStep(1); // Reset to first step
       }
     } catch (error) {
-      // console.error(error);
       setLoading(false);
 
-      let errorMessage = "❌ Failed to add product to database";
-
-      if (error.response?.data?.data?.message) {
-        const message = error.response.data.data.message;
-        if (
-          message.includes("duplicate key error") &&
-          message.includes("SKU")
-        ) {
-          errorMessage = `❌ SKU "${formData.SKU}" already exists! Please use a unique SKU.`;
-        } else {
-          errorMessage = message;
+      // Handle duplicate field response
+      if (error.response?.data?.status === "DUPLICATE_FIELD") {
+        const { message, field, value } = error.response.data.data;
+        
+        // Show duplicate field popup
+        setDuplicateFieldPopup({
+          isOpen: true,
+          field: field || 'Unknown',
+          value: value || 'Unknown',
+          message: message || 'This field already exists in the database.'
+        });
+        
+        // Focus on the duplicate field if it's in current step
+        if (field === 'SKU' && currentStep === 1) {
+          setTimeout(() => {
+            const skuInput = document.querySelector('input[name="SKU"]');
+            if (skuInput) {
+              skuInput.focus();
+              skuInput.select();
+            }
+          }, 100);
         }
+        
+        return;
+      }
+
+      // Handle other errors
+      let errorMessage = "❌ Failed to add product to database";
+      if (error.response?.data?.data?.message) {
+        errorMessage = error.response.data.data.message;
       }
 
       toast.error(errorMessage, {
@@ -1903,6 +1927,15 @@ const AddProduct = () => {
         </div>
 
         {loading && <LoadingSpinner />}
+        
+        {/* Duplicate Field Popup */}
+        <DuplicateFieldPopup
+          isOpen={duplicateFieldPopup.isOpen}
+          onClose={() => setDuplicateFieldPopup({ ...duplicateFieldPopup, isOpen: false })}
+          field={duplicateFieldPopup.field}
+          value={duplicateFieldPopup.value}
+          message={duplicateFieldPopup.message}
+        />
       </div>
     </div>
   );

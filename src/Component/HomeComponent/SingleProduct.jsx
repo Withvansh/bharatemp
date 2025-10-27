@@ -28,6 +28,7 @@ import wallet from "../../assets/wallet.gif";
 import cargo from "../../assets/cargo.gif";
 import pincodes from "../../utils/pincode.json";
 import { handleBuyNow } from "../../utils/paymentUtils";
+import "../../styles/mobile-responsive.css";
 const backend = import.meta.env.VITE_BACKEND;
 
 // Function to calculate dynamic bulk prices based on product price
@@ -814,7 +815,7 @@ export default function ProductCard() {
   // console.log("Product:", product);
 
   return (
-    <div className="w-full px-4 md:px-10 lg:px-16 font-[outfit] relative pb-[100px]">
+    <div className="w-full px-4 md:px-10 lg:px-16 font-[outfit] relative pb-[100px] mobile-success-container">
       {/* Breadcrumb Navigation */}
       <nav className="w-full font-[outfit] pb-6 flex flex-wrap items-center gap-2 text-[#2F294D] text-sm md:text-base font-medium px-4 py-4 mt-4">
         <button
@@ -846,7 +847,7 @@ export default function ProductCard() {
       {/* Main Content */}
       <div className="flex flex-col gap-10 justify-between lg:flex-row">
         {/* Left: Product Images */}
-        <div className="w-full lg:w-[45%]">
+        <div className="w-full lg:w-[45%] mobile-padding">
           <div className="bg-white rounded-lg mb-4">
             <img
               src={selectedMainImage}
@@ -893,7 +894,7 @@ export default function ProductCard() {
         </div>
 
         {/* Right: Product Details */}
-        <div className="w-full lg:w-[45%] space-y-6">
+        <div className="w-full lg:w-[45%] space-y-6 mobile-padding">
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-2xl md:text-3xl font-bold text-[#2F294D]">
               {product.product_name}
@@ -974,7 +975,7 @@ export default function ProductCard() {
             <div className="flex items-center gap-4">
               <button
                 onClick={handleAddToCart}
-                className="px-8 py-3 bg-[#F7941D] cursor-pointer text-white rounded-3xl font-medium hover:bg-[#e88a1a] transition-colors"
+                className="px-6 md:px-8 py-3 md:py-3 bg-[#F7941D] cursor-pointer text-white rounded-3xl font-medium hover:bg-[#e88a1a] transition-colors mobile-checkout-button text-base"
                 disabled={!product.product_instock || product.no_of_product_instock === 0}
               >
                 Add to Cart
@@ -988,7 +989,7 @@ export default function ProductCard() {
                     setShowStockModal(true);
                   }
                 }}
-                className={`px-6 py-3 border rounded-3xl font-medium transition-colors ${
+                className={`px-4 md:px-6 py-3 border rounded-3xl font-medium transition-colors mobile-checkout-button text-base ${
                   product.no_of_product_instock > 10
                     ? "border-[#1e3473] text-[#1e3473] hover:bg-[#1e3473] hover:text-white cursor-pointer"
                     : "border-gray-300 text-gray-400 cursor-pointer"
@@ -1038,7 +1039,7 @@ export default function ProductCard() {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 items-stretch sm:items-center">
               <button
                 onClick={handleBuyNowClick}
-                className="w-full sm:w-[200px] bg-[#1e3473] text-white py-3 rounded-2xl cursor-pointer font-medium hover:bg-[#162554] transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-[200px] bg-[#1e3473] text-white py-4 md:py-3 rounded-2xl cursor-pointer font-medium hover:bg-[#162554] transition-colors flex items-center justify-center gap-2 mobile-checkout-button text-base"
               >
                 <svg
                   className="w-6 h-6"

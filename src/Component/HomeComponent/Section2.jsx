@@ -9,6 +9,7 @@ import droneImage from "../../assets/homeleft.webp";
 import { useCart } from "../../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { handleBuyNow } from "../../utils/paymentUtils";
+import "../../styles/mobile-responsive.css";
 
 // Default fallback images
 import fallbackImage1 from "../../assets/homepage1.webp";
@@ -295,7 +296,7 @@ export default function DronePartsCarousel({ products = [] }) {
             {getVisibleProducts().map((product, index) => (
               <div
                 key={product._id || index}
-                className="group hover:border-2 hover:border-[#c2c2c2] rounded-2xl hover:shadow-lg transition-all duration-500 h-[350px] hover:h-[340px]  py-2 cursor-pointer"
+                className="hidden md:block group hover:border-2 hover:border-[#c2c2c2] rounded-2xl hover:shadow-lg transition-all duration-500 h-[350px] hover:h-[340px]  py-2 cursor-pointer"
                 onClick={() => handleProductClick(product)}
               >
                 <div className="p-4 flex flex-col items-start relative h-full">
@@ -348,6 +349,55 @@ export default function DronePartsCarousel({ products = [] }) {
                     </div>
                   </div>
                   <hr />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile Horizontal Scroll */}
+          <div className="md:hidden mobile-product-container mobile-scroll">
+            {filteredProducts.map((product, index) => (
+              <div
+                key={product._id || index}
+                onClick={() => handleProductClick(product)}
+                className="mobile-product-card mobile-touch-feedback"
+              >
+                <img
+                  src={product.product_image_main}
+                  alt={product.product_name}
+                  className="mobile-product-image"
+                  onError={(e) => {
+                    e.target.src = fallbackImages[index % fallbackImages.length];
+                  }}
+                />
+                
+                <h2 className="mobile-product-title">
+                  {product.product_name}
+                </h2>
+                
+                <p className="mobile-product-category">
+                  {product.brand_name || product.brand}
+                </p>
+                
+                <div className="mobile-product-price">
+                  ₹{product.discounted_single_product_price?.toLocaleString()}
+                </div>
+                
+                <div className="mobile-product-buttons">
+                  <button 
+                    className="mobile-btn-buy"
+                    onClick={(e) => handleBuyNowClick(e, product)}
+                  >
+                    {loadingBuyNow[product._id] ? "Buying..." : "Buy"}
+                  </button>
+                  <button 
+                    className="mobile-btn-cart"
+                    onClick={(e) => {
+                      handleAddToCart(e, product);
+                    }}
+                  >
+                    {isInCart(product._id) ? `In Cart (${getItemQuantity(product._id)})` : "Cart"}
+                  </button>
                 </div>
               </div>
             ))}

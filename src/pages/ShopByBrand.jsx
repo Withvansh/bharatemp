@@ -127,8 +127,8 @@ const ShopByBrand = () => {
           </p>
         </div>
 
-        {/* ✅ Filter by Brand Section */}
-        <div className="mb-10">
+        {/* Desktop Filter by Brand Section */}
+        <div className="hidden md:block mb-10">
           <h2 className="text-lg font-semibold text-white bg-[#1e3473] px-6 py-3 w-full rounded-3xl mb-4">
             Filter by Brand
           </h2>
@@ -166,10 +166,35 @@ const ShopByBrand = () => {
           </div>
         </div>
 
+        {/* Mobile Filter by Brand Section */}
+        <div className="md:hidden mobile-brand-section">
+          <h2 className="mobile-brand-title">Filter by Brand</h2>
+          <div className="mobile-brand-filter">
+            {brands.map((brand, idx) => {
+              const IconComponent = brandIcons[brand] || FaCogs;
+              return (
+                <div
+                  key={idx}
+                  className={`mobile-brand-item ${
+                    selectedBrands.includes(brand) ? "selected" : ""
+                  }`}
+                  onClick={() => handleToggle(brand)}
+                >
+                  <IconComponent className="flex-shrink-0" />
+                  <span className="truncate">{brand}</span>
+                </div>
+              );
+            })}
+          </div>
+          <button onClick={handleClear} className="mobile-clear-btn">
+            Clear All
+          </button>
+        </div>
+
         {/* ✅ Products Grid by Brand */}
         <div className="grid grid-cols-1 gap-8">
           {Object.entries(brandProducts).map(([brand, products]) => (
-            <div key={brand} className="bg-white rounded-2xl p-6 shadow-sm">
+            <div key={brand} className="bg-white rounded-2xl p-6 shadow-sm hidden md:block">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-semibold text-[#1e3473] flex items-center gap-3">
                   {brand}
@@ -179,7 +204,8 @@ const ShopByBrand = () => {
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Desktop Grid */}
+              <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {products.slice(0, 4).map((product) => (
                   <Link
                     key={product._id}
@@ -247,13 +273,97 @@ const ShopByBrand = () => {
                   </Link>
                 ))}
               </div>
+
+              {/* Mobile Horizontal Scroll - Zepto Style */}
+              <div className="md:hidden mobile-product-container mobile-scroll">
+                {products.map((product) => (
+                  <Link
+                    key={product._id}
+                    to={`/product/${product._id}`}
+                    className="mobile-product-card mobile-touch-feedback"
+                  >
+                    <img
+                      src={product.product_image_main}
+                      alt={product.product_name}
+                      className="mobile-product-image"
+                    />
+                    <h3 className="mobile-product-title">
+                      {product.product_name}
+                    </h3>
+                    <p className="mobile-product-category">
+                      {product.category_name}
+                    </p>
+                    <div className="mobile-product-price">
+                      ₹{product.discounted_single_product_price?.toLocaleString()}
+                    </div>
+                    {product.stock_quantity > 0 ? (
+                      <div className="mobile-product-buttons">
+                        <button className="mobile-btn-buy">Buy</button>
+                        <button className="mobile-btn-cart">Cart</button>
+                      </div>
+                    ) : (
+                      <div className="text-center text-red-500 text-xs font-medium mt-auto">
+                        Out of Stock
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* Mobile Brand Products */}
+          {Object.entries(brandProducts).map(([brand, products]) => (
+            <div key={brand} className="md:hidden mobile-brand-products">
+              <div className="mobile-brand-header">
+                <h2 className="mobile-brand-name">{brand}</h2>
+                <span className="mobile-brand-count">
+                  {products.length} Products
+                </span>
+              </div>
+              <div className="mobile-product-container mobile-scroll">
+                {products.map((product) => (
+                  <Link
+                    key={product._id}
+                    to={`/product/${product._id}`}
+                    className="mobile-brand-product-card mobile-touch-feedback"
+                  >
+                    <img
+                      src={product.product_image_main}
+                      alt={product.product_name}
+                      className="mobile-product-image"
+                    />
+                    <h3 className="mobile-product-title">
+                      {product.product_name}
+                    </h3>
+                    <p className="mobile-product-category">
+                      {product.category_name}
+                    </p>
+                    <div className="mobile-product-price">
+                      ₹{product.discounted_single_product_price?.toLocaleString()}
+                    </div>
+                    {product.stock_quantity > 0 ? (
+                      <div className="mobile-product-buttons">
+                        <button className="mobile-btn-buy">Buy</button>
+                        <button className="mobile-btn-cart">Cart</button>
+                      </div>
+                    ) : (
+                      <div className="text-center text-red-500 text-xs font-medium mt-auto">
+                        Out of Stock
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
             </div>
           ))}
 
           {Object.keys(brandProducts).length === 0 && (
-            <p className="text-center text-gray-600">
-              No products available for selected brand(s).
-            </p>
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg">
+                No products available for selected brand(s).
+              </p>
+            </div>
           )}
         </div>
       </div>

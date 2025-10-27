@@ -77,7 +77,7 @@ export default function B2BIndustriesSection() {
       </h2>
 
       {/* Feature Cards */}
-      <div className="flex flex-wrap justify-center gap-8 mb-10">
+      <div className="hidden md:flex flex-wrap justify-center gap-8 mb-10">
         {features.map((feature, index) => (
           <div
             key={index}
@@ -94,6 +94,19 @@ export default function B2BIndustriesSection() {
         ))}
        
       </div>
+
+      {/* Mobile Feature Cards */}
+      <div className="md:hidden mobile-b2b-features mb-10">
+        {features.map((feature, index) => (
+          <div key={index} className="mobile-b2b-feature-card">
+            <img src={feature.img} className="mobile-b2b-feature-icon" />
+            <div className="mobile-b2b-feature-content">
+              <h3>{feature.title}</h3>
+              <p>{feature.subtitle}</p>
+            </div>
+          </div>
+        ))}
+      </div>
   </section>
       {/* Brands */}
       <div className='flex justify-center'>
@@ -102,7 +115,7 @@ export default function B2BIndustriesSection() {
       </h2>
       </div>
       <Marquee pauseOnHover gradient={false} speed={50}>
-      <div className="flex gap-8 items-center py-4 mb-16 w-full ">
+      <div className="flex gap-8 items-center py-4 mb-16 w-full mobile-b2b-marquee">
       
         {brands.map((brand, index) => (
           <div

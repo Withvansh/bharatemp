@@ -69,6 +69,8 @@ import PhonePePaymentStatus from "./pages/PhonePePaymentStatus.jsx";
 import PhonePayCancel from "./pages/PhonePayCancel.jsx";
 import PaymentRetry from "./pages/PaymentRetry.jsx";
 import PaymentFallback from "./pages/PaymentFallback.jsx";
+import PaymentSuccess from "./pages/PaymentSuccess.jsx";
+import PaymentCallback from "./pages/PaymentCallback.jsx";
 import AuthSuccess from "./pages/AuthSuccess.jsx";
 import AuthError from "./pages/AuthError.jsx";
 
@@ -137,6 +139,8 @@ const AppContent = () => {
         <Route path="/payment-cancelled/:orderId?" element={<PaymentCancelled />} />
         <Route path="/payment-retry/:orderId" element={<PaymentRetry />} />
         <Route path="/payment-fallback" element={<PaymentFallback />} />
+        <Route path="/payment-success/:orderId" element={<PaymentSuccess />} />
+        <Route path="/payment-callback/:paymentId" element={<PaymentCallback />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/b2bpage" element={<Ouronline />} />
         <Route path="/subcategory" element={<Subcategory />} />

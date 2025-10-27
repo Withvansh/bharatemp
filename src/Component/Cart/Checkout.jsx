@@ -6,6 +6,8 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { jwtDecode } from "jwt-decode";
+import "../../styles/mobile-responsive.css";
+import "../../styles/mobile-responsive.css";
 
 // Move AddressForm outside the main component to prevent re-renders
 const AddressForm = ({
@@ -16,7 +18,7 @@ const AddressForm = ({
   onInputChange,
   errors,
 }) => (
-  <div className="border-2 border-gray-300 rounded-2xl p-6 mb-6 relative">
+  <div className="border-2 border-gray-300 rounded-2xl p-4 md:p-6 mb-6 relative mobile-checkout-form">
     <button
       onClick={onClose}
       className="absolute right-4 cursor-pointer top-4 w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full text-gray-600 hover:bg-gray-300"
@@ -125,7 +127,7 @@ const AddressForm = ({
 
       <button
         onClick={onSubmit}
-        className="bg-[#f7941d] cursor-pointer text-white px-6 py-2 rounded-3xl text-sm font-medium"
+        className="bg-[#f7941d] cursor-pointer text-white px-6 py-3 rounded-3xl text-base font-medium mobile-checkout-button"
       >
         {isEditing ? "Save Address" : "Add Address"}
       </button>
@@ -1020,9 +1022,9 @@ const Checkout = () => {
           </div>
         </nav>
 
-        <div className="flex flex-col md:flex-row gap-6 mt-6">
+        <div className="flex flex-col lg:flex-row gap-6 mt-6">
           {/* Delivery Address Section */}
-          <div className="p-0 lg:p-6 md:w-[65%]">
+          <div className="p-0 lg:p-6 lg:w-[65%]">
             <h1 className="text-xl font-bold text-gray-800 mb-4">
               Select Delivery Address
             </h1>
@@ -1162,7 +1164,7 @@ const Checkout = () => {
           </div>
 
           {/* Order Summary Section */}
-          <div className="bg-gray-50 rounded-xl p-6 md:w-[35%] font-[outfit]">
+          <div className="bg-gray-50 rounded-xl p-4 md:p-6 lg:w-[35%] font-[outfit]">
             {selectedAddress && (
               <div className="bg-white p-4 rounded-xl mb-6">
                 <h3 className="text-lg font-medium mb-2">
@@ -1228,7 +1230,7 @@ const Checkout = () => {
                 !selectedAddress || processingPayment
                   ? "bg-gray-400"
                   : "bg-[#f7941d]"
-              } cursor-pointer text-white py-3 rounded-2xl font-medium mt-4 flex items-center justify-center`}
+              } cursor-pointer text-white py-4 md:py-3 rounded-2xl font-medium mt-4 flex items-center justify-center text-base md:text-sm mobile-checkout-button`}
               disabled={!selectedAddress || processingPayment}
             >
               {processingPayment ? (

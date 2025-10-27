@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import LoadingSpinner from "../../utils/LoadingSpinner";
 import { fetchProductsDynamic } from "../../utils/api";
 import axios from "axios";
+import "../../styles/mobile-responsive.css";
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -997,8 +998,8 @@ const Product = () => {
                 )}
               </div>
 
-              {/* Product Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {/* Desktop Product Grid */}
+              <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {loading ? (
                   <div className="col-span-full flex justify-center items-center py-40">
                     <LoadingSpinner />
@@ -1213,9 +1214,363 @@ const Product = () => {
                 )}
               </div>
 
-              {/* Pagination */}
-              {displayedProducts.length > productsPerPage && (
-                <div className="flex justify-end mt-8">
+              {/* Mobile Product Grid - Multiple Rows */}
+              <div className="md:hidden">
+                {loading ? (
+                  <div className="flex justify-center items-center w-full py-20">
+                    <LoadingSpinner />
+                  </div>
+                ) : getPaginatedProducts().length > 0 ? (
+                  <>
+                    {/* First Row - Horizontal Scroll */}
+                    <div className="mobile-section-header">Featured Products</div>
+                    <div className="mobile-product-container mobile-scroll">
+                      {getPaginatedProducts().slice(0, 6).map((product, index) => (
+                        <div
+                          key={index}
+                          className="mobile-product-card mobile-touch-feedback"
+                          onClick={() => handleProductClick(product)}
+                        >
+                          <img
+                            src={
+                              product.product_image_main ||
+                              (Array.isArray(product.product_image_sub) &&
+                                product.product_image_sub[0]) ||
+                              "/api/placeholder/400/300"
+                            }
+                            alt={product.product_name || "Product"}
+                            className="mobile-product-image"
+                            onError={(e) => {
+                              e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='%236b7280' text-anchor='middle' dy='.3em'%3EProduct Image%3C/text%3E%3C/svg%3E";
+                            }}
+                          />
+                          
+                          <h2 className="mobile-product-title">
+                            {product.product_name || "Unnamed Product"}
+                          </h2>
+                          
+                          <p className="mobile-product-category">
+                            {product.category_name || "Uncategorized"}
+                          </p>
+                          
+                          <div className="mobile-product-price">
+                            ₹
+                            {(
+                              Number(product.discounted_single_product_price) ||
+                              Number(product.non_discounted_price) ||
+                              0
+                            ).toLocaleString()}
+                          </div>
+                          
+                          {product.product_instock === false || product.no_of_product_instock === 0 ? (
+                            <div className="text-center text-red-500 text-xs font-medium mt-auto">
+                              Out of Stock
+                            </div>
+                          ) : (
+                            <div className="mobile-product-buttons">
+                              <button 
+                                className="mobile-btn-buy"
+                                onClick={(e) => handleBuyNowClick(e, product)}
+                              >
+                                Buy
+                              </button>
+                              <button 
+                                className="mobile-btn-cart"
+                                onClick={(e) => {
+                                  handleAddToCart(e, product);
+                                  toast.success("Added!", {
+                                    position: "top-right",
+                                    autoClose: 1000,
+                                  });
+                                }}
+                              >
+                                Cart
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Row Separator */}
+                    <div className="mobile-row-separator"></div>
+
+                    {/* Second Row - Horizontal Scroll */}
+                    {getPaginatedProducts().length > 6 && (
+                      <>
+                        <div className="mobile-section-header">More Products</div>
+                        <div className="mobile-product-container mobile-scroll">
+                          {getPaginatedProducts().slice(6, 12).map((product, index) => (
+                            <div
+                              key={index + 6}
+                              className="mobile-product-card mobile-touch-feedback"
+                              onClick={() => handleProductClick(product)}
+                            >
+                              <img
+                                src={
+                                  product.product_image_main ||
+                                  (Array.isArray(product.product_image_sub) &&
+                                    product.product_image_sub[0]) ||
+                                  "/api/placeholder/400/300"
+                                }
+                                alt={product.product_name || "Product"}
+                                className="mobile-product-image"
+                                onError={(e) => {
+                                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='%236b7280' text-anchor='middle' dy='.3em'%3EProduct Image%3C/text%3E%3C/svg%3E";
+                                }}
+                              />
+                              
+                              <h2 className="mobile-product-title">
+                                {product.product_name || "Unnamed Product"}
+                              </h2>
+                              
+                              <p className="mobile-product-category">
+                                {product.category_name || "Uncategorized"}
+                              </p>
+                              
+                              <div className="mobile-product-price">
+                                ₹
+                                {(
+                                  Number(product.discounted_single_product_price) ||
+                                  Number(product.non_discounted_price) ||
+                                  0
+                                ).toLocaleString()}
+                              </div>
+                              
+                              {product.product_instock === false || product.no_of_product_instock === 0 ? (
+                                <div className="text-center text-red-500 text-xs font-medium mt-auto">
+                                  Out of Stock
+                                </div>
+                              ) : (
+                                <div className="mobile-product-buttons">
+                                  <button 
+                                    className="mobile-btn-buy"
+                                    onClick={(e) => handleBuyNowClick(e, product)}
+                                  >
+                                    Buy
+                                  </button>
+                                  <button 
+                                    className="mobile-btn-cart"
+                                    onClick={(e) => {
+                                      handleAddToCart(e, product);
+                                      toast.success("Added!", {
+                                        position: "top-right",
+                                        autoClose: 1000,
+                                      });
+                                    }}
+                                  >
+                                    Cart
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Third Row - Horizontal Scroll for remaining products */}
+                    {getPaginatedProducts().length > 12 && (
+                      <>
+                        <div className="mobile-row-separator"></div>
+                        <div className="mobile-section-header">All Products</div>
+                        <div className="mobile-product-container mobile-scroll">
+                          {getPaginatedProducts().slice(12, 24).map((product, index) => (
+                            <div
+                              key={index + 12}
+                              className="mobile-product-card mobile-touch-feedback"
+                              onClick={() => handleProductClick(product)}
+                            >
+                              <img
+                                src={
+                                  product.product_image_main ||
+                                  (Array.isArray(product.product_image_sub) &&
+                                    product.product_image_sub[0]) ||
+                                  "/api/placeholder/400/300"
+                                }
+                                alt={product.product_name || "Product"}
+                                className="mobile-product-image"
+                                onError={(e) => {
+                                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='%236b7280' text-anchor='middle' dy='.3em'%3EProduct Image%3C/text%3E%3C/svg%3E";
+                                }}
+                              />
+                              
+                              <h2 className="mobile-product-title">
+                                {product.product_name || "Unnamed Product"}
+                              </h2>
+                              
+                              <p className="mobile-product-category">
+                                {product.category_name || "Uncategorized"}
+                              </p>
+                              
+                              <div className="mobile-product-price">
+                                ₹
+                                {(
+                                  Number(product.discounted_single_product_price) ||
+                                  Number(product.non_discounted_price) ||
+                                  0
+                                ).toLocaleString()}
+                              </div>
+                              
+                              {product.product_instock === false || product.no_of_product_instock === 0 ? (
+                                <div className="text-center text-red-500 text-xs font-medium mt-auto">
+                                  Out of Stock
+                                </div>
+                              ) : (
+                                <div className="mobile-product-buttons">
+                                  <button 
+                                    className="mobile-btn-buy"
+                                    onClick={(e) => handleBuyNowClick(e, product)}
+                                  >
+                                    Buy
+                                  </button>
+                                  <button 
+                                    className="mobile-btn-cart"
+                                    onClick={(e) => {
+                                      handleAddToCart(e, product);
+                                      toast.success("Added!", {
+                                        position: "top-right",
+                                        autoClose: 1000,
+                                      });
+                                    }}
+                                  >
+                                    Cart
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Fourth Row - More horizontal scroll */}
+                    {getPaginatedProducts().length > 24 && (
+                      <>
+                        <div className="mobile-row-separator"></div>
+                        <div className="mobile-section-header">Trending Now</div>
+                        <div className="mobile-product-container mobile-scroll">
+                          {getPaginatedProducts().slice(24, 36).map((product, index) => (
+                            <div
+                              key={index + 24}
+                              className="mobile-product-card mobile-touch-feedback"
+                              onClick={() => handleProductClick(product)}
+                            >
+                              <img
+                                src={
+                                  product.product_image_main ||
+                                  (Array.isArray(product.product_image_sub) &&
+                                    product.product_image_sub[0]) ||
+                                  "/api/placeholder/400/300"
+                                }
+                                alt={product.product_name || "Product"}
+                                className="mobile-product-image"
+                                onError={(e) => {
+                                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='%236b7280' text-anchor='middle' dy='.3em'%3EProduct Image%3C/text%3E%3C/svg%3E";
+                                }}
+                              />
+                              
+                              <h2 className="mobile-product-title">
+                                {product.product_name || "Unnamed Product"}
+                              </h2>
+                              
+                              <p className="mobile-product-category">
+                                {product.category_name || "Uncategorized"}
+                              </p>
+                              
+                              <div className="mobile-product-price">
+                                ₹
+                                {(
+                                  Number(product.discounted_single_product_price) ||
+                                  Number(product.non_discounted_price) ||
+                                  0
+                                ).toLocaleString()}
+                              </div>
+                              
+                              {product.product_instock === false || product.no_of_product_instock === 0 ? (
+                                <div className="text-center text-red-500 text-xs font-medium mt-auto">
+                                  Out of Stock
+                                </div>
+                              ) : (
+                                <div className="mobile-product-buttons">
+                                  <button 
+                                    className="mobile-btn-buy"
+                                    onClick={(e) => handleBuyNowClick(e, product)}
+                                  >
+                                    Buy
+                                  </button>
+                                  <button 
+                                    className="mobile-btn-cart"
+                                    onClick={(e) => {
+                                      handleAddToCart(e, product);
+                                      toast.success("Added!", {
+                                        position: "top-right",
+                                        autoClose: 1000,
+                                      });
+                                    }}
+                                  >
+                                    Cart
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Load More Button */}
+                    {getPaginatedProducts().length > 36 && (
+                      <button
+                        onClick={() => {
+                          navigate('/allproducts');
+                        }}
+                        className="mobile-load-more"
+                      >
+                        View All {displayedProducts.length} Products
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full py-16 text-center">
+                    <div className="bg-white rounded-xl p-8 mx-4">
+                      <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-8 w-8 text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-800 mb-2">
+                        No products found
+                      </h3>
+                      <p className="text-gray-500 text-sm mb-4">
+                        Try adjusting your filters
+                      </p>
+                      <button
+                        onClick={clearAllFilters}
+                        className="bg-[#f7941d] text-white px-4 py-2 rounded-full text-sm font-medium"
+                      >
+                        Clear Filters
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop Pagination */}
+              <div className="hidden md:block">
+                {displayedProducts.length > productsPerPage && (
+                  <div className="flex justify-end mt-8">
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() =>
@@ -1291,8 +1646,9 @@ const Product = () => {
                       Next
                     </button>
                   </div>
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

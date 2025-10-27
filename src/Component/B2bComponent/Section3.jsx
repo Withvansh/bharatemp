@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 
 const OnlinePresenceSection = () => {
   return (
-    <div className="bg-[#1E3473] lg:h-[488px] h-auto text-white rounded-xl p-6 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+    <>
+    <div className="bg-[#1E3473] lg:h-[488px] h-auto text-white rounded-xl p-6 md:p-12 flex-col md:flex-row items-center justify-between gap-8 hidden md:flex">
       {/* Left Image */}
       <div className="w-full md:w-1/2 flex justify-center">
         <img
@@ -30,6 +31,25 @@ const OnlinePresenceSection = () => {
 
 
     </div>
+
+    {/* Mobile Layout */}
+    <div className="md:hidden mobile-b2b-presence">
+      <img
+        src={map}
+        alt="India Map"
+        className="mobile-b2b-presence-image"
+      />
+      <div className="mobile-b2b-presence-content">
+        <h2 className="mobile-b2b-presence-title">Our Online presence</h2>
+        <p className="mobile-b2b-presence-text">
+          Over 10,000 pincodes reached and counting! We collaborate with India's finest courier services to bring you fast, seamless deliveries wherever you are.
+        </p>
+        <Link to="/allproducts" className="mobile-b2b-presence-button">
+          Shop Now
+        </Link>
+      </div>
+    </div>
+    </>
   );
 };
 

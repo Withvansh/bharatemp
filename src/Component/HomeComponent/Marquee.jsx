@@ -40,16 +40,16 @@ const brands = [
 
 export default function B2BIndustriesSection() {
   const renderBrandSet = (keyPrefix = '') => (
-    <div className="flex items-center py-4 whitespace-nowrap">
+    <div className="flex items-center py-2 md:py-4 whitespace-nowrap">
       {brands.map((brand, index) => (
         <div
           key={`${keyPrefix}${index}`}
-          className="inline-flex items-center justify-center flex-shrink-0 mx-8 w-40"
+          className="inline-flex items-center justify-center flex-shrink-0 mx-4 md:mx-8 w-20 md:w-40"
         >
           <img
             src={brand.img}
             alt={brand.alt}
-            className="h-32 w-auto max-w-[140px] object-contain transition-transform duration-300 hover:scale-105"
+            className="h-16 md:h-32 w-auto max-w-[70px] md:max-w-[140px] object-contain transition-transform duration-300 hover:scale-105"
             loading="lazy"
             decoding="async"
             onError={(e) => {

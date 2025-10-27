@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FaChevronRight } from 'react-icons/fa';
+import '../styles/mobile-responsive.css';
 
 const SubCategories = () => {
   const [searchParams] = useSearchParams();
@@ -45,11 +46,12 @@ const SubCategories = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white py-12">
+    <div className="min-h-screen bg-white py-6 md:py-12">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">All Categories</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 md:mb-8">All Categories</h1>
         
-        <div className="flex gap-8">
+        {/* Desktop Layout */}
+        <div className="hidden md:flex gap-8">
           {/* Left Sidebar - Categories */}
           <div className="w-1/4">
             <div className="bg-gray-50 rounded-lg p-4">
@@ -96,6 +98,49 @@ const SubCategories = () => {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Mobile Layout */}
+        <div className="md:hidden">
+          {/* Mobile Categories Horizontal Scroll */}
+          <div className="mobile-categories-container mobile-scroll mb-6">
+            {Object.keys(subcategories).map((category, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveCategory(category)}
+                className={`mobile-category-item ${
+                  activeCategory === category 
+                    ? 'mobile-category-active' 
+                    : 'mobile-category-inactive'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile Subcategories Grid */}
+          <div className="mobile-subcategories-grid">
+            {subcategories[activeCategory]?.map((subcat, index) => (
+              <Link 
+                key={index}
+                to={`/allproducts?category=${activeCategory}&subcategory=${subcat.name.toLowerCase()}`}
+                className="mobile-subcategory-card mobile-touch-feedback"
+              >
+                <div className="mobile-subcategory-image-container">
+                  <img 
+                    src={subcat.image}
+                    alt={subcat.name}
+                    className="mobile-subcategory-image"
+                  />
+                  <div className="mobile-subcategory-overlay">
+                    <h3 className="mobile-subcategory-title">{subcat.name}</h3>
+                    <p className="mobile-subcategory-desc">{subcat.description}</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

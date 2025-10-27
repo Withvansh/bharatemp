@@ -68,7 +68,8 @@ const OnlinePresenceSection = () => {
       <div className="px-6 py-10 md:px-16">
         <Section3 />
       </div>
-      <div className="w-full flex flex-col items-center py-12 lg:py-24 px-4 md:px-12 lg:px-20 bg-gradient-to-b from-white to-blue-50">
+      {/* Desktop Sectors Section */}
+  <div className="hidden md:flex w-full flex-col items-center py-12 lg:py-24 px-4 md:px-12 lg:px-20 bg-gradient-to-b from-white to-blue-50">
   <div className="max-w-6xl w-full text-center">
     <h2 className="text-4xl md:text-5xl font-bold lg:text-[52px] text-[#1E3473] mb-6">
       B2B Sectors We Serve
@@ -94,9 +95,41 @@ const OnlinePresenceSection = () => {
     </div>
   </div>
 </div>
+
+  {/* Mobile Sectors Section */}
+  <div className="md:hidden mobile-b2b-sectors">
+    <div className="mobile-b2b-sectors-header">
+      <h2 className="mobile-b2b-sectors-title">
+        B2B Sectors We Serve
+      </h2>
+      <p className="mobile-b2b-sectors-subtitle">
+        We partner with innovative industries to deliver cutting-edge solutions
+      </p>
+    </div>
+    
+    <div className="mobile-b2b-sectors-grid">
+      {sectors.map((sector) => (
+        <div key={sector.id} className="mobile-b2b-sector-card">
+          <div className="mobile-b2b-sector-icon">
+            <sector.icon />
+          </div>
+          <span className="mobile-b2b-sector-name">
+            {sector.name}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
       {/* Bulk Order Form Section */}
-      <div className="px-6 py-16 md:px-16 bg-gray-50">
+      <div className="px-6 py-16 md:px-16 bg-gray-50 hidden md:block">
         <BulkOrderForm />
+      </div>
+      
+      {/* Mobile Bulk Order Form */}
+      <div className="md:hidden py-16 bg-gray-50">
+        <div className="mobile-b2b-form">
+          <BulkOrderForm />
+        </div>
       </div>
       
       <div id="customer-section" className="px-6 py-10 md:px-16">

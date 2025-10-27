@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import "../styles/mobile-responsive.css";
 
 const BlogsSection = () => {
   const [blogs, setBlogs] = useState([]);
@@ -97,10 +98,10 @@ const BlogsSection = () => {
           </p>
         </div>
 
-        {/* Blogs Grid */}
+        {/* Desktop Blogs Grid */}
         {blogs.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               {blogs.map((blog) => (
                 <div
                   key={blog._id}
@@ -168,11 +169,81 @@ const BlogsSection = () => {
               ))}
             </div>
 
+            {/* Mobile Blogs Scroll - Zepto Style */}
+            <div className="md:hidden">
+              <div className="mobile-blog-container mobile-scroll">
+                {blogs.map((blog) => (
+                  <div
+                    key={blog._id}
+                    className="mobile-blog-card mobile-touch-feedback"
+                  >
+                    {/* Featured Image */}
+                    {blog.featured_image_url && (
+                      <img
+                        src={blog.featured_image_url}
+                        alt={blog.title}
+                        className="mobile-blog-image"
+                      />
+                    )}
+
+                    {/* Content */}
+                    <div className="mobile-blog-content">
+                      {/* Tags */}
+                      {blog.tags && blog.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-1">
+                          {blog.tags.slice(0, 1).map((tag, index) => (
+                            <span
+                              key={index}
+                              className="bg-blue-100 text-blue-800 px-1 py-0.5 rounded-full"
+                              style={{fontSize: '8px'}}
+                            >
+                              {tag.length > 8 ? tag.substring(0, 8) + '...' : tag}
+                            </span>
+                          ))}
+                          {blog.tags.length > 1 && (
+                            <span className="text-gray-500" style={{fontSize: '8px'}}>
+                              +{blog.tags.length - 1}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Title */}
+                      <h3 className="mobile-blog-title">
+                        {blog.title}
+                      </h3>
+
+                      {/* Excerpt */}
+                      {blog.excerpt && (
+                        <p className="mobile-blog-excerpt">
+                          {truncateText(blog.excerpt, 80)}
+                        </p>
+                      )}
+
+                      {/* Meta Info */}
+                      <div className="mobile-blog-meta">
+                        <span>{formatDate(blog.created_at)}</span>
+                        <span>{blog.view_count || 0} views</span>
+                      </div>
+
+                      {/* Read More Link */}
+                      <Link
+                        to={`/blog/${blog.slug}`}
+                        className="mobile-blog-link"
+                      >
+                        Read More →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* View All Button */}
             <div className="text-center">
               <Link
                 to="/blogs"
-                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200"
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 md:py-3 md:px-8 md:text-base py-2 px-4 text-sm"
               >
                 View All Blogs
               </Link>
@@ -185,7 +256,7 @@ const BlogsSection = () => {
             </div>
             <Link
               to="/blogs"
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200"
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 md:py-3 md:px-8 md:text-base py-2 px-4 text-sm"
             >
               View All Blogs
             </Link>
