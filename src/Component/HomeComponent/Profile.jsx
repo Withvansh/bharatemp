@@ -244,7 +244,7 @@ const OrderModal = ({ order, onClose, onOrderUpdate }) => {
           <div className="pt-6 border-t border-gray-200">
             <div className="flex flex-col sm:flex-row gap-3">
               {/* Invoice Button - Show for Processing and Delivered orders */}
-              {(order.status === 'Processing' || order.status === 'Delivered') && (
+              {(order.status === 'Processing' || order.status === 'Delivered' || order.payment_status === 'Paid') && (
                 <button 
                   className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-xl font-medium hover:bg-blue-700 transition-colors duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2"
                   onClick={() => setShowInvoiceViewer(true)}
