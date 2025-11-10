@@ -1,87 +1,72 @@
+import React from "react";
 import { Link } from "react-router-dom";
-import { FaShoppingBag, FaTags, FaBuilding, FaTruck, FaPhone, FaWhatsapp } from "react-icons/fa";
+import { FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
 
 const MobileQuickActions = () => {
-  const quickActions = [
-    {
-      icon: <FaShoppingBag className="text-[#F7941D]" size={20} />,
-      title: "All Products",
-      subtitle: "Browse catalog",
-      link: "/product",
-      bgColor: "bg-orange-50",
-    },
-    {
-      icon: <FaTags className="text-blue-600" size={20} />,
-      title: "Shop by Brand",
-      subtitle: "Top brands",
-      link: "/shopbybrand",
-      bgColor: "bg-blue-50",
-    },
-    {
-      icon: <FaBuilding className="text-green-600" size={20} />,
-      title: "B2B Enquiry",
-      subtitle: "Bulk orders",
-      link: "/b2bpage",
-      bgColor: "bg-green-50",
-    },
-    {
-      icon: <FaTruck className="text-purple-600" size={20} />,
-      title: "Track Order",
-      subtitle: "Order status",
-      link: "/track-order",
-      bgColor: "bg-purple-50",
-    },
-  ];
-
   return (
-    <div className="md:hidden bg-white border-b border-gray-100">
-      {/* Quick Actions Grid */}
-      <div className="px-4 py-3">
-        <div className="grid grid-cols-2 gap-3">
-          {quickActions.map((action, index) => (
-            <Link
-              key={index}
-              to={action.link}
-              className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-[#F7941D] transition-all duration-200 hover:shadow-sm"
-            >
-              <div className={`p-2 rounded-lg ${action.bgColor}`}>
-                {action.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold text-gray-900 truncate">
-                  {action.title}
-                </h3>
-                <p className="text-xs text-gray-500 truncate">
-                  {action.subtitle}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+    <>
+      {/* Keep existing product links */}
+      {/* <div className="md:hidden grid grid-cols-2 gap-3 p-4 bg-white">
+        <Link
+          to="/allproducts"
+          className="flex flex-col items-center justify-center bg-orange-50 rounded-xl py-3 border border-orange-100 hover:shadow-md transition"
+        >
+          <div className="text-3xl">🛍️</div>
+          <h3 className="font-semibold text-sm text-gray-800">All Products</h3>
+          <p className="text-xs text-gray-500">Browse catalog</p>
+        </Link>
 
-      {/* Contact Actions */}
-      <div className="px-4 pb-3">
-        <div className="flex gap-2">
-          <a
-            href="tel:+919403893115"
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors"
-          >
-            <FaPhone size={16} />
-            <span className="text-sm font-medium">Call Us</span>
-          </a>
-          <a
-            href="https://wa.link/594khg"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-green-50 text-green-700 rounded-xl hover:bg-green-100 transition-colors"
-          >
-            <FaWhatsapp size={16} />
-            <span className="text-sm font-medium">WhatsApp</span>
-          </a>
-        </div>
+        <Link
+          to="/shopbybrand"
+          className="flex flex-col items-center justify-center bg-blue-50 rounded-xl py-3 border border-blue-100 hover:shadow-md transition"
+        >
+          <div className="text-3xl">🏷️</div>
+          <h3 className="font-semibold text-sm text-gray-800">Shop by Brand</h3>
+          <p className="text-xs text-gray-500">Top brands</p>
+        </Link>
+
+        <Link
+          to="/b2bpage"
+          className="flex flex-col items-center justify-center bg-green-50 rounded-xl py-3 border border-green-100 hover:shadow-md transition"
+        >
+          <div className="text-3xl">🏢</div>
+          <h3 className="font-semibold text-sm text-gray-800">B2B Enquiry</h3>
+          <p className="text-xs text-gray-500">Bulk orders</p>
+        </Link>
+
+        <Link
+          to="/track-order"
+          className="flex flex-col items-center justify-center bg-purple-50 rounded-xl py-3 border border-purple-100 hover:shadow-md transition"
+        >
+          <div className="text-3xl">🚚</div>
+          <h3 className="font-semibold text-sm text-gray-800">Track Order</h3>
+          <p className="text-xs text-gray-500">Order status</p>
+        </Link>
+      </div> */}
+
+      {/* Floating Action Buttons for mobile */}
+      <div className="md:hidden fixed bottom-20 right-4 flex flex-col gap-3 z-50">
+        {/* WhatsApp Button */}
+        <a
+          href="https://wa.me/919560021660"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-green-500 hover:bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110"
+          aria-label="Chat on WhatsApp"
+        >
+          <FaWhatsapp size={22} />
+        </a>
+
+        {/* Call Button */}
+        <a
+          href="tel:+919560021660"
+          className="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform transform hover:scale-110"
+          aria-label="Call Us"
+        >
+          <FaPhoneAlt size={20} />
+        </a>
       </div>
-    </div>
+    </>
   );
 };
 

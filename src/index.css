@@ -30,6 +30,10 @@ body {
     border-radius: 0;
   }
   
+  .img-glow:hover {
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
   /* App-like button styles */
   button {
     cursor: pointer;

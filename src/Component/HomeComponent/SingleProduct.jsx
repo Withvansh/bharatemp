@@ -1037,7 +1037,7 @@ export default function ProductCard() {
           {/* Action Buttons */}
           <div className="flex flex-col gap-4" ref={actionButtonsRef}>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 items-stretch sm:items-center">
-              <button
+              {/* <button
                 onClick={handleBuyNowClick}
                 className="w-full sm:w-[200px] bg-[#1e3473] text-white py-4 md:py-3 rounded-2xl cursor-pointer font-medium hover:bg-[#162554] transition-colors flex items-center justify-center gap-2 mobile-checkout-button text-base"
               >
@@ -1059,7 +1059,7 @@ export default function ProductCard() {
                 ) : (
                   "Buy Now (1 item)"
                 )}
-              </button>
+              </button> */}
 
               {/* Add Zipcode Check Section */}
               <div className="flex items-center gap-2 flex-1 sm:flex-none">
@@ -1227,9 +1227,10 @@ export default function ProductCard() {
             </p>
             <button
               onClick={() => setShowDetailsModal(true)}
-              className="bg-[#1e3473] text-white px-4 py-2 rounded-xl font-medium mb-4"
+              className="bg-[#1E3473] text-white px-5 py-3 rounded-lg mb-6"
             >
               More Details
+
             </button>
           </div>
         </div>

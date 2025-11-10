@@ -1,101 +1,139 @@
-import image7 from '../../assets/homepage7.webp'
-import image8 from '../../assets/homepage8.webp'
-import image9 from '../../assets/homepage9.webp'
-import { Link } from 'react-router-dom';
+import React from "react";
+import image7 from "../../assets/homepage7.webp";
+import image8 from "../../assets/homepage8.webp";
+import image9 from "../../assets/homepage9.webp";
+import { Link } from "react-router-dom";
 
 const PromoSection = () => {
-    return (
-        <div className=" w-full    py-10   flex flex-col lg:flex-row gap-6 ">
-            {/* Left Main Card */}
-            <div className='lg:w-1/2  w-full relative'>
-                <div className="lg:col-span-1 bg-[#1e293b] rounded-2xl text-white flex  justify-between p-6 h-[390px] ">
-                    <div className='md:w-1/2 w-full'>
-                        <p className="text-[23.13px] mb-2">Rasberry Pie</p>
-                        <h2 className="lg:text-[58.45px] md:text-[30px] text-2xl font-bold leading-tight mb-2">Case BB-3</h2>
-                        <Link to="/product" className="bg-[#F7941D] text-[#000000] px-2 py-2 my-2 rounded-full font-semibold mb-4">
-                            Discover Now
-                        </Link>
-                        <p className="text-[12.49px] text-gray-300 py-2">BE THE FIRST TO OWN</p>
-                        <p className="text-[17px] font-medium ">From</p>
-                        <p className="text-[30px] font-medium"> ₹399</p>
-                    </div>
-                    <div className='w-full md:w-1/2 '>
-                        <img 
-                            src={image7}
-                            alt="Case BB-3"
-                            className='rotate-180 tranform scale-x-[-1] right-0 object-contain absolute bottom-0 md:w-[400px] w-[180px]  rounded-2xl'
-                        />
-                    </div>
-                </div>
-            </div>
-            {/* Right Grid Cards */}
-          
-            <div className='lg:w-1/2 w-full'>
-                <div className=" grid md:grid-cols-2 grid-cols-1 gap-4 ">
-                    {/* Card 1 */}
-                    <div className=" w-full bg-[#F6F6F6] rounded-2xl p-4 shadow-sm flex   justify-between relative">
-                        <div >
-                            <p className="text-blue-900 font-bold lg:text-[34.83px] lg:py-2 pt-6 md:px-0 text-2xl">3d Printer</p>
-                           <p className="text-sm text-[#f7941d] mb-2 py-2">Parts</p>
-                            <Link to="/product" className="bg-[#f7941d] text-white px-3  py-2 text-sm rounded-full">
-                                Discover Now
-                            </Link>
-                       </div>
-                        <img
-                            src={ image8}
-                            className="lg:w-56 w-32 h-auto object-contain absolute -right-2 bottom-0" />
-                    </div>
+  return (
+    <div className="w-full py-10 flex flex-col lg:flex-row gap-6">
+      {/* Left Main Banner */}
+      <div className="lg:w-1/2 w-full relative">
+        <div className="bg-[#1e293b] rounded-2xl text-white flex justify-between p-6 h-auto md:h-[390px] overflow-hidden">
+          <div className="md:w-1/2 w-full">
+            <p className="text-[23.13px] mb-2">Rasberry Pie</p>
+            <h2 className="lg:text-[58.45px] md:text-[30px] text-2xl font-bold leading-tight mb-2">
+              Case BB-3
+            </h2>
+            <Link
+              to="/product"
+              className="bg-[#F7941D] text-[#000000] px-3 py-2 my-2 rounded-full font-semibold inline-block"
+            >
+              Discover Now
+            </Link>
+            <p className="text-[12.49px] text-gray-300 py-2">
+              BE THE FIRST TO OWN
+            </p>
+            <p className="text-[17px] font-medium">From</p>
+            <p className="text-[30px] font-medium">₹399</p>
+          </div>
 
-                    {/* Card 2 */}
-                    <div className=" w-full bg-[#F6F6F6] rounded-2xl p-4 shadow-sm flex items-center gap-6 h-[186px]  justify-between relative">
-                        <div>
-                            <Link to="/product" className="bg-[#1E3473] text-white px-3 text-center text-[16px] py-2 rounded-full mb-1">
-                                Discover Now
-                            </Link>
-                            <p className="text-sm text-[#f7941d]  pt-4">Parts</p>
-                            <p className="text-[#1E3473] font-bold md:text-[34.83px] text-2xl">Drone BB-3</p>
-                        </div>
-                        <img
-                            src={image9}
-                            alt="Drone"
-                            className="md:w-56 w-32 h-auto object-contain absolute -right-4 md:-top-16 -top-8  "
-                        />
-                    </div>
+         <div className="w-full md:w-1/2 relative flex justify-center md:block">
+  <img
+    src={image7}
+    alt="Case BB-3"
+    className="transform rotate-180 scale-x-[-1] object-contain md:absolute md:bottom-0 md:right-0 md:w-[400px] w-[220px] mx-auto md:mx-0"
+    style={{
+      position: 'absolute',
+      right: 0,
+      bottom: 0,
+      marginRight: 0,
+    }}
+  />
+</div>
 
-                    {/* Card 3 (repeated like Card 2) */}
-                    <div className=" w-full bg-[#F6F6F6] rounded-2xl p-4 shadow-sm flex  items-center gap-6 h-[186px]  justify-between relative">
-                        <div>
-                            <Link to="/product" className="bg-[#1E3473] text-white px-3 py-2 text-[16px] rounded-full mb-1">
-                                Discover Now
-                            </Link>
-                            <p className="text-sm text-[#f7941d] py-2">Parts</p>
-                            <p className="text-[#1E3473] font-bold md:text-[34.83px] py-2 text-2xl">Drone BB-3</p>
-                        </div>
-                        <img
-                            src={image9}
-                            alt="Drone"
-                            className="md:w-40 w-28 h-auto object-contain absolute right-0 -top-8  "
-                        />
-                    </div>
-
-                    {/* Card 4 (like Card 1) */}
-                    <div className=" w-full bg-[#F6F6F6] rounded-2xl p-4 shadow-sm flex  justify-between relative">
-                        <div >
-                            <p className="text-blue-900 font-bold md:text-[34.83px] py-2 text-2xl">3d Printer</p>
-                           <p className="text-sm text-[#f7941d] mb-2 py-2">Parts</p>
-                            <Link tp="/product" className="bg-[#f7941d] text-white px-3  py-2 text-[16px] rounded-full">
-                                Discover Now
-                            </Link>
-                       </div>
-                        <img
-                            src={ image8}
-                            className="md:w-56 w-28 h-auto object-contain absolute -right-2 bottom-0" />
-                    </div>
-                </div>
-            </div>
         </div>
-       
-    );
+      </div>
+
+      {/* Right Grid Section */}
+      <div className="lg:w-1/2 w-full">
+        {/* Always 2 columns */}
+        <div
+          className="grid grid-cols-2 gap-4 w-full"
+          style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}
+        >
+          {[
+            { title: "3d Printer", color: "#f7941d", image: image8, dark: false },
+            { title: "Drone BB-3", color: "#1E3473", image: image9, dark: true },
+            { title: "Drone BB-3", color: "#1E3473", image: image9, dark: true },
+            { title: "3d Printer", color: "#f7941d", image: image8, dark: false },
+          ].map((card, i) => (
+            <div
+              key={i}
+              className="bg-[#F6F6F6] rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-center justify-between relative transition-all min-h-[250px] md:min-h-auto"
+            >
+              {/* --- Desktop layout (unchanged) --- */}
+              <div className="hidden md:flex items-center justify-between w-full">
+                <div>
+                  <p className="text-sm text-[#f7941d] mb-1">Parts</p>
+                  <p
+                    className={`font-bold text-[34.83px] ${
+                      card.dark ? "text-[#1E3473]" : "text-blue-900"
+                    }`}
+                  >
+                    {card.title}
+                  </p>
+                  <Link
+                    to="/product"
+                    className={`${
+                      card.dark
+                        ? "bg-[#1E3473] text-white"
+                        : "bg-[#f7941d] text-white"
+                    } px-3 py-2 text-sm rounded-full inline-block mt-2`}
+                  >
+                    Discover Now
+                  </Link>
+                </div>
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  className="w-40 h-auto object-contain"
+                />
+              </div>
+
+              {/* --- Mobile layout (equal height, image center, button below) --- */}
+              <div className="flex flex-col justify-between items-start w-full h-full md:hidden">
+                {/* Text */}
+                <div>
+                  <p className="text-sm text-[#f7941d] mb-1">Parts</p>
+                  <p
+                    className={`font-bold text-2xl ${
+                      card.dark ? "text-[#1E3473]" : "text-blue-900"
+                    }`}
+                  >
+                    {card.title}
+                  </p>
+                </div>
+
+                {/* Image */}
+                <div className="flex-1 flex flex-col justify-center items-center w-full mt-2">
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    className="w-28 h-auto object-contain"
+                  />
+                </div>
+
+                {/* Button below image */}
+                <div className="mt-4 w-full flex justify-start">
+                  <Link
+                    to="/product"
+                    className={`${
+                      card.dark
+                        ? "bg-[#1E3473] text-white"
+                        : "bg-[#f7941d] text-white"
+                    } px-3 py-2 text-sm rounded-full inline-block`}
+                  >
+                    Discover Now
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default PromoSection;

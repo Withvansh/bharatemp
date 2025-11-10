@@ -1102,7 +1102,7 @@ const Product = () => {
 
                       <div className="mt-auto pt-3 space-y-3">
                         <div className="flex gap-2">
-                          <button
+                          {/* <button
                             className={`font-medium py-2 px-3 rounded-2xl text-xs ${
                               product.product_instock === false || product.no_of_product_instock === 0
                                 ? "bg-gray-400 text-white cursor-not-allowed"
@@ -1116,7 +1116,7 @@ const Product = () => {
                               : loadingBuyNow[product._id]
                               ? "Buying..."
                               : "Buy Now"}
-                          </button>
+                          </button> */}
                           <button
                             className={`border py-2 px-3 rounded-2xl text-xs ${
                               product.product_instock === false || product.no_of_product_instock === 0

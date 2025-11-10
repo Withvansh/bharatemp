@@ -1603,3 +1603,103 @@
     background: #e88a1a;
   }
 }
+
+@media (max-width: 768px) {
+  .category-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    max-height: none; /* remove clipping */
+    gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .category-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    row-gap: 14px;
+    justify-items: center;
+  }
+
+  .category-grid-container a {
+    width: 100%;
+    max-width: 100px;
+  }
+
+  .category-grid-container img {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .category-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    justify-items: center;
+    row-gap: 12px;
+  }
+}
+
+/* 2x2 grid for ProductSlider on mobile  */
+@media (max-width: 768px) {
+  .mobile-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    justify-items: center !important;
+    align-items: stretch !important;
+  }
+
+  .mobile-grid > div {
+    width: 100% !important;
+    max-width: 180px !important;
+  }
+}
+
+/* ====== Mobile Popup Hover (only for screens ≤768px) ====== */
+@media (max-width: 768px) {
+  .usp-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  /* Show popup when the card is hovered or tapped */
+  .usp-card:hover .mobile-popup {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  .mobile-popup {
+    transform: scale(0.9);
+  }
+
+  /* Disable desktop hover effects */
+  .usp-card:hover {
+    box-shadow: none !important;
+  }
+
+  /* Optional - make popup slightly larger */
+  .mobile-popup {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* For desktop, make sure the popup stays hidden */
+@media (min-width: 769px) {
+  .mobile-popup {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .banner-height-mobile {
+    height: 250px !important;
+  }
+}
+
