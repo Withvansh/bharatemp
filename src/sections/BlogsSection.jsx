@@ -240,14 +240,15 @@ const BlogsSection = () => {
             </div>
 
             {/* View All Button */}
-            <div className="text-center">
-              <Link
-                to="/blogs"
-                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 md:py-3 md:px-8 md:text-base py-2 px-4 text-sm"
-              >
-                View All Blogs
-              </Link>
-            </div>
+<div className="text-center mt-8 md:mt-12">
+  <Link
+    to="/blogs"
+    className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 md:py-3 md:px-8 md:text-base py-2 px-4 text-sm"
+  >
+    View All Blogs
+  </Link>
+</div>
+
           </>
         ) : (
           <div className="text-center py-12">
