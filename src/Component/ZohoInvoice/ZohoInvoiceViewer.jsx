@@ -13,16 +13,32 @@ const ZohoInvoiceViewer = ({ orderId, onClose }) => {
   useEffect(() => {
     const fetchZohoInvoice = async () => {
       try {
-        const response = await axios.get(`${backend}/zoho/invoice/order/${orderId}`);
+        const token = localStorage.getItem('token');
+        const parsedToken = token?.startsWith('"') ? JSON.parse(token) : token;
+        
+        const response = await axios.get(`${backend}/api/v1/user/invoice/order/${orderId}`, {
+          headers: {
+            'Authorization': `Bearer ${parsedToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
         
         if (response.data?.status === 'Success') {
           setZohoInvoice(response.data.data.zoho_invoice);
         } else {
-          setError('Zoho invoice not found for this order');
+          setError(response.data?.data?.message || 'Invoice not found for this order');
         }
       } catch (error) {
-        console.error('Error fetching Zoho invoice:', error);
-        setError('Failed to load Zoho invoice details');
+        console.error('Error fetching invoice:', error);
+        if (error.response?.status === 404) {
+          setError('Invoice not yet generated for this order. Please try again later.');
+        } else if (error.response?.status === 403) {
+          setError('Access denied: This is not your order.');
+        } else if (error.response?.data?.data?.message) {
+          setError(error.response.data.data.message);
+        } else {
+          setError('Failed to load invoice details. Please try again.');
+        }
       } finally {
         setLoading(false);
       }
@@ -35,29 +51,53 @@ const ZohoInvoiceViewer = ({ orderId, onClose }) => {
 
   const handleDownloadPDF = async () => {
     try {
-      if (!zohoInvoice?.zoho_invoice_id) {
-        toast.error('Invoice ID not available');
+      if (!orderId) {
+        toast.error('Order ID not available');
         return;
       }
 
+      toast.info('Preparing professional invoice download...');
+      
+      const token = localStorage.getItem('token');
+      const parsedToken = token?.startsWith('"') ? JSON.parse(token) : token;
+      
       const response = await axios.get(
-        `${backend}/zoho/invoice/${zohoInvoice.zoho_invoice_id}/download`,
-        { responseType: 'blob' }
+        `${backend}/api/v1/user/invoice/download/${orderId}`,
+        { 
+          responseType: 'blob',
+          headers: {
+            'Authorization': `Bearer ${parsedToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `invoice-${zohoInvoice.zoho_invoice_number || 'bharatronix'}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast.success('Invoice downloaded successfully!');
+      // Check if response is actually a PDF
+      if (response.data.type === 'application/pdf' || response.headers['content-type']?.includes('pdf')) {
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `bharatronix-invoice-${zohoInvoice?.zoho_invoice_number || orderId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        
+        toast.success('Professional invoice downloaded successfully!');
+      } else {
+        throw new Error('Invalid file format received');
+      }
     } catch (error) {
       console.error('Error downloading invoice:', error);
-      toast.error('Failed to download invoice');
+      if (error.response?.status === 404) {
+        toast.error('Invoice not available for download. Please contact support.');
+      } else if (error.response?.status === 403) {
+        toast.error('Access denied: This is not your order.');
+      } else if (error.response?.status === 500) {
+        toast.error('Server error while generating PDF. Please try again.');
+      } else {
+        toast.error('Failed to download invoice. Please try again.');
+      }
     }
   };
 
@@ -126,13 +166,17 @@ const ZohoInvoiceViewer = ({ orderId, onClose }) => {
         </div>
 
         <div className="space-y-3">
-          {zohoInvoice?.zoho_sync_status === 'success' && (
+          {zohoInvoice?.zoho_sync_status === 'success' ? (
             <button
               onClick={handleDownloadPDF}
               className="w-full bg-[#1e3473] text-white py-3 px-4 rounded-lg hover:bg-[#162554] transition-colors font-medium"
             >
               📥 Download Professional Invoice (PDF)
             </button>
+          ) : (
+            <div className="w-full bg-yellow-50 border border-yellow-200 text-yellow-800 py-3 px-4 rounded-lg text-center">
+              📄 Invoice is being generated. Please try again in a few minutes.
+            </div>
           )}
           
           <button
